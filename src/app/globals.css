@@ -485,11 +485,11 @@
     text-wrap: pretty;
   }
 
-  /* Seis hechos y tres detalles: 3 y 2 columnas reparten ambos en filas
-     completas, así que nunca queda una celda huérfana al final. */
+  /* Seis hechos reparten en filas completas tanto a dos como a tres columnas.
+     Los tres detalles solo lo hacen a tres: a dos, el tercero quedaría solo en
+     una fila con el hueco al lado, así que hasta 900px se apilan. */
   @media (min-width: 600px) {
-    .ar-facts,
-    .ar-details {
+    .ar-facts {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
