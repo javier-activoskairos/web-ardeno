@@ -138,3 +138,603 @@
     @apply font-sans;
   }
 }
+
+/* ====================================================================
+   ARDENO DESIGN DNA
+   Portado de tokens/web.css del Ardeno Group Design System.
+   Fuente de verdad del lenguaje visual de la web. Los valores marcados
+   [~] están medidos sobre una captura del sitio en producción, no
+   calculados desde su CSS; corregibles en una pasada.
+   ==================================================================== */
+
+:root {
+  /* ---------- Superficies ---------- */
+  --w-bg: #ffffff; /* [~] fondo de página: blanco, no hueso */
+  --w-panel: #f0f0ee; /* [~] panel claro */
+  --w-panel-2: #e7e7e4; /* [~] panel hover */
+  --w-black: #0e1419; /* [~] barra de cabecera */
+  --w-hero-top: #080c10; /* [~] origen del degradado del hero */
+
+  /* ---------- Tinta ---------- */
+  --w-ink: #1a1f24; /* [~] texto principal */
+  --w-ink-2: #555d66; /* oscurecido desde el medido #6E7680 por AA */
+  --w-ink-3: #656d76; /* oscurecido desde el medido #A8AEB4 por AA */
+  --w-tint-lg: #7e868e; /* tinte claro, solo display >= 24px (AA 3:1) */
+  --w-on-dark: #ffffff;
+  --w-on-dark-2: rgba(255, 255, 255, 0.74);
+  --w-on-dark-3: rgba(255, 255, 255, 0.5);
+
+  /* ---------- Líneas ---------- */
+  --w-line: #e2e2df; /* [~] hairline sobre claro */
+  --w-line-dark: rgba(255, 255, 255, 0.16);
+
+  /* ---------- Semántico ----------
+     El cian del sistema (#3FB6E8) queda reservado a estados verificados.
+     En este bloque no hay ninguno, así que el anillo de foco usa tinta. */
+  --w-error: #9a3b30;
+  --w-error-soft: #f6e9e7;
+  --w-focus: #1a1f24;
+  --w-focus-on-dark: #ffffff;
+
+  /* ---------- Tipografía ----------
+     La cara de producción es Satoshi Variable; no fue entregada, así que
+     --w-font resuelve al sustituto documentado (Hanken Grotesk). Sin serif. */
+  --w-font: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --w-fw-light: 300;
+  --w-fw-regular: 400;
+  --w-fw-medium: 500;
+  --w-fw-bold: 700;
+
+  --w-hero: clamp(2.25rem, 4.2vw, 3.5rem);
+  --w-display: clamp(1.625rem, 2.3vw, 2rem);
+  --w-h3: clamp(1.25rem, 1.6vw, 1.375rem);
+  --w-h4: 1rem;
+  --w-body: 0.9375rem;
+  --w-body-sm: 0.875rem;
+  --w-nav: 0.8125rem;
+  --w-label: 0.6875rem;
+  --w-stat: clamp(1.5rem, 2.2vw, 1.875rem);
+
+  --w-lh-hero: 1.14;
+  --w-lh-display: 1.24;
+  --w-lh-body: 1.72;
+  --w-ls-hero: -0.005em;
+  --w-ls-label: 0.14em;
+
+  /* ---------- Layout ---------- */
+  --w-container: 1040px;
+  --w-gutter: clamp(1.25rem, 5vw, 2.5rem);
+  --w-section-y: clamp(4.5rem, 8vw, 9rem);
+  --w-section-y-sm: clamp(2.5rem, 5vw, 4.5rem);
+  --w-header-h: 72px;
+  --w-measure: 62ch;
+
+  /* ---------- Forma ---------- */
+  --w-r-img: 10px;
+  --w-r-field: 6px;
+  --w-r-pill: 999px;
+  --w-btn-h: 44px;
+
+  /* ---------- Movimiento ---------- */
+  --w-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --w-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --w-t-fast: 160ms;
+  --w-t: 260ms;
+}
+
+/* Puente con Tailwind 4: se referencian los tokens, no se duplican valores.
+   Habilita utilidades como `bg-w-bg`, `text-w-ink-2`, `border-w-line`. */
+@theme inline {
+  --color-w-bg: var(--w-bg);
+  --color-w-panel: var(--w-panel);
+  --color-w-black: var(--w-black);
+  --color-w-ink: var(--w-ink);
+  --color-w-ink-2: var(--w-ink-2);
+  --color-w-ink-3: var(--w-ink-3);
+  --color-w-line: var(--w-line);
+  --color-w-error: var(--w-error);
+  --font-w: var(--w-font);
+}
+
+@layer components {
+  /* ---------- Estructura ---------- */
+  .ar-wrap {
+    max-width: var(--w-container);
+    margin-inline: auto;
+    padding-inline: var(--w-gutter);
+  }
+  .ar-sec {
+    padding-block: var(--w-section-y);
+  }
+  .ar-sec--tight {
+    padding-block: var(--w-section-y-sm);
+  }
+
+  /* ---------- Skip link ---------- */
+  .ar-skip {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 999;
+    background: var(--w-bg);
+    color: var(--w-ink);
+    padding: 12px 18px;
+    font-weight: var(--w-fw-medium);
+  }
+  .ar-skip:focus {
+    left: 12px;
+    top: 12px;
+  }
+
+  /* ---------- Tipografía ---------- */
+  .ar-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    font-size: var(--w-label);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-ink-2);
+  }
+  .ar-eyebrow::before {
+    content: "";
+    flex: none;
+    width: 26px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.5;
+  }
+  .ar-on-dark .ar-eyebrow {
+    color: var(--w-on-dark-2);
+  }
+  .ar-label {
+    font-size: var(--w-label);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-ink-2);
+  }
+  .ar-on-dark .ar-label {
+    color: var(--w-on-dark-2);
+  }
+  .ar-display {
+    margin: 0;
+    font-size: var(--w-display);
+    font-weight: var(--w-fw-regular);
+    line-height: var(--w-lh-display);
+    text-wrap: pretty;
+  }
+  .ar-tint {
+    color: var(--w-ink-3);
+  }
+  .ar-display .ar-tint,
+  .ar-hero__title .ar-tint {
+    color: var(--w-tint-lg);
+  }
+  .ar-on-dark .ar-tint {
+    color: var(--w-on-dark-3);
+  }
+  .ar-body {
+    margin: 0;
+    max-width: var(--w-measure);
+    font-size: var(--w-body);
+    line-height: var(--w-lh-body);
+    color: var(--w-ink-2);
+    text-wrap: pretty;
+  }
+  .ar-on-dark .ar-body {
+    color: var(--w-on-dark-2);
+  }
+
+  /* ---------- Botón ---------- */
+  .ar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: var(--w-btn-h);
+    padding-inline: 22px;
+    border: 1px solid transparent;
+    border-radius: var(--w-r-pill);
+    font-family: inherit;
+    font-size: var(--w-body-sm);
+    font-weight: var(--w-fw-medium);
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background var(--w-t-fast) var(--w-ease),
+      color var(--w-t-fast) var(--w-ease),
+      border-color var(--w-t-fast) var(--w-ease),
+      transform var(--w-t-fast) var(--w-ease);
+  }
+  .ar-btn:active {
+    transform: translateY(1px);
+  }
+  .ar-btn[disabled] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .ar-btn--primary {
+    background: var(--w-ink);
+    color: #fff;
+  }
+  .ar-btn--primary:hover {
+    background: #000;
+  }
+  .ar-btn--secondary {
+    background: var(--w-panel);
+    color: var(--w-ink);
+  }
+  .ar-btn--secondary:hover {
+    background: var(--w-panel-2);
+  }
+  .ar-btn--light {
+    background: #fff;
+    color: var(--w-ink);
+  }
+  .ar-btn--light:hover {
+    background: var(--w-panel);
+  }
+  .ar-btn--ghost {
+    background: transparent;
+    color: #fff;
+    border-color: var(--w-line-dark);
+  }
+  .ar-btn--ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* ---------- Cabecera de proyecto ---------- */
+  .ar-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(14, 20, 25, 0.92);
+    border-bottom: 1px solid var(--w-line-dark);
+  }
+  .ar-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: var(--w-header-h);
+  }
+  .ar-header__mark {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    flex: none;
+  }
+
+  /* ---------- Hero ---------- */
+  .ar-hero {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100svh - var(--w-header-h));
+    background: var(--w-hero-top);
+    color: var(--w-on-dark);
+  }
+  .ar-hero__plate {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    padding: clamp(2rem, 6vh, 4rem) var(--w-gutter) 0;
+  }
+  .ar-hero__body {
+    flex: none;
+    padding-block: clamp(2.5rem, 5vw, 4.5rem);
+  }
+  .ar-hero__title {
+    margin: 0;
+    font-size: var(--w-hero);
+    font-weight: var(--w-fw-light);
+    line-height: var(--w-lh-hero);
+    letter-spacing: var(--w-ls-hero);
+    text-wrap: balance;
+  }
+  .ar-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    margin: 1.125rem 0 0;
+    font-size: var(--w-label);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-on-dark-2);
+  }
+  .ar-hero__sep {
+    flex: none;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--w-on-dark-3);
+  }
+  .ar-hero__thesis {
+    margin: 1.75rem 0 0;
+    max-width: 42ch;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.92);
+  }
+  .ar-hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 2.25rem;
+  }
+
+  /* ---------- Imagen pendiente ----------
+     No hay fotografía del proyecto. En lugar de una imagen genérica —que
+     induciría a error sobre cómo será el desarrollo— se muestra una plancha
+     vacía con el símbolo de la marca: el mismo recurso que el design system
+     usa en las fichas sin portada. Fondo claro para que el símbolo navy tenga
+     contraste real; es lo único claro dentro de un hero oscuro, así que se lee
+     como marco a la espera de imagen, nunca como fotografía. */
+  .ar-pending {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(14px, 2.5vh, 22px);
+    width: min(460px, 100%);
+    aspect-ratio: 16 / 10;
+    margin: 0;
+    padding: 1.5rem;
+    background: var(--w-panel);
+    border: 1px solid var(--w-line);
+    border-radius: var(--w-r-img);
+  }
+  .ar-pending__mark {
+    /* El símbolo son trazos muy finos (ocupan ~8% de su caja): necesita
+       tamaño y opacidad altas para leerse. Aun así queda delicado, que es
+       el registro de la marca. */
+    width: clamp(112px, 16vw, 168px);
+    height: auto;
+    opacity: 0.9;
+  }
+  .ar-pending__note {
+    margin: 0;
+    font-size: var(--w-label);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-ink-2);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  /* ---------- Snapshot ---------- */
+  .ar-snap {
+    display: grid;
+    grid-template-columns: repeat(var(--ar-snap-cols, 3), minmax(0, 1fr));
+    border-top: 1px solid var(--w-line);
+    border-bottom: 1px solid var(--w-line);
+  }
+  .ar-snap__cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: clamp(1.75rem, 3vw, 2.25rem) clamp(1rem, 2vw, 1.75rem);
+    border-right: 1px solid var(--w-line);
+    text-align: center;
+  }
+  .ar-snap__cell:last-child {
+    border-right: none;
+  }
+  .ar-snap__val {
+    font-size: var(--w-stat);
+    font-weight: var(--w-fw-light);
+    line-height: 1.05;
+    color: var(--w-ink);
+    font-variant-numeric: tabular-nums;
+    text-wrap: balance;
+  }
+  .ar-snap__cell .ar-label {
+    line-height: 1.35;
+  }
+
+  /* ---------- Formulario ---------- */
+  .ar-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .ar-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ar-field > label {
+    font-size: var(--w-label);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--w-ink-2);
+  }
+  .ar-input {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 14px;
+    border: 1px solid var(--w-line);
+    border-radius: var(--w-r-field);
+    background: #fff;
+    font-family: inherit;
+    font-size: var(--w-body-sm);
+    color: var(--w-ink);
+    outline: none;
+    transition:
+      border-color var(--w-t-fast),
+      box-shadow var(--w-t-fast);
+  }
+  .ar-input::placeholder {
+    color: var(--w-ink-3);
+  }
+  .ar-input:focus {
+    border-color: var(--w-ink-2);
+    box-shadow: 0 0 0 3px rgba(26, 31, 36, 0.12);
+  }
+  .ar-input[aria-invalid="true"] {
+    border-color: var(--w-error);
+  }
+  textarea.ar-input {
+    min-height: 96px;
+    resize: vertical;
+  }
+  .ar-err {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--w-error);
+  }
+  .ar-alert {
+    padding: 12px 14px;
+    border: 1px solid rgba(154, 59, 48, 0.22);
+    border-radius: var(--w-r-field);
+    background: var(--w-error-soft);
+    color: var(--w-error);
+    font-size: var(--w-body-sm);
+    line-height: 1.5;
+  }
+  .ar-row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  /* ---------- Modal ---------- */
+  .ar-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(0.75rem, 3vw, 2rem);
+    background: rgba(8, 12, 16, 0.72);
+    overflow-y: auto;
+  }
+  .ar-modal__panel {
+    position: relative;
+    width: min(560px, 100%);
+    margin: auto;
+    padding: clamp(1.5rem, 3.5vw, 2.75rem);
+    border-radius: 6px;
+    background: var(--w-bg);
+    color: var(--w-ink);
+    animation: ar-rise 220ms var(--w-ease-out) both;
+  }
+  .ar-modal__close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--w-ink-2);
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .ar-modal__close:hover {
+    background: var(--w-panel);
+    color: var(--w-ink);
+  }
+  .ar-modal__note {
+    margin: 1rem 0 0;
+    padding-top: 0.875rem;
+    border-top: 1px solid var(--w-line);
+    font-size: 0.6875rem;
+    line-height: 1.6;
+    color: var(--w-ink-2);
+  }
+
+  @keyframes ar-rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@layer base {
+  .ar-page {
+    background: var(--w-bg);
+    color: var(--w-ink);
+    font-family: var(--w-font);
+    font-size: var(--w-body);
+    line-height: var(--w-lh-body);
+  }
+  .ar-page :focus-visible {
+    outline: 2px solid var(--w-focus);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  .ar-on-dark :focus-visible {
+    outline-color: var(--w-focus-on-dark);
+  }
+}
+
+@media (max-width: 600px) {
+  /* En una sola columna el separador quedaría colgando al final de línea:
+     se apila la meta y se retira el punto. */
+  .ar-hero__meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+  }
+  .ar-hero__sep {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .ar-snap {
+    grid-template-columns: repeat(
+      min(var(--ar-snap-cols, 3), 2),
+      minmax(0, 1fr)
+    );
+  }
+  .ar-snap__cell {
+    padding: 1.375rem 0.75rem;
+  }
+  .ar-snap__cell:nth-child(2n) {
+    border-right: none;
+  }
+  .ar-snap__cell:nth-child(2n + 1) {
+    border-right: 1px solid var(--w-line);
+  }
+  .ar-snap__cell:nth-child(n + 3) {
+    border-top: 1px solid var(--w-line);
+  }
+  .ar-snap__cell:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    border-right: none;
+  }
+  .ar-row2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ar-modal__panel {
+    animation: none;
+  }
+  .ar-btn,
+  .ar-input {
+    transition: none;
+  }
+}

@@ -1,9 +1,11 @@
 import { defineRouting } from "next-intl/routing";
 
-// Idiomas que sirve la web. El idioma por defecto se sirve en `/`,
-// el resto con prefijo (`/en`, `/fr`, ...). Ajustar por proyecto.
+// Ardeno sirve en inglés (primario) y español. El español queda preparado a
+// nivel de rutas, pero la ficha de proyecto no se publica hasta que exista
+// traducción aprobada. `always` mantiene el prefijo en ambos idiomas para que
+// las URL canónicas (/en/..., /es/...) sean estables.
 export const routing = defineRouting({
-  locales: ["es", "en", "fr", "it", "pt"],
-  defaultLocale: "es",
-  localePrefix: "as-needed",
+  locales: ["en", "es"],
+  defaultLocale: "en",
+  localePrefix: "always",
 });
