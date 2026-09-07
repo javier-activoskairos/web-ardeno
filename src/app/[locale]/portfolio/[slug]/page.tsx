@@ -11,6 +11,7 @@ import {
   ProjectHero,
   ProjectSnapshot,
 } from "@/components/ardeno/project-sections";
+import { SiteFooter } from "@/components/ardeno/site-footer";
 import { getPublicProject, getPublishedProjectSlugs } from "@/lib/projects";
 
 /**
@@ -86,6 +87,8 @@ export default async function ProjectPage({
           <ProjectStory project={project} />
           <ProjectArchitecture project={project} />
         </main>
+
+        <SiteFooter />
       </div>
     </InterestProvider>
   );

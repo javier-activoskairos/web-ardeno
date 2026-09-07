@@ -500,6 +500,50 @@
     }
   }
 
+  /* ---------- Footer ----------
+     Tres zonas: aviso legal, símbolo y contacto. Sin navegación, porque
+     todavía no hay ninguna otra ruta publicada a la que enlazar. */
+  .ar-footer {
+    background: var(--w-bg);
+    color: var(--w-ink);
+    border-top: 1px solid var(--w-line);
+    padding-block: 50px;
+  }
+  .ar-footer__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 20px;
+  }
+  .ar-footer small {
+    display: block;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    line-height: 1.55;
+    color: var(--w-ink);
+  }
+  .ar-footer__contact {
+    text-align: right;
+  }
+  .ar-footer a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .ar-footer a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* El símbolo se pinta desde el token: el PNG solo aporta la silueta, así el
+     navy sale de la marca y no del archivo. */
+  .ar-footer__mark {
+    justify-self: center;
+    width: 34px;
+    aspect-ratio: 1204 / 1432;
+    background-color: var(--w-navy);
+    -webkit-mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
+    mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
+  }
+
   /* ---------- Botón ---------- */
   .ar-btn {
     display: inline-flex;
@@ -1091,6 +1135,20 @@
   }
   .ar-row2 {
     grid-template-columns: 1fr;
+  }
+
+  /* Footer apilado: el símbolo abre y todo se centra. */
+  .ar-footer__inner {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+    gap: 24px;
+  }
+  .ar-footer__mark {
+    order: -1;
+  }
+  .ar-footer__contact {
+    text-align: center;
   }
 
   /* En pantallas pequeñas el diálogo se aprieta solo donde la separación no
