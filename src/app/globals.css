@@ -470,33 +470,31 @@
   }
 
   /* ---------- Imagen pendiente ----------
-     No hay fotografía del proyecto. En lugar de una imagen genérica —que
-     induciría a error sobre cómo será el desarrollo— se muestra una plancha
-     vacía con el símbolo de la marca: el mismo recurso que el design system
-     usa en las fichas sin portada. Fondo claro para que el símbolo navy tenga
-     contraste real; es lo único claro dentro de un hero oscuro, así que se lee
-     como marco a la espera de imagen, nunca como fotografía. */
+     No hay fotografía del proyecto. En lugar de una imagen genérica o de
+     archivo —que induciría a error sobre cómo será el desarrollo— se muestra
+     un marco vacío con el símbolo de la marca en blanco sobre el hero oscuro,
+     que es la expresión "sobre navy" del propio manual. Se lee como un lugar
+     reservado a la imagen, nunca como una fotografía. */
   .ar-pending {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: clamp(14px, 2.5vh, 22px);
+    gap: clamp(16px, 3vh, 26px);
     width: min(460px, 100%);
     aspect-ratio: 16 / 10;
     margin: 0;
     padding: 1.5rem;
-    background: var(--w-panel);
-    border: 1px solid var(--w-line);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--w-line-dark);
     border-radius: var(--w-r-img);
   }
   .ar-pending__mark {
-    /* El símbolo son trazos muy finos (ocupan ~8% de su caja): necesita
-       tamaño y opacidad altas para leerse. Aun así queda delicado, que es
-       el registro de la marca. */
-    width: clamp(112px, 16vw, 168px);
+    /* El símbolo son trazos muy finos (ocupan ~9% de su caja): necesita
+       tamaño para leerse. Queda delicado, que es el registro de la marca. */
+    width: clamp(104px, 15vw, 156px);
     height: auto;
-    opacity: 0.9;
+    opacity: 0.55;
   }
   .ar-pending__note {
     margin: 0;
@@ -504,7 +502,7 @@
     font-weight: var(--w-fw-medium);
     letter-spacing: var(--w-ls-label);
     text-transform: uppercase;
-    color: var(--w-ink-2);
+    color: var(--w-on-dark-2);
     text-align: center;
     text-wrap: balance;
   }

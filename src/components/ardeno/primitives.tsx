@@ -91,9 +91,10 @@ export function ArdenoButton({
  * Estado explícito de ausencia de fotografía.
  *
  * No hay material gráfico del proyecto. En lugar de una imagen genérica o de
- * archivo —que induciría a error sobre cómo será el desarrollo— se muestra una
- * plancha vacía con el símbolo de la marca y una nota legible. La nota es
- * contenido real, no decoración: se anuncia a lectores de pantalla.
+ * archivo —que induciría a error sobre cómo será el desarrollo— se muestra un
+ * marco vacío con el símbolo de la marca en blanco sobre el hero oscuro, que
+ * es su expresión "sobre navy". La nota es contenido real, no decoración: se
+ * anuncia a lectores de pantalla.
  */
 export function ImagePending({
   note = "Project imagery pending",
@@ -105,10 +106,10 @@ export function ImagePending({
   return (
     <figure className={cn("ar-pending", className)}>
       <Image
-        src="/logos/ardeno-symbol-navy.png"
+        src="/logos/ardeno-symbol-white.png"
         alt=""
-        width={1215}
-        height={1442}
+        width={1204}
+        height={1432}
         priority
         sizes="200px"
         className="ar-pending__mark"
