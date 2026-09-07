@@ -298,6 +298,11 @@
   .ar-sec--tight {
     padding-block: var(--w-section-y-sm);
   }
+  /* Superficie clara de contraste. Es el panel medido del sitio real; el
+     texto secundario sobre él llega a 5.85:1, por encima de AA. */
+  .ar-stone {
+    background: var(--w-panel);
+  }
 
   /* ---------- Skip link ---------- */
   .ar-skip {
@@ -380,6 +385,119 @@
   }
   .ar-on-dark .ar-body {
     color: var(--w-on-dark-2);
+  }
+
+  /* Entradilla: un peldaño por encima del cuerpo, dentro de la escala
+     verificada. Abre la narrativa sin necesidad de un segundo titular. */
+  .ar-lede {
+    margin: 0;
+    max-width: min(52ch, var(--w-editorial));
+    font-size: var(--w-s-22);
+    line-height: 1.5;
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink);
+    text-wrap: pretty;
+  }
+
+  /* ---------- The project ----------
+     Titular a la izquierda, prosa a la derecha. En una sola columna ambos
+     competirían por los 1360px del contenedor y la línea se haría ilegible;
+     así el cuerpo queda acotado por su propia columna y por la medida. */
+  .ar-story {
+    display: grid;
+    gap: var(--w-section-y-sm);
+  }
+  .ar-story__title {
+    margin-top: 20px;
+    max-width: 18ch;
+  }
+  .ar-story__body {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  @media (min-width: 900px) {
+    .ar-story {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(32px, 4vw, 50px);
+      align-items: start;
+    }
+  }
+
+  /* ---------- Architecture and living ----------
+     Desarrolla el snapshot en lugar de repetirlo: aquí la etiqueta va encima
+     de la cifra y todo se alinea a la izquierda sobre un filete, mientras que
+     el snapshot centra la cifra sobre la etiqueta. Sin tarjetas ni sombras. */
+  .ar-arch__title {
+    max-width: 20ch;
+  }
+  .ar-facts {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 clamp(24px, 4vw, 50px);
+    margin: 50px 0 0;
+  }
+  .ar-fact {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-block: 20px;
+    border-top: 1px solid var(--w-line);
+  }
+  .ar-fact__val {
+    margin: 0;
+    font-size: var(--w-s-22);
+    line-height: 1.2;
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ar-details {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 clamp(24px, 4vw, 50px);
+    margin-top: 50px;
+  }
+  .ar-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-block: 24px;
+    border-top: 1px solid var(--w-line);
+  }
+  .ar-detail__title {
+    margin: 0;
+    font-size: var(--w-s-22);
+    font-weight: var(--w-fw-regular);
+    line-height: 1.2;
+    letter-spacing: var(--w-ls-display);
+    color: var(--w-ink);
+  }
+  .ar-detail__body {
+    margin: 0;
+    max-width: 46ch;
+    font-size: var(--w-body);
+    line-height: var(--w-lh-body);
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink-2);
+    text-wrap: pretty;
+  }
+
+  /* Seis hechos y tres detalles: 3 y 2 columnas reparten ambos en filas
+     completas, así que nunca queda una celda huérfana al final. */
+  @media (min-width: 600px) {
+    .ar-facts,
+    .ar-details {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 900px) {
+    .ar-facts,
+    .ar-details {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 
   /* ---------- Botón ---------- */

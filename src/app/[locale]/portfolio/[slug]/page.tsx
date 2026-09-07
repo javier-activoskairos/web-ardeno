@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { InterestProvider } from "@/components/ardeno/interest-modal";
 import {
+  ProjectArchitecture,
+  ProjectStory,
+} from "@/components/ardeno/project-content";
+import {
   ProjectHeader,
   ProjectHero,
   ProjectSnapshot,
@@ -79,6 +83,8 @@ export default async function ProjectPage({
         <main id="project-content">
           <ProjectHero project={project} />
           <ProjectSnapshot project={project} />
+          <ProjectStory project={project} />
+          <ProjectArchitecture project={project} />
         </main>
       </div>
     </InterestProvider>
