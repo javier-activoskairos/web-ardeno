@@ -35,15 +35,17 @@ export async function generateMetadata({
   const project = getPublicProject(slug);
 
   if (locale !== PUBLISHED_LOCALE || !project) {
-    return { title: "Ardeno Group" };
+    return { title: { absolute: "Ardeno Group" } };
   }
 
   const description = `${project.typology} in ${project.city}, ${project.state}.`;
 
+  // El sufijo de marca lo pone la plantilla del layout: aquí solo el proyecto.
   return {
-    title: `${project.name} — Ardeno Group`,
+    title: project.name,
     description,
     openGraph: {
+      siteName: "Ardeno Group",
       title: `${project.name} — Ardeno Group`,
       description,
       locale,

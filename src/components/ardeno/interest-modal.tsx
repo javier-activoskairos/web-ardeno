@@ -208,142 +208,143 @@ export function InterestProvider({
             aria-labelledby={titleId}
             ref={panelRef}
           >
-            <button
-              type="button"
-              className="ar-modal__close"
-              onClick={close}
-              aria-label="Close"
-            >
-              ✕
-            </button>
-
-            <p className="ar-eyebrow">{projectName}</p>
-            <h2
-              id={titleId}
-              className="ar-display"
-              style={{ marginTop: "1rem" }}
-            >
-              Interested in this project?
-            </h2>
-            <p className="ar-body" style={{ marginTop: 12, maxWidth: "42ch" }}>
-              Leave your details and our team will share the latest verified
-              project information.
-            </p>
-
-            <form
-              className="ar-form"
-              noValidate
-              onSubmit={onSubmit}
-              style={{ marginTop: "1.75rem" }}
-            >
-              {submitted ? (
-                <div className="ar-alert" role="alert">
-                  We cannot send your request yet. The enquiry integration is
-                  not configured for this project.
-                  <span className="mt-2 block border-t border-[rgba(154,59,48,0.22)] pt-2 text-[var(--w-ink-2)] text-[var(--w-s-14)]">
-                    Nothing was sent or stored. Please contact the Ardeno team
-                    directly in the meantime.
-                  </span>
-                </div>
-              ) : null}
-
-              <ArdenoField
-                id={fieldId("name")}
-                label="Name"
-                error={errors.name}
+            {/* Cabecera fija: en móvil el cuerpo scrollea por debajo y el
+                control de cierre sigue siempre a la vista. */}
+            <div className="ar-modal__head">
+              <p className="ar-eyebrow">{projectName}</p>
+              <button
+                type="button"
+                className="ar-modal__close"
+                onClick={close}
+                aria-label="Close"
               >
-                <ArdenoInput
-                  id={fieldId("name")}
-                  name="name"
-                  type="text"
-                  autoComplete="name"
-                  value={values.name}
-                  onChange={setField("name")}
-                  ref={(el) => {
-                    inputRefs.current.name = el;
-                  }}
-                  aria-invalid={errors.name ? "true" : undefined}
-                  aria-describedby={
-                    errors.name ? `${fieldId("name")}-error` : undefined
-                  }
-                />
-              </ArdenoField>
+                ✕
+              </button>
+            </div>
 
-              <div className="ar-row2">
-                <ArdenoField
-                  id={fieldId("email")}
-                  label="Email"
-                  error={errors.email}
-                >
-                  <ArdenoInput
-                    id={fieldId("email")}
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    value={values.email}
-                    onChange={setField("email")}
-                    ref={(el) => {
-                      inputRefs.current.email = el;
-                    }}
-                    aria-invalid={errors.email ? "true" : undefined}
-                    aria-describedby={
-                      errors.email ? `${fieldId("email")}-error` : undefined
-                    }
-                  />
-                </ArdenoField>
-
-                <ArdenoField
-                  id={fieldId("phone")}
-                  label="Phone"
-                  error={errors.phone}
-                >
-                  <ArdenoInput
-                    id={fieldId("phone")}
-                    name="phone"
-                    type="tel"
-                    autoComplete="tel"
-                    value={values.phone}
-                    onChange={setField("phone")}
-                    ref={(el) => {
-                      inputRefs.current.phone = el;
-                    }}
-                    aria-invalid={errors.phone ? "true" : undefined}
-                    aria-describedby={
-                      errors.phone ? `${fieldId("phone")}-error` : undefined
-                    }
-                  />
-                </ArdenoField>
-              </div>
-
-              <ArdenoField
-                id={fieldId("reason")}
-                label="Why are you interested in this project?"
-                optional
-              >
-                <ArdenoTextarea
-                  id={fieldId("reason")}
-                  name="reason"
-                  rows={3}
-                  value={values.reason}
-                  onChange={setField("reason")}
-                />
-              </ArdenoField>
-
-              {/* Superficie clara: es el único sitio de la ficha donde el CTA
-                  medido del sitio real se puede usar tal cual. */}
-              <ArdenoButton
-                type="submit"
-                variant="brand"
-                className="mt-1 self-start"
-              >
-                Express interest
-              </ArdenoButton>
-
-              <p className="ar-modal__note">
-                No enquiry is transmitted or stored while the integration is
-                pending. Nothing you type here leaves your browser.
+            <div className="ar-modal__body">
+              <h2 id={titleId} className="ar-display ar-modal__title">
+                Interested in this project?
+              </h2>
+              <p className="ar-body ar-modal__intro">
+                Leave your details and our team will share the latest verified
+                project information.
               </p>
-            </form>
+
+              <form
+                className="ar-form ar-modal__form"
+                noValidate
+                onSubmit={onSubmit}
+              >
+                {submitted ? (
+                  <div className="ar-alert" role="alert">
+                    We cannot send your request yet. The enquiry integration is
+                    not configured for this project.
+                    <span className="mt-2 block border-t border-[rgba(154,59,48,0.22)] pt-2 text-[var(--w-ink-2)] text-[var(--w-s-14)]">
+                      Nothing was sent or stored. Please contact the Ardeno team
+                      directly in the meantime.
+                    </span>
+                  </div>
+                ) : null}
+
+                <ArdenoField
+                  id={fieldId("name")}
+                  label="Name"
+                  error={errors.name}
+                >
+                  <ArdenoInput
+                    id={fieldId("name")}
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    value={values.name}
+                    onChange={setField("name")}
+                    ref={(el) => {
+                      inputRefs.current.name = el;
+                    }}
+                    aria-invalid={errors.name ? "true" : undefined}
+                    aria-describedby={
+                      errors.name ? `${fieldId("name")}-error` : undefined
+                    }
+                  />
+                </ArdenoField>
+
+                <div className="ar-row2">
+                  <ArdenoField
+                    id={fieldId("email")}
+                    label="Email"
+                    error={errors.email}
+                  >
+                    <ArdenoInput
+                      id={fieldId("email")}
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      value={values.email}
+                      onChange={setField("email")}
+                      ref={(el) => {
+                        inputRefs.current.email = el;
+                      }}
+                      aria-invalid={errors.email ? "true" : undefined}
+                      aria-describedby={
+                        errors.email ? `${fieldId("email")}-error` : undefined
+                      }
+                    />
+                  </ArdenoField>
+
+                  <ArdenoField
+                    id={fieldId("phone")}
+                    label="Phone"
+                    error={errors.phone}
+                  >
+                    <ArdenoInput
+                      id={fieldId("phone")}
+                      name="phone"
+                      type="tel"
+                      autoComplete="tel"
+                      value={values.phone}
+                      onChange={setField("phone")}
+                      ref={(el) => {
+                        inputRefs.current.phone = el;
+                      }}
+                      aria-invalid={errors.phone ? "true" : undefined}
+                      aria-describedby={
+                        errors.phone ? `${fieldId("phone")}-error` : undefined
+                      }
+                    />
+                  </ArdenoField>
+                </div>
+
+                <ArdenoField
+                  id={fieldId("reason")}
+                  label="Why are you interested in this project?"
+                  optional
+                >
+                  <ArdenoTextarea
+                    id={fieldId("reason")}
+                    name="reason"
+                    rows={3}
+                    value={values.reason}
+                    onChange={setField("reason")}
+                  />
+                </ArdenoField>
+
+                {/* Superficie clara: es el único sitio de la ficha donde el CTA
+                  medido del sitio real se puede usar tal cual. */}
+                <ArdenoButton
+                  type="submit"
+                  variant="brand"
+                  className="mt-1 self-start"
+                >
+                  Express interest
+                </ArdenoButton>
+
+                <p className="ar-modal__note">
+                  No enquiry is transmitted or stored while the integration is
+                  pending. Nothing you type here leaves your browser.
+                </p>
+              </form>
+            </div>
           </div>
         </div>
       ) : null}

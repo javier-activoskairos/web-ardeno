@@ -34,7 +34,7 @@ if (!NOTION_TOKEN || !NOTION_WEBS_DB || !NOTION_DEPLOYS_DB) {
   process.exit(0);
 }
 
-// Stack por defecto del boilerplate; ajustar por repo si cambia.
+// Stack del repositorio; ajustar si cambia.
 const STACK = ["Next.js", "TypeScript", "Tailwind", "shadcn/ui"];
 
 const headers = {

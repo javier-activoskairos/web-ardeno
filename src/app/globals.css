@@ -619,6 +619,53 @@
     gap: 16px;
     margin-top: 32px;
   }
+  .ar-hero__media {
+    width: 100%;
+    height: auto;
+    border-radius: var(--w-r-img);
+  }
+
+  /* ---------- Hero sin media ----------
+     Sin fotografía aprobada no tiene sentido reservar el viewport completo:
+     el marco vacío quedaba flotando en un lienzo negro y el snapshot caía
+     fuera del primer visionado. Aquí el hero se dimensiona por su contenido y,
+     desde 1024px, reparte marco e información en dos columnas de igual peso.
+     En móvil se apila y mantiene el orden marco → información → CTA. */
+  .ar-hero--nomedia {
+    display: block;
+    min-height: 0;
+  }
+  .ar-hero--nomedia .ar-hero__split {
+    display: grid;
+    gap: var(--w-section-y-sm);
+    padding-block: var(--w-section-y);
+  }
+  .ar-hero--nomedia .ar-hero__plate {
+    flex: none;
+    display: block;
+    min-height: 0;
+    padding: 0;
+  }
+  .ar-hero--nomedia .ar-hero__body {
+    padding-block: 0;
+  }
+  /* El marco ocupa su columna entera: es un lugar reservado a la imagen del
+     proyecto, no una tarjeta pequeña centrada en el vacío. */
+  .ar-hero--nomedia .ar-pending {
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 16 / 10;
+  }
+
+  @media (min-width: 1024px) {
+    .ar-hero--nomedia .ar-hero__split {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: center;
+    }
+    .ar-hero--nomedia .ar-pending {
+      aspect-ratio: 1 / 1;
+    }
+  }
 
   /* ---------- Imagen pendiente ----------
      No hay fotografía del proyecto. En lugar de una imagen genérica o de
@@ -763,7 +810,25 @@
     gap: 1rem;
   }
 
-  /* ---------- Modal ---------- */
+  /* Ritmo interno del diálogo, en clases y no en estilos en línea, para poder
+     apretarlo en pantallas pequeñas sin tocar el componente. */
+  .ar-modal__title {
+    margin-top: 1rem;
+  }
+  .ar-modal__intro {
+    margin-top: 12px;
+    max-width: 42ch;
+  }
+  .ar-modal__form {
+    margin-top: 1.75rem;
+  }
+
+  /* ---------- Modal ----------
+     El scroll vive dentro del diálogo, nunca en la capa ni en el body: con la
+     capa scrollable, en móvil el gesto se propagaba a la página de detrás y el
+     panel se movía bajo el teclado virtual. La capa queda fija, el panel se
+     limita a la altura visible real —`dvh`, que descuenta la barra del
+     navegador— y su cuerpo scrollea con `overscroll-behavior: contain`. */
   .ar-modal {
     position: fixed;
     inset: 0;
@@ -771,24 +836,49 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: clamp(0.75rem, 3vw, 2rem);
+    padding: 12px;
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
     background: rgba(8, 12, 16, 0.72);
-    overflow-y: auto;
+    overflow: hidden;
+    overscroll-behavior: contain;
   }
   .ar-modal__panel {
     position: relative;
+    display: flex;
+    flex-direction: column;
     width: min(560px, 100%);
-    margin: auto;
-    padding: clamp(1.5rem, 3.5vw, 2.75rem);
+    /* 12px de margen arriba y abajo mientras el viewport lo permita. */
+    max-height: calc(100dvh - 24px);
     border-radius: var(--w-r);
     background: var(--w-bg);
     color: var(--w-ink);
     animation: ar-rise 220ms var(--w-ease-out) both;
   }
+  /* Cabecera fija: el control de cierre nunca se va con el scroll. */
+  .ar-modal__head {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 12px 12px clamp(1.5rem, 3.5vw, 2.75rem);
+    border-bottom: 1px solid transparent;
+  }
+  .ar-modal__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 clamp(1.5rem, 3.5vw, 2.75rem);
+    padding-bottom: max(
+      clamp(1.5rem, 3.5vw, 2.75rem),
+      env(safe-area-inset-bottom)
+    );
+  }
   .ar-modal__close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    flex: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -883,6 +973,32 @@
   }
   .ar-row2 {
     grid-template-columns: 1fr;
+  }
+
+  /* En pantallas pequeñas el diálogo se aprieta solo donde la separación no
+     aporta lectura. No se tocan ni el cuerpo de campo (16px), ni la altura de
+     los controles, ni las etiquetas, ni el textarea. */
+  .ar-modal__head {
+    padding-left: 20px;
+    padding-right: 8px;
+  }
+  .ar-modal__body {
+    padding-inline: 20px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+  .ar-modal__title {
+    margin-top: 8px;
+  }
+  .ar-modal__intro {
+    margin-top: 8px;
+  }
+  .ar-modal__form {
+    margin-top: 20px;
+    gap: 14px;
+  }
+  .ar-modal__note {
+    margin-top: 12px;
+    padding-top: 12px;
   }
 }
 

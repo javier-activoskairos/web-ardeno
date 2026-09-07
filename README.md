@@ -1,16 +1,15 @@
-# Kairos Boilerplate — Fábrica de Webs IA
+# web-ardeno
 
-Plantilla base para los sitios web de cliente de **Activos Kairos**. Cada proyecto
-nuevo parte de este repositorio (template) y se personaliza desde ahí.
+Sitio web de **Ardeno Group**, promotora inmobiliaria en Carolina del Norte.
 
 ## Stack
 
 - **Next.js 16** (App Router) + **TypeScript**
-- **Tailwind CSS v4** + **shadcn/ui** (Radix / base-nova)
-- **next-intl** — multi-idioma en el mismo repo (`es`, `en`, `fr`, `it`, `pt`)
+- **Tailwind CSS v4** + **shadcn/ui**
+- **next-intl** — `en` (publicado) y `es` (preparado, sin publicar)
+- Tipografías: **Manrope** (display y contenido) y **Geist** (navegación,
+  etiquetas, controles y botones), las dos caras verificadas del sitio real
 - SEO base: `metadata`, `sitemap.xml`, `robots.txt`
-- Deploy en **Render** (`render.yaml`) con previews por PR
-- Sync de estado a **Notion** vía GitHub Action
 
 ## Empezar
 
@@ -22,43 +21,53 @@ npm run dev                  # http://localhost:3000
 
 ## Scripts
 
-| Script                 | Acción                 |
-| ---------------------- | ---------------------- |
-| `npm run dev`          | Servidor de desarrollo |
-| `npm run build`        | Build de producción    |
-| `npm run start`        | Servir el build        |
-| `npm run lint`         | ESLint                 |
-| `npm run format`       | Formatear con Prettier |
-| `npm run format:check` | Verificar formato      |
+| Script                           | Acción                                        |
+| -------------------------------- | --------------------------------------------- |
+| `npm run dev`                    | Servidor de desarrollo                        |
+| `npm run build`                  | Build de producción                           |
+| `npm run start`                  | Servir el build                               |
+| `npm run lint`                   | ESLint                                        |
+| `npm run format`                 | Formatear con Prettier                        |
+| `npm run format:check`           | Verificar formato                             |
+| `node scripts/generate-icon.mjs` | Regenerar `src/app/icon.png` desde el símbolo |
+
+## Rutas
+
+| Ruta                            | Estado                                          |
+| ------------------------------- | ----------------------------------------------- |
+| `/en`                           | Redirección temporal (307) a la ficha publicada |
+| `/en/portfolio/720-sherrybrook` | Publicada                                       |
+| `/es` y todo `/es/*`            | 404 — sin traducción aprobada                   |
+
+Todavía no existe home. `src/app/[locale]/page.tsx` es donde vivirá: hoy solo
+redirige en inglés y devuelve 404 en español.
 
 ## Idiomas
 
-- Configuración: [`src/i18n/routing.ts`](src/i18n/routing.ts) — locales y `defaultLocale`.
-- Textos: [`messages/*.json`](messages) — un fichero por idioma.
-- `localePrefix: "as-needed"` → el idioma por defecto (`es`) va sin prefijo; el
-  resto bajo `/{locale}`.
+- Configuración: [`src/i18n/routing.ts`](src/i18n/routing.ts).
+- Textos: [`messages/en.json`](messages/en.json) y
+  [`messages/es.json`](messages/es.json).
+- `localePrefix: "always"` → ambos idiomas llevan prefijo (`/en/...`, `/es/...`).
+- Al cliente solo viajan los espacios de nombres declarados en
+  `CLIENT_NAMESPACES` (`src/app/[locale]/layout.tsx`), hoy ninguno.
 
-## Personalizar para un cliente
+## Lenguaje visual
 
-1. **Marca**: editar el bloque `MARCA` en [`src/app/globals.css`](src/app/globals.css)
-   (`--brand`, `--brand-foreground`, `--brand-accent`).
-2. **Idiomas**: ajustar la lista en `src/i18n/routing.ts` y los `messages/*.json`.
-3. **Contenido**: páginas en `src/app/[locale]/`.
-4. **Entorno**: definir `NEXT_PUBLIC_SITE_URL` en Render y en `.env.local`.
+El DNA vive en el bloque `ARDENO DESIGN DNA` de
+[`src/app/globals.css`](src/app/globals.css). Sus valores están calibrados
+contra el CSS computado de ardenogroup.com; los marcados `[ok]` son mediciones
+exactas y los `[~]` siguen siendo aproximaciones.
 
-## Deploy (Render)
+## Datos de proyecto
 
-El `render.yaml` define un Web Service Node con build `npm ci && npm run build`
-y previews automáticas por Pull Request. Definir `NEXT_PUBLIC_SITE_URL` por
-entorno en el dashboard.
+[`src/lib/projects.ts`](src/lib/projects.ts) contiene únicamente campos
+verificados y aprobados para publicación. Los campos financieros y operativos
+—financiación, etapa, plazo, disponibilidad, precio, socios, retorno, valor de
+salida— no existen en el tipo, así que no pueden renderizarse ni serializarse.
 
 ## Sync a Notion
 
 [`.github/workflows/notion-sync.yml`](.github/workflows/notion-sync.yml) ejecuta
 [`scripts/notion-sync.mjs`](scripts/notion-sync.mjs) en cada push a `main` y
 hace upsert del repo en el panel de control de Notion. Requiere los secrets
-`NOTION_TOKEN` y `NOTION_WEBS_DB` (placeholders hasta configurarlos).
-
----
-
-Mantenido por **Activos Kairos**.
+`NOTION_TOKEN` y `NOTION_WEBS_DB`.

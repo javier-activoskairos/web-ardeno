@@ -17,6 +17,22 @@ export type PublicSnapshotItem = {
   readonly label: string;
 };
 
+/**
+ * Fotografía o render aprobado del proyecto.
+ *
+ * Su presencia —no el slug— decide qué hero se compone. Mientras sea
+ * `undefined`, la ficha muestra el estado explícito de imagen pendiente en una
+ * composición pensada para no tener media. En cuanto el cliente entregue
+ * material verificado, se rellena y el hero cinematográfico entra sin tocar
+ * componentes.
+ */
+export type PublicHeroMedia = {
+  readonly src: string;
+  readonly alt: string;
+  readonly width: number;
+  readonly height: number;
+};
+
 export type PublicProject = {
   readonly slug: string;
   readonly name: string;
@@ -27,6 +43,8 @@ export type PublicProject = {
   readonly typology: string;
   readonly positioningLine: string;
   readonly snapshot: readonly PublicSnapshotItem[];
+  /** Ausente mientras no haya material gráfico verificado del proyecto. */
+  readonly heroMedia?: PublicHeroMedia;
 };
 
 const PUBLIC_PROJECTS: readonly PublicProject[] = [
@@ -43,6 +61,8 @@ const PUBLIC_PROJECTS: readonly PublicProject[] = [
       { value: "~2,118 SF", label: "Per residence" },
       { value: "Raleigh, NC", label: "Location" },
     ],
+    // Sin `heroMedia`: no hay fotografía ni render aprobados del desarrollo.
+    // No se rellena con imagen de archivo ni generada.
   },
 ];
 

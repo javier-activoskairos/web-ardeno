@@ -33,39 +33,78 @@ export function ProjectHeader() {
 }
 
 /**
- * Hero a viewport completo.
+ * Hero de la ficha, en dos composiciones que elige el dato y no el slug.
  *
- * No hay fotografía del desarrollo, así que el fondo es el estado explícito
- * "Project imagery pending" en lugar de una imagen de archivo que induciría a
- * error sobre el aspecto final del proyecto.
+ * Con `heroMedia`: hero cinematográfico a viewport completo, la imagen encima
+ * y la información debajo. Es la composición que queremos cuando exista
+ * material aprobado del desarrollo.
+ *
+ * Sin `heroMedia`: composición editorial. Reservar la pantalla entera para un
+ * marco vacío deja al placeholder flotando en un lienzo negro y empuja el
+ * contenido real fuera del primer visionado, así que en escritorio y tablet
+ * ancho el hero pasa a dos columnas —marco a un lado, título y conversión al
+ * otro— y deja de estirarse hasta el alto del viewport. En móvil se apila y
+ * conserva el orden marco → información → CTA.
+ *
+ * En ningún caso se introduce imagen de archivo o generada: el marco vacío con
+ * "Project imagery pending" es contenido honesto, no decoración.
  */
 export function ProjectHero({ project }: { project: PublicProject }) {
   const location = `${project.city}, ${project.state}`;
+  const { heroMedia } = project;
+
+  const info = (
+    <>
+      <h1 id="project-title" className="ar-hero__title">
+        {project.name}
+      </h1>
+
+      <p className="ar-hero__meta">
+        <span>{project.typology}</span>
+        <span className="ar-hero__sep" aria-hidden="true" />
+        <span>{location}</span>
+      </p>
+
+      <p className="ar-hero__thesis">{project.positioningLine}</p>
+
+      <div className="ar-hero__cta">
+        <InterestButton variant="brand-on-dark" />
+      </div>
+    </>
+  );
+
+  if (!heroMedia) {
+    return (
+      <section
+        className="ar-hero ar-hero--nomedia ar-on-dark"
+        aria-labelledby="project-title"
+      >
+        <ArdenoContainer className="ar-hero__split">
+          <div className="ar-hero__plate">
+            <ImagePending />
+          </div>
+          <div className="ar-hero__body">{info}</div>
+        </ArdenoContainer>
+      </section>
+    );
+  }
 
   return (
     <section className="ar-hero ar-on-dark" aria-labelledby="project-title">
       <div className="ar-hero__plate">
-        <ImagePending />
+        <Image
+          src={heroMedia.src}
+          alt={heroMedia.alt}
+          width={heroMedia.width}
+          height={heroMedia.height}
+          priority
+          sizes="100vw"
+          className="ar-hero__media"
+        />
       </div>
 
       <div className="ar-hero__body">
-        <ArdenoContainer>
-          <h1 id="project-title" className="ar-hero__title">
-            {project.name}
-          </h1>
-
-          <p className="ar-hero__meta">
-            <span>{project.typology}</span>
-            <span className="ar-hero__sep" aria-hidden="true" />
-            <span>{location}</span>
-          </p>
-
-          <p className="ar-hero__thesis">{project.positioningLine}</p>
-
-          <div className="ar-hero__cta">
-            <InterestButton variant="brand-on-dark" />
-          </div>
-        </ArdenoContainer>
+        <ArdenoContainer>{info}</ArdenoContainer>
       </div>
     </section>
   );
