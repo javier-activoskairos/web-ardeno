@@ -100,7 +100,9 @@ async function createDeploy(webId) {
   const properties = {
     Nombre: { title: [{ text: { content: title } }] },
     "Rama / commit": {
-      rich_text: [{ text: { content: `${BRANCH ?? ""} @ ${shortSha}`.trim() } }],
+      rich_text: [
+        { text: { content: `${BRANCH ?? ""} @ ${shortSha}`.trim() } },
+      ],
     },
     Resultado: { select: { name: "OK" } },
     Web: { relation: [{ id: webId }] },
