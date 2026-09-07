@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -11,12 +12,22 @@ import { cn } from "@/lib/utils";
 
 /* -------------------------------------------------------------- Contenedor */
 
-/** Columna editorial centrada de 1040px con gutter fluido. */
+/**
+ * Contenedor de sitio: 1360px con gutter fluido, la anchura medida en
+ * ardenogroup.com. Con `editorial` se estrecha al token de lectura, que es
+ * independiente y no crece con el contenedor general.
+ */
 export function ArdenoContainer({
   className,
+  editorial = false,
   ...props
-}: ComponentProps<"div">) {
-  return <div className={cn("ar-wrap", className)} {...props} />;
+}: ComponentProps<"div"> & { editorial?: boolean }) {
+  return (
+    <div
+      className={cn("ar-wrap", editorial && "ar-wrap--editorial", className)}
+      {...props}
+    />
+  );
 }
 
 /* ----------------------------------------------------------------- Eyebrow */
@@ -66,13 +77,34 @@ export function TwoTone({
 
 /* ------------------------------------------------------------------ Botón */
 
-export type ArdenoButtonVariant = "primary" | "secondary" | "light" | "ghost";
+export type ArdenoButtonVariant =
+  | "brand"
+  | "brand-on-dark"
+  | "primary"
+  | "secondary"
+  | "light"
+  | "ghost";
 
-/** Píldora de 44px. Cuatro variantes, sin sombras ni degradados. */
+/** Las variantes que reproducen el CTA medido del sitio real. */
+const BRAND_VARIANTS = new Set<ArdenoButtonVariant>(["brand", "brand-on-dark"]);
+
+/**
+ * Botón de la ficha.
+ *
+ * `brand` y `brand-on-dark` reproducen el CTA de ardenogroup.com tal y como
+ * se midió: píldora de 60px con radio 50, etiqueta y disco navy de 40px con la
+ * flecha girada -45º. Esa flecha es la misma que usa el sitio (el trazo
+ * `M5 12h14m-7-7 7 7-7 7`, que es el `arrow-right` de Lucide), así que se toma
+ * del paquete en lugar de redibujarla.
+ *
+ * El resto de variantes conservan la píldora compacta de 44px, que es la que
+ * cabe en la cabecera de 78px.
+ */
 export function ArdenoButton({
   variant = "primary",
   type = "button",
   className,
+  children,
   ...props
 }: ComponentProps<"button"> & { variant?: ArdenoButtonVariant }) {
   return (
@@ -80,7 +112,19 @@ export function ArdenoButton({
       type={type}
       className={cn("ar-btn", `ar-btn--${variant}`, className)}
       {...props}
-    />
+    >
+      {BRAND_VARIANTS.has(variant) ? (
+        <>
+          <span className="ar-btn__label">{children}</span>
+          <span className="ar-btn__mark" aria-hidden="true">
+            <span className="ar-btn__disc" />
+            <ArrowRight className="ar-btn__arrow" strokeWidth={2} />
+          </span>
+        </>
+      ) : (
+        children
+      )}
+    </button>
   );
 }
 

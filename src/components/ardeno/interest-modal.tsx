@@ -240,7 +240,7 @@ export function InterestProvider({
                 <div className="ar-alert" role="alert">
                   We cannot send your request yet. The enquiry integration is
                   not configured for this project.
-                  <span className="mt-2 block border-t border-[rgba(154,59,48,0.22)] pt-2 text-[0.6875rem] text-[var(--w-ink-2)]">
+                  <span className="mt-2 block border-t border-[rgba(154,59,48,0.22)] pt-2 text-[var(--w-ink-2)] text-[var(--w-s-14)]">
                     Nothing was sent or stored. Please contact the Ardeno team
                     directly in the meantime.
                   </span>
@@ -329,9 +329,11 @@ export function InterestProvider({
                 />
               </ArdenoField>
 
+              {/* Superficie clara: es el único sitio de la ficha donde el CTA
+                  medido del sitio real se puede usar tal cual. */}
               <ArdenoButton
                 type="submit"
-                variant="primary"
+                variant="brand"
                 className="mt-1 self-start"
               >
                 Express interest

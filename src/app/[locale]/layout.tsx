@@ -1,19 +1,29 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Geist, Manrope } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
-// Manrope es la cara real de ardenogroup.com, verificada sobre el sitio en
-// producción (h1 a 60px/300 en Manrope). El design system suponía Satoshi
-// Variable y sustituía por Hanken Grotesk: ambas cosas eran incorrectas.
-// Manrope está en Google Fonts, así que se sirve sin sustituto alguno.
+// Las dos caras del sitio real, verificadas sobre el CSS computado de
+// ardenogroup.com. No se carga ninguna más: Lora aparece allí como acento
+// editorial a 50px/600, pero esta primera pantalla no tiene ningún rol
+// equivalente, así que descargarla sería peso sin uso.
+
+// Manrope — display y contenido. El h1 del sitio es Manrope 60px/300.
+// Variable en Google Fonts, así que un solo archivo cubre 200–800.
 const manrope = Manrope({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
+  display: "swap",
+});
+
+// Geist — navegación, etiquetas, controles y botones. Verificado: los enlaces
+// de navegación son Geist 18/500 y la etiqueta del CTA, Geist 16/500.
+const geist = Geist({
+  variable: "--font-ui",
+  subsets: ["latin"],
   display: "swap",
 });
 
@@ -59,7 +69,10 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} className={`${manrope.variable} h-full antialiased`}>
+    <html
+      lang={locale}
+      className={`${manrope.variable} ${geist.variable} h-full antialiased`}
+    >
       <body className="flex min-h-full flex-col">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>

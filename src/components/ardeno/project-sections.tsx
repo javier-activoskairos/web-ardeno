@@ -63,7 +63,7 @@ export function ProjectHero({ project }: { project: PublicProject }) {
           <p className="ar-hero__thesis">{project.positioningLine}</p>
 
           <div className="ar-hero__cta">
-            <InterestButton variant="light" />
+            <InterestButton variant="brand-on-dark" />
           </div>
         </ArdenoContainer>
       </div>

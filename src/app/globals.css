@@ -141,22 +141,23 @@
 
 /* ====================================================================
    ARDENO DESIGN DNA
-   Portado de tokens/web.css del Ardeno Group Design System.
-   Fuente de verdad del lenguaje visual de la web. Los valores marcados
-   [~] están medidos sobre una captura del sitio en producción, no
-   calculados desde su CSS; corregibles en una pasada.
+   Calibrado contra el CSS computado de https://ardenogroup.com medido por
+   CDP a 1440/1024/768/390. Los valores marcados [ok] proceden de esa
+   medición y son exactos; los marcados [~] siguen siendo aproximados
+   porque el sitio real no expone un equivalente legible.
    ==================================================================== */
 
 :root {
   /* ---------- Superficies ---------- */
-  --w-bg: #ffffff; /* [~] fondo de página: blanco, no hueso */
+  --w-bg: #ffffff; /* [ok] fondo de página del sitio real */
   --w-panel: #f0f0ee; /* [~] panel claro */
   --w-panel-2: #e7e7e4; /* [~] panel hover */
   --w-black: #0e1419; /* [~] barra de cabecera */
   --w-hero-top: #080c10; /* [~] origen del degradado del hero */
 
   /* ---------- Tinta ---------- */
-  --w-ink: #1a1f24; /* [~] texto principal */
+  --w-ink: #101014; /* [ok] tinta de texto sobre claro */
+  --w-navy: #0d2a3a; /* [ok] navy de marca: disco del CTA real */
   --w-ink-2: #555d66; /* oscurecido desde el medido #6E7680 por AA */
   --w-ink-3: #656d76; /* oscurecido desde el medido #A8AEB4 por AA */
   --w-tint-lg: #7e868e; /* tinte claro, solo display >= 24px (AA 3:1) */
@@ -170,51 +171,91 @@
   --w-line-dark: rgba(255, 255, 255, 0.16);
 
   /* ---------- Semántico ----------
-     El cian del sistema (#3FB6E8) queda reservado a estados verificados.
-     En este bloque no hay ninguno, así que el anillo de foco usa tinta. */
+     El cian del sistema (#3FB6E8) queda reservado a estados verificados y
+     nunca se usa como foco. El sitio real no tiene anillo de foco propio:
+     cae en el azul por defecto del navegador. Aquí se sustituye por tinta
+     sobre claro y blanco sobre oscuro, que sí cumplen contraste. */
   --w-error: #9a3b30;
   --w-error-soft: #f6e9e7;
-  --w-focus: #1a1f24;
+  --w-focus: var(--w-ink);
   --w-focus-on-dark: #ffffff;
 
   /* ---------- Tipografía ----------
-     Manrope: la cara real del sitio en producción, verificada sobre
-     ardenogroup.com. No es un sustituto. Sin serif en esta ficha. */
+     [ok] Manrope para display y contenido; Geist para navegación,
+     etiquetas, controles y botones. Ambos roles verificados sobre el CSS
+     computado. Lora existe en el sitio real como acento a 50px/600, pero
+     esta primera pantalla no tiene un rol equivalente: no se carga. */
   --w-font: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --w-font-ui: var(--font-ui), var(--w-font);
   --w-fw-light: 300;
   --w-fw-regular: 400;
   --w-fw-medium: 500;
   --w-fw-bold: 700;
 
-  --w-hero: clamp(2.25rem, 4.2vw, 3.5rem);
-  --w-display: clamp(1.625rem, 2.3vw, 2rem);
-  --w-h3: clamp(1.25rem, 1.6vw, 1.375rem);
-  --w-h4: 1rem;
-  --w-body: 0.9375rem;
-  --w-body-sm: 0.875rem;
-  --w-nav: 0.8125rem;
-  --w-label: 0.6875rem;
-  --w-stat: clamp(1.5rem, 2.2vw, 1.875rem);
+  /* ---------- Escala ----------
+     [ok] Escala comprobada: 60 / 50 / 45 / 30 / 22 / 18 / 16 / 14.
+     El peldaño 50 es el acento en Lora del sitio real y no tiene rol en
+     esta pantalla, así que no se declara. Los tamaños fluidos interpolan
+     entre el suelo de 390px y el techo medido a 1440px. */
+  --w-s-60: clamp(2.125rem, 1.41rem + 2.92vw, 3.75rem); /* 34 → 60 */
+  --w-s-45: clamp(1.875rem, 1.527rem + 1.43vw, 2.8125rem); /* 30 → 45 */
+  --w-s-30: clamp(1.375rem, 1.19rem + 0.76vw, 1.875rem); /* 22 → 30 */
+  --w-s-22: 1.375rem;
+  --w-s-18: 1.125rem;
+  --w-s-16: 1rem;
+  --w-s-14: 0.875rem;
 
-  --w-lh-hero: 1.14;
-  --w-lh-display: 1.24;
-  --w-lh-body: 1.72;
-  --w-ls-hero: -0.005em;
-  --w-ls-label: 0.14em;
+  --w-hero: var(--w-s-60);
+  --w-display: var(--w-s-45);
+  --w-h3: var(--w-s-30);
+  --w-h4: var(--w-s-22);
+  --w-body: var(--w-s-18);
+  --w-body-sm: var(--w-s-16);
+  --w-nav: var(--w-s-16);
+  --w-label: var(--w-s-14);
+  --w-stat: var(--w-s-30);
 
-  /* ---------- Layout ---------- */
-  --w-container: 1040px;
-  --w-gutter: clamp(1.25rem, 5vw, 2.5rem);
-  --w-section-y: clamp(4.5rem, 8vw, 9rem);
-  --w-section-y-sm: clamp(2.5rem, 5vw, 4.5rem);
-  --w-header-h: 72px;
+  /* [ok] Interlineados medidos: 72/60 en el h1, 49.5/45 y 33/30 en los
+     display, 27/18 en el cuerpo, 20.8/16 en los controles. */
+  --w-lh-hero: 1.2;
+  --w-lh-display: 1.1;
+  --w-lh-body: 1.5;
+  --w-lh-ui: 1.3;
+  /* [ok] -1px sobre 60px y -0.8px sobre 45px, expresados en em para que
+     el prensado acompañe al tamaño igual que en el sitio real. */
+  --w-ls-hero: -0.0167em;
+  --w-ls-display: -0.0178em;
+  --w-ls-body: -0.0056em;
+  --w-ls-label: 0.1em; /* [~] el sitio real no usa versales en ningún rol */
+
+  /* ---------- Layout ----------
+     [ok] Contenedor de sitio de 1360px con gutter de 40px a 1440. El token
+     editorial es independiente y más estrecho: el texto largo no se lee a
+     1360px. */
+  --w-container: 1360px;
+  --w-editorial: 760px;
+  --w-gutter: clamp(20px, 5vw, 40px);
+
+  /* ---------- Ritmo ----------
+     [ok] 50px es la separación dominante del sitio; 100px aparece solo en
+     una apertura principal. El suelo nunca baja de la dominante. */
+  --w-section-y: clamp(50px, 7vw, 100px);
+  --w-section-y-sm: 50px;
+  --w-header-h: 78px; /* [ok] altura de la cabecera real */
   --w-measure: 62ch;
 
-  /* ---------- Forma ---------- */
-  --w-r-img: 10px;
-  --w-r-field: 6px;
+  /* ---------- Forma ----------
+     [ok] 8px es el radio web base (30 apariciones frente a 3 del siguiente).
+     50px es el radio medido del CTA de marca. Sin sombras globales: las
+     únicas tres del sitio real están en tarjetas de dato del interior, que
+     no tienen equivalente en esta ficha. */
+  --w-r: 8px;
+  --w-r-img: var(--w-r);
+  --w-r-field: var(--w-r);
   --w-r-pill: 999px;
+  --w-r-cta: 50px;
   --w-btn-h: 44px;
+  --w-cta-h: 60px;
 
   /* ---------- Movimiento ---------- */
   --w-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -234,7 +275,9 @@
   --color-w-ink-3: var(--w-ink-3);
   --color-w-line: var(--w-line);
   --color-w-error: var(--w-error);
+  --color-w-navy: var(--w-navy);
   --font-w: var(--w-font);
+  --font-w-ui: var(--w-font-ui);
 }
 
 @layer components {
@@ -243,6 +286,11 @@
     max-width: var(--w-container);
     margin-inline: auto;
     padding-inline: var(--w-gutter);
+  }
+  /* Columna estrecha para texto largo. No es el contenedor de sitio: la
+     medida de lectura no crece con él. */
+  .ar-wrap--editorial {
+    max-width: var(--w-editorial);
   }
   .ar-sec {
     padding-block: var(--w-section-y);
@@ -273,6 +321,7 @@
     align-items: center;
     gap: 12px;
     margin: 0;
+    font-family: var(--w-font-ui);
     font-size: var(--w-label);
     font-weight: var(--w-fw-medium);
     letter-spacing: var(--w-ls-label);
@@ -291,6 +340,7 @@
     color: var(--w-on-dark-2);
   }
   .ar-label {
+    font-family: var(--w-font-ui);
     font-size: var(--w-label);
     font-weight: var(--w-fw-medium);
     letter-spacing: var(--w-ls-label);
@@ -305,6 +355,7 @@
     font-size: var(--w-display);
     font-weight: var(--w-fw-regular);
     line-height: var(--w-lh-display);
+    letter-spacing: var(--w-ls-display);
     text-wrap: pretty;
   }
   .ar-tint {
@@ -319,9 +370,11 @@
   }
   .ar-body {
     margin: 0;
-    max-width: var(--w-measure);
+    /* Lo que llegue antes: la medida en caracteres o el token editorial. */
+    max-width: min(var(--w-measure), var(--w-editorial));
     font-size: var(--w-body);
     line-height: var(--w-lh-body);
+    letter-spacing: var(--w-ls-body);
     color: var(--w-ink-2);
     text-wrap: pretty;
   }
@@ -339,9 +392,12 @@
     padding-inline: 22px;
     border: 1px solid transparent;
     border-radius: var(--w-r-pill);
-    font-family: inherit;
-    font-size: var(--w-body-sm);
+    /* [ok] Los controles del sitio real son Geist 500; la etiqueta del CTA
+       mide 16px con interlínea 20.8px. */
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-16);
     font-weight: var(--w-fw-medium);
+    line-height: var(--w-lh-ui);
     white-space: nowrap;
     text-decoration: none;
     cursor: pointer;
@@ -388,7 +444,97 @@
     background: rgba(255, 255, 255, 0.1);
   }
 
-  /* ---------- Cabecera de proyecto ---------- */
+  /* ---------- CTA de marca ----------
+     Reproducción del CTA real de ardenogroup.com medida sobre su CSS
+     computado, no deducida: caja de 189.5 x 60, radio 50px, relleno
+     9/12/11/26, gap 30px, sin borde y sin sombra; etiqueta Geist 16/500 con
+     interlínea 20.8px en #101014; disco de 40px en #0D2A3A con la flecha
+     blanca de 20px girada -45º. Al pasar el puntero, el disco escala x10
+     hasta inundar la píldora, la etiqueta pasa a blanco y la flecha vuelve a
+     la horizontal; el estado activo no añade nada más.
+     La duración exacta no es legible: Framer anima por JS y
+     transition-duration computa 0s. Se usa el token de movimiento propio. */
+  .ar-btn--brand,
+  .ar-btn--brand-on-dark {
+    position: relative;
+    overflow: hidden;
+    min-height: var(--w-cta-h);
+    padding: 9px 12px 11px 26px;
+    gap: 30px;
+    border: none;
+    border-radius: var(--w-r-cta);
+    line-height: 1.3;
+    letter-spacing: normal;
+    color: var(--w-ink);
+  }
+  .ar-btn--brand {
+    background: linear-gradient(
+      rgba(13, 42, 58, 0.2) 0%,
+      rgba(138, 151, 158, 0.2) 100%
+    );
+  }
+  /* El sitio real solo coloca este CTA sobre fondo claro. Sobre el hero
+     oscuro el degradado medido sería invisible y la etiqueta en tinta
+     incumpliría contraste, así que se sustituye el relleno por blanco —la
+     superficie clara del propio manual— y se conserva toda la geometría. */
+  .ar-btn--brand-on-dark {
+    background: #fff;
+  }
+  .ar-btn--brand:active,
+  .ar-btn--brand-on-dark:active {
+    transform: none;
+  }
+  .ar-btn__label {
+    position: relative;
+    z-index: 1;
+    transition: color var(--w-t) var(--w-ease);
+  }
+  /* El disco y la flecha son hermanos, igual que en el original: así el
+     disco puede escalar sin arrastrar el icono. */
+  .ar-btn__mark {
+    position: relative;
+    z-index: 0;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+  }
+  .ar-btn__disc {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--w-r-pill);
+    background: var(--w-navy);
+    transition: transform var(--w-t) var(--w-ease-out);
+  }
+  .ar-btn__arrow {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    color: #fff;
+    transform: rotate(-45deg);
+    transition: transform var(--w-t) var(--w-ease-out);
+  }
+  .ar-btn--brand:hover .ar-btn__disc,
+  .ar-btn--brand-on-dark:hover .ar-btn__disc {
+    transform: scale(10);
+  }
+  .ar-btn--brand:hover .ar-btn__arrow,
+  .ar-btn--brand-on-dark:hover .ar-btn__arrow {
+    transform: none;
+  }
+  .ar-btn--brand:hover .ar-btn__label,
+  .ar-btn--brand-on-dark:hover .ar-btn__label {
+    color: #fff;
+  }
+
+  /* ---------- Cabecera de proyecto ----------
+     Desviación consciente: la cabecera del sitio corporativo es
+     `position: relative`, transparente y con la navegación en el centro. La
+     ficha no tiene navegación y sí un único objetivo de conversión, así que
+     conserva la barra fija y opaca: mantiene el CTA al alcance en toda la
+     página. Lo que sí se calibra es su altura visual, 78px, y su contenedor,
+     1360px con gutter de 40px, medidos sobre el sitio real. */
   .ar-header {
     position: sticky;
     top: 0;
@@ -418,16 +564,18 @@
     background: var(--w-hero-top);
     color: var(--w-on-dark);
   }
+  /* Apertura principal: es el único sitio de esta pantalla donde el ritmo
+     sube hasta 100px. */
   .ar-hero__plate {
     flex: 1 1 auto;
     min-height: 0;
     display: grid;
     place-items: center;
-    padding: clamp(2rem, 6vh, 4rem) var(--w-gutter) 0;
+    padding: var(--w-section-y) var(--w-gutter) 0;
   }
   .ar-hero__body {
     flex: none;
-    padding-block: clamp(2.5rem, 5vw, 4.5rem);
+    padding-block: var(--w-section-y-sm);
   }
   .ar-hero__title {
     margin: 0;
@@ -442,7 +590,8 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 10px 16px;
-    margin: 1.125rem 0 0;
+    margin: 16px 0 0;
+    font-family: var(--w-font-ui);
     font-size: var(--w-label);
     font-weight: var(--w-fw-medium);
     letter-spacing: var(--w-ls-label);
@@ -457,17 +606,18 @@
     background: var(--w-on-dark-3);
   }
   .ar-hero__thesis {
-    margin: 1.75rem 0 0;
-    max-width: 42ch;
-    font-size: 1.125rem;
-    line-height: 1.6;
+    margin: 24px 0 0;
+    max-width: min(42ch, var(--w-editorial));
+    font-size: var(--w-s-18);
+    line-height: var(--w-lh-body);
+    letter-spacing: var(--w-ls-body);
     color: rgba(255, 255, 255, 0.92);
   }
   .ar-hero__cta {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 2.25rem;
+    gap: 16px;
+    margin-top: 32px;
   }
 
   /* ---------- Imagen pendiente ----------
@@ -525,7 +675,7 @@
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    padding: clamp(1.75rem, 3vw, 2.25rem) clamp(1rem, 2vw, 1.75rem);
+    padding: 32px 24px;
     border-right: 1px solid var(--w-line);
     text-align: center;
   }
@@ -556,6 +706,7 @@
     gap: 6px;
   }
   .ar-field > label {
+    font-family: var(--w-font-ui);
     font-size: var(--w-label);
     font-weight: var(--w-fw-medium);
     letter-spacing: 0.06em;
@@ -569,8 +720,8 @@
     border: 1px solid var(--w-line);
     border-radius: var(--w-r-field);
     background: #fff;
-    font-family: inherit;
-    font-size: var(--w-body-sm);
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-16);
     color: var(--w-ink);
     outline: none;
     transition:
@@ -592,7 +743,8 @@
     resize: vertical;
   }
   .ar-err {
-    font-size: 0.8125rem;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
     line-height: 1.4;
     color: var(--w-error);
   }
@@ -602,7 +754,7 @@
     border-radius: var(--w-r-field);
     background: var(--w-error-soft);
     color: var(--w-error);
-    font-size: var(--w-body-sm);
+    font-size: var(--w-s-16);
     line-height: 1.5;
   }
   .ar-row2 {
@@ -628,7 +780,7 @@
     width: min(560px, 100%);
     margin: auto;
     padding: clamp(1.5rem, 3.5vw, 2.75rem);
-    border-radius: 6px;
+    border-radius: var(--w-r);
     background: var(--w-bg);
     color: var(--w-ink);
     animation: ar-rise 220ms var(--w-ease-out) both;
@@ -654,10 +806,11 @@
     color: var(--w-ink);
   }
   .ar-modal__note {
-    margin: 1rem 0 0;
-    padding-top: 0.875rem;
+    margin: 16px 0 0;
+    padding-top: 14px;
     border-top: 1px solid var(--w-line);
-    font-size: 0.6875rem;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
     line-height: 1.6;
     color: var(--w-ink-2);
   }
@@ -713,7 +866,7 @@
     );
   }
   .ar-snap__cell {
-    padding: 1.375rem 0.75rem;
+    padding: 24px 12px;
   }
   .ar-snap__cell:nth-child(2n) {
     border-right: none;
@@ -738,7 +891,10 @@
     animation: none;
   }
   .ar-btn,
-  .ar-input {
+  .ar-input,
+  .ar-btn__label,
+  .ar-btn__disc,
+  .ar-btn__arrow {
     transition: none;
   }
 }
