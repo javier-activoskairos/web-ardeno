@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
-// Cara de producción de Ardeno: Satoshi Variable. No fue entregada, así que se
-// usa el sustituto documentado por el design system. Al llegar la licencia,
-// basta cambiar esta declaración: el token --font-sans no se mueve.
-const hankenGrotesk = Hanken_Grotesk({
+// Manrope es la cara real de ardenogroup.com, verificada sobre el sitio en
+// producción (h1 a 60px/300 en Manrope). El design system suponía Satoshi
+// Variable y sustituía por Hanken Grotesk: ambas cosas eran incorrectas.
+// Manrope está en Google Fonts, así que se sirve sin sustituto alguno.
+const manrope = Manrope({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500", "700"],
@@ -58,10 +59,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html
-      lang={locale}
-      className={`${hankenGrotesk.variable} h-full antialiased`}
-    >
+    <html lang={locale} className={`${manrope.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>

@@ -1,5 +1,4 @@
 import type { ComponentProps, ReactNode } from "react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /**
@@ -92,9 +91,12 @@ export function ArdenoButton({
  *
  * No hay material gráfico del proyecto. En lugar de una imagen genérica o de
  * archivo —que induciría a error sobre cómo será el desarrollo— se muestra un
- * marco vacío con el símbolo de la marca en blanco sobre el hero oscuro, que
- * es su expresión "sobre navy". La nota es contenido real, no decoración: se
+ * marco vacío con el símbolo de la marca en hueso sobre el hero oscuro, que es
+ * su expresión "sobre navy". La nota es contenido real, no decoración: se
  * anuncia a lectores de pantalla.
+ *
+ * El símbolo se pinta con `mask` desde el token de color (ver globals.css): el
+ * PNG aporta solo la silueta, así el hueso sale de la marca y no del archivo.
  */
 export function ImagePending({
   note = "Project imagery pending",
@@ -105,15 +107,7 @@ export function ImagePending({
 }) {
   return (
     <figure className={cn("ar-pending", className)}>
-      <Image
-        src="/logos/ardeno-symbol-white.png"
-        alt=""
-        width={1204}
-        height={1432}
-        priority
-        sizes="200px"
-        className="ar-pending__mark"
-      />
+      <span className="ar-pending__mark" aria-hidden="true" />
       <figcaption className="ar-pending__note">{note}</figcaption>
     </figure>
   );

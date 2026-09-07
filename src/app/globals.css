@@ -165,6 +165,7 @@
   --w-on-dark-3: rgba(255, 255, 255, 0.5);
 
   /* ---------- Líneas ---------- */
+  --w-bone: #f7f4eb; /* hueso de marca: color del logotipo */
   --w-line: #e2e2df; /* [~] hairline sobre claro */
   --w-line-dark: rgba(255, 255, 255, 0.16);
 
@@ -177,8 +178,8 @@
   --w-focus-on-dark: #ffffff;
 
   /* ---------- Tipografía ----------
-     La cara de producción es Satoshi Variable; no fue entregada, así que
-     --w-font resuelve al sustituto documentado (Hanken Grotesk). Sin serif. */
+     Manrope: la cara real del sitio en producción, verificada sobre
+     ardenogroup.com. No es un sustituto. Sin serif en esta ficha. */
   --w-font: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
   --w-fw-light: 300;
   --w-fw-regular: 400;
@@ -489,11 +490,16 @@
     border: 1px solid var(--w-line-dark);
     border-radius: var(--w-r-img);
   }
+  /* El símbolo se pinta desde los tokens: el PNG solo aporta la silueta
+     (alfa), así el color lo manda la marca y no el archivo. Hueso sobre
+     oscuro, que es el color del logotipo. Los trazos son muy finos
+     (ocupan ~9% de su caja), de ahí el tamaño. */
   .ar-pending__mark {
-    /* El símbolo son trazos muy finos (ocupan ~9% de su caja): necesita
-       tamaño para leerse. Queda delicado, que es el registro de la marca. */
     width: clamp(104px, 15vw, 156px);
-    height: auto;
+    aspect-ratio: 1204 / 1432;
+    background-color: var(--w-bone);
+    -webkit-mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
+    mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
     opacity: 0.55;
   }
   .ar-pending__note {
