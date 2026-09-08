@@ -34,6 +34,21 @@ export type PublicHeroMedia = {
 };
 
 /**
+ * Un render de la galería.
+ *
+ * `width` y `height` son las dimensiones intrínsecas del archivo: reservan el
+ * hueco antes de que la imagen llegue y evitan el salto de composición. Al
+ * sustituir un render solo hay que tocarlas si cambian.
+ */
+export type PublicGalleryImage = {
+  readonly src: string;
+  readonly alt: string;
+  readonly width: number;
+  readonly height: number;
+  readonly caption: string;
+};
+
+/**
  * Narrativa del proyecto: lo que el snapshot resume, contado en prosa.
  *
  * `body` son párrafos ya redactados y aprobados; nunca HTML, nunca texto que
@@ -76,6 +91,11 @@ export type PublicProject = {
   readonly story?: PublicStory;
   /** Ausente mientras no haya arquitectura aprobada. La sección no se renderiza. */
   readonly architecture?: PublicArchitecture;
+  /**
+   * Renders del proyecto. El primero hace de cubierta. Vacía o ausente, la
+   * sección entera desaparece: ni título, ni botón, ni marcador de posición.
+   */
+  readonly gallery?: readonly PublicGalleryImage[];
 };
 
 const PUBLIC_PROJECTS: readonly PublicProject[] = [
@@ -98,6 +118,58 @@ const PUBLIC_PROJECTS: readonly PublicProject[] = [
       width: 1672,
       height: 941,
     },
+    // El primero es la cubierta. El hero no se repite aquí.
+    gallery: [
+      {
+        src: "/projects/720-sherrybrook/exterior-rear.jpg",
+        alt: "Rear exterior rendering of the four residences.",
+        width: 1672,
+        height: 941,
+        caption: "Rear exterior",
+      },
+      {
+        src: "/projects/720-sherrybrook/kitchen-island.jpg",
+        alt: "Kitchen with a white quartz island and light oak cabinetry.",
+        width: 1759,
+        height: 1200,
+        caption: "Kitchen",
+      },
+      {
+        src: "/projects/720-sherrybrook/dining-living.jpg",
+        alt: "Open dining and living area on the ground floor.",
+        width: 2099,
+        height: 1431,
+        caption: "Dining and living",
+      },
+      {
+        src: "/projects/720-sherrybrook/primary-suite.jpg",
+        alt: "Primary suite with access to the private balcony.",
+        width: 1448,
+        height: 1086,
+        caption: "Primary suite",
+      },
+      {
+        src: "/projects/720-sherrybrook/primary-bathroom.jpg",
+        alt: "Primary bathroom with double vanity and walk-in shower.",
+        width: 1448,
+        height: 1086,
+        caption: "Primary bathroom",
+      },
+      {
+        src: "/projects/720-sherrybrook/private-balcony.jpg",
+        alt: "Private upper-floor balcony overlooking the backyard.",
+        width: 1448,
+        height: 1086,
+        caption: "Private balcony",
+      },
+      {
+        src: "/projects/720-sherrybrook/home-office.jpg",
+        alt: "Dedicated home office on the upper floor.",
+        width: 1419,
+        height: 1064,
+        caption: "Home office",
+      },
+    ],
     story: {
       eyebrow: "The project",
       headline: "Modern design, natural light and warm materials.",

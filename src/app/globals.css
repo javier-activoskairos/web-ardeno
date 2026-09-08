@@ -500,6 +500,180 @@
     }
   }
 
+  /* ---------- Cubierta de galería ----------
+     Una sola imagen a tamaño editorial: es lo que interrumpe la sucesión de
+     texto entre la narrativa y la arquitectura. En pantallas estrechas pasa a
+     4:3 porque la vista trasera aguanta ese recorte con las cuatro residencias
+     dentro y gana mucha presencia. */
+  .ar-cover {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+  }
+  .ar-cover__frame {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--w-r);
+    background: var(--w-panel);
+  }
+  .ar-cover__img {
+    object-fit: cover;
+    transition: transform var(--w-t) var(--w-ease-out);
+  }
+  .ar-cover:hover .ar-cover__img {
+    transform: scale(1.02);
+  }
+  .ar-cover__badge {
+    position: absolute;
+    left: clamp(12px, 2vw, 22px);
+    bottom: clamp(12px, 2vw, 22px);
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--w-btn-h);
+    padding-inline: 22px;
+    border-radius: var(--w-r-pill);
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--w-ink);
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-16);
+    font-weight: var(--w-fw-medium);
+    line-height: var(--w-lh-ui);
+    transition: background var(--w-t-fast) var(--w-ease);
+  }
+  .ar-cover:hover .ar-cover__badge {
+    background: #fff;
+  }
+  .ar-cover:focus-visible {
+    outline: none;
+  }
+  .ar-cover:focus-visible .ar-cover__frame {
+    outline: 2px solid var(--w-focus);
+    outline-offset: 3px;
+  }
+
+  @media (min-width: 900px) {
+    .ar-cover__frame {
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  /* ---------- Visor a pantalla completa ----------
+     Por debajo del modal de captación (500) para que, si ambos llegaran a
+     abrirse, el de conversión quede encima. */
+  .ar-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 480;
+    display: flex;
+    flex-direction: column;
+    background: rgba(8, 12, 16, 0.96);
+    overscroll-behavior: contain;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .ar-lightbox__bar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px clamp(12px, 2vw, 22px);
+    padding-left: max(clamp(12px, 2vw, 22px), env(safe-area-inset-left));
+    padding-right: max(clamp(12px, 2vw, 22px), env(safe-area-inset-right));
+  }
+  .ar-lightbox__count {
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-on-dark-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .ar-lightbox__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--w-on-dark-2);
+    font-size: 17px;
+    cursor: pointer;
+  }
+  .ar-lightbox__close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  .ar-lightbox__stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0 clamp(12px, 6vw, 84px) clamp(12px, 2vw, 20px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  /* El marco toma el alto que sobra y la imagen se contiene dentro: así
+     cualquier proporción entra completa sin recortarse. */
+  .ar-lightbox__frame {
+    position: relative;
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .ar-lightbox__img {
+    object-fit: contain;
+  }
+  .ar-lightbox__cap {
+    flex: none;
+    text-align: center;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-on-dark-2);
+  }
+  .ar-lightbox__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--w-line-dark);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .ar-lightbox__nav:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+  .ar-lightbox__nav--prev {
+    left: max(clamp(8px, 1.5vw, 20px), env(safe-area-inset-left));
+  }
+  .ar-lightbox__nav--next {
+    right: max(clamp(8px, 1.5vw, 20px), env(safe-area-inset-right));
+  }
+  .ar-lightbox :focus-visible {
+    outline: 2px solid var(--w-focus-on-dark);
+    outline-offset: 3px;
+  }
+
   /* ---------- Footer ----------
      Tres zonas: aviso legal, símbolo y contacto. Sin navegación, porque
      todavía no hay ninguna otra ruta publicada a la que enlazar. */
@@ -1228,7 +1402,12 @@
   .ar-input,
   .ar-btn__label,
   .ar-btn__disc,
-  .ar-btn__arrow {
+  .ar-btn__arrow,
+  .ar-cover__img,
+  .ar-cover__badge {
     transition: none;
+  }
+  .ar-cover:hover .ar-cover__img {
+    transform: none;
   }
 }

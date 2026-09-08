@@ -6,6 +6,7 @@ import {
   ProjectArchitecture,
   ProjectStory,
 } from "@/components/ardeno/project-content";
+import { ProjectGallery } from "@/components/ardeno/project-gallery";
 import {
   ProjectHeader,
   ProjectHero,
@@ -85,6 +86,11 @@ export default async function ProjectPage({
           <ProjectHero project={project} />
           <ProjectSnapshot project={project} />
           <ProjectStory project={project} />
+          {/* La comprobación vive aquí, en el servidor: sin renders no se monta
+              la isla cliente y la sección no existe. */}
+          {project.gallery && project.gallery.length > 0 ? (
+            <ProjectGallery images={project.gallery} />
+          ) : null}
           <ProjectArchitecture project={project} />
         </main>
 
