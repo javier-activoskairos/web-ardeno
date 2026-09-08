@@ -560,7 +560,8 @@
     outline-offset: 3px;
   }
 
-  @media (min-width: 900px) {
+  /* Desde tablet la cubierta es apaisada; el 4:3 se reserva al móvil. */
+  @media (min-width: 768px) {
     .ar-cover__frame {
       aspect-ratio: 16 / 9;
     }

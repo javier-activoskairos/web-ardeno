@@ -21,7 +21,12 @@ export function ProjectHeader() {
             alt="Ardeno Group"
             width={3304}
             height={694}
-            priority
+            // El logotipo mide 85x18: nunca es el LCP. Con `priority`
+            // —obsoleto en Next 16— insertaba su propio <link rel="preload">
+            // y competía con el render del hero, que sí lo es. `eager` también
+            // emite esa precarga, así que se deja en el valor por defecto: al
+            // estar dentro de la primera pantalla se descarga igual de pronto,
+            // pero la única imagen precargada pasa a ser el hero.
             sizes="120px"
             className="h-[18px] w-auto"
           />

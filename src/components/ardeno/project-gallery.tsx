@@ -142,8 +142,13 @@ export function ProjectGallery({
           aria-modal="true"
           aria-label="Project renders"
           ref={panelRef}
+          // Cierra al pulsar el fondo. El visor es una columna cuyos hijos lo
+          // cubren entero, así que comparar con `currentTarget` sólo habría
+          // funcionado en la franja exacta del contenedor: se descarta por lo
+          // que hay debajo del puntero, no por en qué caja ha caído.
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) close();
+            const target = event.target as HTMLElement;
+            if (!target.closest("button") && target.tagName !== "IMG") close();
           }}
           onTouchStart={(event) => {
             touchX.current = event.touches[0].clientX;
