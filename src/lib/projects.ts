@@ -92,8 +92,12 @@ const PUBLIC_PROJECTS: readonly PublicProject[] = [
       { value: "~2,118 SF", label: "Per residence" },
       { value: "Raleigh, NC", label: "Location" },
     ],
-    // Sin `heroMedia`: no hay fotografía ni render aprobados del desarrollo.
-    // No se rellena con imagen de archivo ni generada.
+    heroMedia: {
+      src: "/projects/720-sherrybrook/hero-front-exterior.jpg",
+      alt: "Front exterior rendering of the four residences at 720 Sherrybrook.",
+      width: 1672,
+      height: 941,
+    },
     story: {
       eyebrow: "The project",
       headline: "Modern design, natural light and warm materials.",

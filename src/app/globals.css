@@ -781,10 +781,52 @@
     gap: 16px;
     margin-top: 32px;
   }
-  .ar-hero__media {
+  /* ---------- Hero con media ----------
+     El render mide 1672x941. Reservar `100svh` para él dejaba el título y el
+     CTA fuera de la primera pantalla a 1440 y, en móvil, el marco quedaba
+     flotando a 197px de alto dentro de un plato mucho mayor. Con media el
+     hero se dimensiona por su contenido.
+
+     El recorte solo puede ser vertical. Comprobado sobre el propio archivo:
+     un recorte apaisado centrado al 55% conserva las cuatro residencias
+     completas y se come sólo cielo y césped, mientras que cualquier recorte
+     horizontal —un 4:3 deja fuera el 25% del ancho— pierde la cuarta. Por eso
+     en pantallas estrechas se muestra el fotograma íntegro. */
+  .ar-hero--media {
+    min-height: 0;
+  }
+  .ar-hero--media .ar-hero__plate {
+    flex: none;
+    display: block;
+    /* El plato centra su contenido cuando es una rejilla. Chrome ya aplica
+       alineación de caja también en layout de bloque, así que `place-items`
+       sobrevive al cambio de `display` y encoge el contenedor a su contenido:
+       el marco se quedaba en 0px de ancho. Hay que devolverlo a `normal`. */
+    place-items: normal;
+    min-height: 0;
+    padding: var(--w-section-y-sm) 0 0;
+  }
+  .ar-hero__frame {
+    position: relative;
     width: 100%;
-    height: auto;
+    /* Proporción nativa del render: sin recorte y sin salto de composición. */
+    aspect-ratio: 1672 / 941;
+    overflow: hidden;
     border-radius: var(--w-r-img);
+    background: var(--w-hero-top);
+  }
+  .ar-hero__media {
+    object-fit: cover;
+    object-position: 50% 55%;
+  }
+
+  @media (min-width: 900px) {
+    /* Franja apaisada: sube el título y el CTA a la primera pantalla sin
+       tocar una sola residencia. */
+    .ar-hero__frame {
+      aspect-ratio: 21 / 9;
+      max-height: 56svh;
+    }
   }
 
   /* ---------- Hero sin media ----------

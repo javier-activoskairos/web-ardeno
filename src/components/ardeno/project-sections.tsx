@@ -90,17 +90,31 @@ export function ProjectHero({ project }: { project: PublicProject }) {
   }
 
   return (
-    <section className="ar-hero ar-on-dark" aria-labelledby="project-title">
+    <section
+      className="ar-hero ar-hero--media ar-on-dark"
+      aria-labelledby="project-title"
+    >
       <div className="ar-hero__plate">
-        <Image
-          src={heroMedia.src}
-          alt={heroMedia.alt}
-          width={heroMedia.width}
-          height={heroMedia.height}
-          priority
-          sizes="100vw"
-          className="ar-hero__media"
-        />
+        <ArdenoContainer>
+          {/* Marco de proporción fija: reserva el hueco antes de que la imagen
+              llegue, así que no hay salto de composición. El recorte vive en el
+              marco y no en el archivo, de modo que sustituir el render no
+              obliga a tocar nada más. */}
+          <div className="ar-hero__frame">
+            {/* Elemento LCP de la ficha. En Next 16 `priority` está obsoleto:
+                la propiedad que declara la precarga es `preload`, que inserta
+                el <link> en el <head> antes de que el <img> se descubra en el
+                cuerpo. */}
+            <Image
+              src={heroMedia.src}
+              alt={heroMedia.alt}
+              fill
+              preload
+              sizes="(min-width: 1440px) 1360px, 100vw"
+              className="ar-hero__media"
+            />
+          </div>
+        </ArdenoContainer>
       </div>
 
       <div className="ar-hero__body">
