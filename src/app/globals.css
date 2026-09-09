@@ -1307,16 +1307,16 @@
     line-height: 1.35;
   }
 
-  /* ---------- Superficies oscuras ----------
-     Dos, y con papeles distintos: el navy de marca sostiene un bloque de datos
-     dentro del scroll claro —la disponibilidad—, y el oscuro del hero cierra
-     la página, de modo que la ficha abre y cierra en el mismo tono. */
+  /* ---------- Superficie oscura ----------
+     Una sola, y es el navy de marca: el mismo azul del disco del CTA medido en
+     ardenogroup.com. Sostiene los dos bloques de peso de la ficha —la
+     disponibilidad y el cierre con el formulario—, así que las dos paradas
+     oscuras del scroll son reconociblemente el mismo material.
+
+     El hero se queda con su propio negro (`--w-hero-top`): ahí el color no es
+     una superficie, es el velo sobre una fotografía. */
   .ar-navy {
     background: var(--w-navy);
-    color: var(--w-on-dark);
-  }
-  .ar-deep {
-    background: var(--w-hero-top);
     color: var(--w-on-dark);
   }
 
@@ -1357,16 +1357,15 @@
   }
   /* Sobre oscuro el contorno a plena opacidad compite con el CTA. */
   .ar-on-dark .ar-chip,
-  .ar-navy .ar-chip,
-  .ar-deep .ar-chip {
+  .ar-navy .ar-chip {
     color: var(--w-on-dark-2);
   }
 
   /* ---------- Lista de filete ----------
-     Materiales, acabados y distancias. Un guion corto y un filete superior por
-     renglón: la misma estructura que el resto de la ficha, sin viñetas ni
-     iconos. Con `data-split` la etiqueta y su valor se separan a los extremos,
-     que es como se leen los tiempos de trayecto. */
+     Materiales, acabados y distancias. Un guion corto por renglón y un filete
+     entre uno y el siguiente: la misma estructura que el resto de la ficha,
+     sin viñetas ni iconos. Con `data-split` la etiqueta y su valor se separan
+     a los extremos, que es como se leen los tiempos de trayecto. */
   .ar-list {
     list-style: none;
     margin: 0;
@@ -1400,7 +1399,6 @@
     transform: translateY(-4px);
   }
   .ar-navy .ar-list li,
-  .ar-deep .ar-list li,
   .ar-on-dark .ar-list li {
     border-color: var(--w-line-dark);
     color: var(--w-on-dark-2);
@@ -1414,7 +1412,6 @@
     font-variant-numeric: tabular-nums;
   }
   .ar-navy .ar-list__val,
-  .ar-deep .ar-list__val,
   .ar-on-dark .ar-list__val {
     color: var(--w-on-dark);
   }
@@ -1639,7 +1636,7 @@
   }
 
   /* ---------- Cierre y captación ----------
-     Última parada antes del pie, sobre el oscuro del hero. A la izquierda la
+     Última parada antes del pie, sobre el navy de marca. A la izquierda la
      pregunta y las vías de contacto directo; a la derecha el formulario, en un
      panel claro. El formulario va en la página y no solo en el modal: quien
      llega hasta abajo ya ha decidido, y pedirle un clic más para ver los

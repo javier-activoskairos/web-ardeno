@@ -140,9 +140,10 @@ export function ProjectSnapshot({ project }: { project: PublicProject }) {
 /**
  * Cierre de la ficha: la pregunta, el contacto directo y el formulario.
  *
- * Va sobre la superficie oscura del hero, así que la narrativa abre y cierra
- * en el mismo tono y el bloque se lee como conclusión, no como un segundo pie:
- * el footer es claro, bajo y de letra pequeña, y viene justo después.
+ * Va sobre el navy de marca, el mismo azul que sostiene la disponibilidad: las
+ * dos paradas oscuras del scroll son el mismo material, y el bloque se lee como
+ * conclusión y no como un segundo pie —el footer es claro, bajo y de letra
+ * pequeña, y viene justo después—.
  *
  * El formulario está montado en la página, dentro de un panel claro. Quien
  * llega hasta aquí ya ha decidido; los campos se ven sin abrir nada. El
@@ -152,7 +153,7 @@ export function ProjectSnapshot({ project }: { project: PublicProject }) {
 export function ProjectInterest({ project }: { project: PublicProject }) {
   return (
     <section
-      className="ar-sec ar-deep ar-on-dark ar-interest"
+      className="ar-sec ar-navy ar-on-dark ar-interest"
       id={INTEREST_ANCHOR}
       aria-labelledby="project-interest"
     >
