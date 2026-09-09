@@ -1222,15 +1222,18 @@
     overflow: hidden;
   }
 
-  /* Confirmación de envío. Mismo peso que `.ar-alert`, en tinta neutra. */
-  .ar-note {
-    padding: 12px 14px;
-    border: 1px solid var(--w-line);
-    border-radius: var(--w-r-field);
-    background: var(--w-panel);
-    color: var(--w-ink);
-    font-size: var(--w-s-16);
-    line-height: 1.5;
+  /* Confirmación de envío. Sustituye al formulario, así que hereda su ritmo:
+     ni recuadro, ni icono, ni color de estado. El mensaje ya lo dice todo. */
+  .ar-success {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+    margin-top: 12px;
+  }
+  /* El foco llega aquí por programa, no por tabulación: sin anillo. */
+  .ar-success > p:focus {
+    outline: none;
   }
 
   /* ---------- Modal ----------

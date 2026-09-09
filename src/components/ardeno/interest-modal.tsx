@@ -111,6 +111,7 @@ export function InterestProvider({
   const sendingRef = useRef(false);
   const utmRef = useRef<Utm>(EMPTY_UTM);
   const honeypotRef = useRef<HTMLInputElement | null>(null);
+  const successRef = useRef<HTMLDivElement | null>(null);
 
   /*
    * Atribución al montar, no al enviar: el visitante puede navegar y perder
@@ -205,6 +206,13 @@ export function InterestProvider({
       window.clearTimeout(focusTimer);
     };
   }, [isOpen, close]);
+
+  // Tras el éxito el formulario desaparece: el foco tiene que ir a algún
+  // sitio, y ese sitio es la confirmación. Desde ahí, el siguiente tabulador
+  // cae en «Close».
+  useEffect(() => {
+    if (state === "success") successRef.current?.focus();
+  }, [state]);
 
   const setField =
     (name: FieldName) =>
@@ -321,161 +329,185 @@ export function InterestProvider({
 
             <div className="ar-modal__body">
               <h2 id={titleId} className="ar-display ar-modal__title">
-                Interested in this project?
+                {state === "success"
+                  ? "Thank you."
+                  : "Interested in this project?"}
               </h2>
-              <p className="ar-body ar-modal__intro">
-                Leave your details and our team will share the latest verified
-                project information.
-              </p>
+              {state === "success" ? null : (
+                <p className="ar-body ar-modal__intro">
+                  Leave your details and our team will share the latest verified
+                  project information.
+                </p>
+              )}
 
-              <form
-                className="ar-form ar-modal__form"
-                noValidate
-                onSubmit={onSubmit}
-              >
-                {state === "unconfigured" ? (
-                  <div className="ar-alert" role="alert">
-                    We cannot send your request yet. The enquiry integration is
-                    not configured for this project.
-                    <span className="mt-2 block border-t border-[rgba(154,59,48,0.22)] pt-2 text-[var(--w-ink-2)] text-[var(--w-s-14)]">
-                      Nothing was sent or stored. Please contact the Ardeno team
-                      directly in the meantime.
-                    </span>
-                  </div>
-                ) : null}
+              {state === "success" ? (
+                <div className="ar-success">
+                  {/* Recibe el foco al confirmarse el envío y se anuncia como
+                      estado. `tabIndex={-1}` lo hace enfocable sin meterlo en
+                      el orden de tabulación: el siguiente Tab va a «Close». */}
+                  <p
+                    className="ar-body"
+                    role="status"
+                    tabIndex={-1}
+                    ref={successRef}
+                  >
+                    Your enquiry has been received. Our team will be in touch
+                    shortly.
+                  </p>
+                  <ArdenoButton
+                    variant="brand"
+                    onClick={close}
+                    className="self-start"
+                  >
+                    Close
+                  </ArdenoButton>
+                </div>
+              ) : (
+                <form
+                  className="ar-form ar-modal__form"
+                  noValidate
+                  onSubmit={onSubmit}
+                >
+                  {state === "unconfigured" ? (
+                    <div className="ar-alert" role="alert">
+                      We cannot process your request yet. The enquiry
+                      integration is not configured for this project.
+                      <span className="mt-2 block border-t border-[rgba(154,59,48,0.22)] pt-2 text-[var(--w-ink-2)] text-[var(--w-s-14)]">
+                        Your request was not forwarded to the Ardeno team or
+                        stored. Please contact Ardeno directly in the meantime.
+                      </span>
+                    </div>
+                  ) : null}
 
-                {state === "error" ? (
-                  <div className="ar-alert" role="alert">
-                    We could not send your request. Please try again.
-                  </div>
-                ) : null}
+                  {state === "error" ? (
+                    <div className="ar-alert" role="alert">
+                      We could not send your request. Please try again.
+                    </div>
+                  ) : null}
 
-                {state === "success" ? (
-                  <div className="ar-note" role="status">
-                    Thank you. Our team will be in touch shortly.
-                  </div>
-                ) : null}
-
-                {/* Trampa para bots: fuera de pantalla, nunca oculta con
+                  {/* Trampa para bots: fuera de pantalla, nunca oculta con
                     `display:none`, fuera del orden de tabulación y fuera del
                     árbol de accesibilidad. Quien la rellene recibe un éxito
                     genérico y su envío no se reenvía a ningún sitio. */}
-                <div className="ar-hp" aria-hidden="true">
-                  <label htmlFor={fieldId("company")}>Company</label>
-                  <input
-                    id={fieldId("company")}
-                    name="company"
-                    type="text"
-                    tabIndex={-1}
-                    autoComplete="off"
-                    ref={honeypotRef}
-                    defaultValue=""
-                  />
-                </div>
+                  <div className="ar-hp" aria-hidden="true">
+                    <label htmlFor={fieldId("company")}>Company</label>
+                    <input
+                      id={fieldId("company")}
+                      name="company"
+                      type="text"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      ref={honeypotRef}
+                      defaultValue=""
+                    />
+                  </div>
 
-                <ArdenoField
-                  id={fieldId("name")}
-                  label="Name"
-                  error={errors.name}
-                >
-                  <ArdenoInput
+                  <ArdenoField
                     id={fieldId("name")}
-                    name="name"
-                    type="text"
-                    autoComplete="name"
-                    value={values.name}
-                    onChange={setField("name")}
-                    ref={(el) => {
-                      inputRefs.current.name = el;
-                    }}
-                    aria-invalid={errors.name ? "true" : undefined}
-                    aria-describedby={
-                      errors.name ? `${fieldId("name")}-error` : undefined
-                    }
-                  />
-                </ArdenoField>
-
-                <div className="ar-row2">
-                  <ArdenoField
-                    id={fieldId("email")}
-                    label="Email"
-                    error={errors.email}
+                    label="Name"
+                    error={errors.name}
                   >
                     <ArdenoInput
+                      id={fieldId("name")}
+                      name="name"
+                      type="text"
+                      autoComplete="name"
+                      value={values.name}
+                      onChange={setField("name")}
+                      ref={(el) => {
+                        inputRefs.current.name = el;
+                      }}
+                      aria-invalid={errors.name ? "true" : undefined}
+                      aria-describedby={
+                        errors.name ? `${fieldId("name")}-error` : undefined
+                      }
+                    />
+                  </ArdenoField>
+
+                  <div className="ar-row2">
+                    <ArdenoField
                       id={fieldId("email")}
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      value={values.email}
-                      onChange={setField("email")}
-                      ref={(el) => {
-                        inputRefs.current.email = el;
-                      }}
-                      aria-invalid={errors.email ? "true" : undefined}
-                      aria-describedby={
-                        errors.email ? `${fieldId("email")}-error` : undefined
-                      }
-                    />
-                  </ArdenoField>
+                      label="Email"
+                      error={errors.email}
+                    >
+                      <ArdenoInput
+                        id={fieldId("email")}
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        value={values.email}
+                        onChange={setField("email")}
+                        ref={(el) => {
+                          inputRefs.current.email = el;
+                        }}
+                        aria-invalid={errors.email ? "true" : undefined}
+                        aria-describedby={
+                          errors.email ? `${fieldId("email")}-error` : undefined
+                        }
+                      />
+                    </ArdenoField>
+
+                    <ArdenoField
+                      id={fieldId("phone")}
+                      label="Phone"
+                      error={errors.phone}
+                    >
+                      <ArdenoInput
+                        id={fieldId("phone")}
+                        name="phone"
+                        type="tel"
+                        autoComplete="tel"
+                        value={values.phone}
+                        onChange={setField("phone")}
+                        ref={(el) => {
+                          inputRefs.current.phone = el;
+                        }}
+                        aria-invalid={errors.phone ? "true" : undefined}
+                        aria-describedby={
+                          errors.phone ? `${fieldId("phone")}-error` : undefined
+                        }
+                      />
+                    </ArdenoField>
+                  </div>
 
                   <ArdenoField
-                    id={fieldId("phone")}
-                    label="Phone"
-                    error={errors.phone}
+                    id={fieldId("reason")}
+                    label="Why are you interested in this project?"
+                    optional
                   >
-                    <ArdenoInput
-                      id={fieldId("phone")}
-                      name="phone"
-                      type="tel"
-                      autoComplete="tel"
-                      value={values.phone}
-                      onChange={setField("phone")}
-                      ref={(el) => {
-                        inputRefs.current.phone = el;
-                      }}
-                      aria-invalid={errors.phone ? "true" : undefined}
-                      aria-describedby={
-                        errors.phone ? `${fieldId("phone")}-error` : undefined
-                      }
+                    <ArdenoTextarea
+                      id={fieldId("reason")}
+                      name="reason"
+                      rows={3}
+                      value={values.reason}
+                      onChange={setField("reason")}
                     />
                   </ArdenoField>
-                </div>
 
-                <ArdenoField
-                  id={fieldId("reason")}
-                  label="Why are you interested in this project?"
-                  optional
-                >
-                  <ArdenoTextarea
-                    id={fieldId("reason")}
-                    name="reason"
-                    rows={3}
-                    value={values.reason}
-                    onChange={setField("reason")}
-                  />
-                </ArdenoField>
-
-                {/* Superficie clara: es el único sitio de la ficha donde el CTA
+                  {/* Superficie clara: es el único sitio de la ficha donde el CTA
                   medido del sitio real se puede usar tal cual. */}
-                <ArdenoButton
-                  type="submit"
-                  variant="brand"
-                  className="mt-1 self-start"
-                  disabled={state === "pending"}
-                  aria-busy={state === "pending"}
-                >
-                  {state === "pending" ? "Sending…" : "Express interest"}
-                </ArdenoButton>
+                  <ArdenoButton
+                    type="submit"
+                    variant="brand"
+                    className="mt-1 self-start"
+                    disabled={state === "pending"}
+                    aria-busy={state === "pending"}
+                  >
+                    {state === "pending" ? "Sending…" : "Express interest"}
+                  </ArdenoButton>
 
-                {/* Tiene que ser cierto en los cinco estados. La promesa de
-                    que no se envía nada solo vale con la captación apagada, y
-                    eso ya lo dice su propio aviso; aquí queda lo que se cumple
-                    siempre. */}
-                <p className="ar-modal__note">
-                  Your details are only sent to the Ardeno team when you submit
-                  this form. Nothing is saved in your browser.
-                </p>
-              </form>
+                  {/* Acompaña al formulario en idle, pending y error. En
+                    `unconfigured` sobra: su propio aviso ya explica qué ha
+                    pasado con la petición. */}
+                  {state === "unconfigured" ? null : (
+                    <p className="ar-modal__note">
+                      Nothing is stored in your browser. When submission is
+                      available, your details are sent to the Ardeno team to
+                      respond to your enquiry.
+                    </p>
+                  )}
+                </form>
+              )}
             </div>
           </div>
         </div>
