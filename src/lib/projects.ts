@@ -9,6 +9,8 @@
  *
  * Cuando el cliente verifique alguno, se añade aquí de forma explícita y se
  * diseña su estado en la interfaz. Hasta entonces, la ficha no los menciona.
+ *
+ * El contrato y su frontera están descritos en `docs/data-contract.md`.
  */
 
 /** Una celda del snapshot: cifra grande sobre etiqueta en versales. */
@@ -76,12 +78,22 @@ export type PublicArchitecture = {
 };
 
 export type PublicProject = {
+  /**
+   * Identificador estable e interno. No se muestra, no viaja en la URL y no
+   * cambia aunque cambie el slug. Es la clave con la que más adelante se
+   * relacionarán proyecto, formulario, lead y fila de Notion.
+   */
+  readonly id: string;
+  /**
+   * Publicación explícita. Solo `true` sale del módulo: ni en los listados, ni
+   * en el sitemap, ni escribiendo la URL a mano.
+   */
+  readonly published: boolean;
+  /** Segmento de URL. Es de marketing y puede cambiar; el `id` no. */
   readonly slug: string;
   readonly name: string;
   readonly city: string;
   readonly state: string;
-  /** Abreviatura del estado para líneas de meta cortas. */
-  readonly stateShort: string;
   readonly typology: string;
   readonly positioningLine: string;
   readonly snapshot: readonly PublicSnapshotItem[];
@@ -98,13 +110,19 @@ export type PublicProject = {
   readonly gallery?: readonly PublicGalleryImage[];
 };
 
-const PUBLIC_PROJECTS: readonly PublicProject[] = [
+/**
+ * `satisfies` en lugar de anotación: comprueba la forma y además delata
+ * propiedades sobrantes, que es justo lo que hay que impedir el día que estos
+ * objetos dejen de escribirse a mano.
+ */
+const PROJECTS = [
   {
+    id: "ardeno-720-sherrybrook",
+    published: true,
     slug: "720-sherrybrook",
     name: "720 Sherrybrook",
     city: "Raleigh",
     state: "North Carolina",
-    stateShort: "NC",
     typology: "Four Single-Family Residences",
     positioningLine: "Four homes, one considered plan.",
     snapshot: [
@@ -204,14 +222,141 @@ const PUBLIC_PROJECTS: readonly PublicProject[] = [
       ],
     },
   },
-];
+] satisfies readonly PublicProject[];
 
-/** Slugs publicados. Alimenta generateStaticParams. */
-export function getPublishedProjectSlugs(): readonly string[] {
-  return PUBLIC_PROJECTS.map((project) => project.slug);
+/* ------------------------------------------------------------- Invariantes */
+
+/**
+ * Comprobaciones sobre los datos locales.
+ *
+ * Se ejecutan una sola vez, al cargar el módulo, y lanzan: así un dato mal
+ * formado rompe el build en lugar de publicarse. No comprueban que los
+ * archivos existan —eso es trabajo de un script aparte, no del runtime— y solo
+ * corren en servidor: los componentes cliente importan tipos, que se borran al
+ * compilar, así que nada de esto llega al navegador.
+ */
+const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+function assertProjectsAreValid(projects: readonly PublicProject[]): void {
+  const fail = (id: string, message: string): never => {
+    throw new Error(`Datos de proyecto inválidos (${id}): ${message}`);
+  };
+  const filled = (value: string) => value.trim().length > 0;
+  const positiveInteger = (value: number) =>
+    Number.isInteger(value) && value > 0;
+
+  const seenIds = new Set<string>();
+  const seenSlugs = new Set<string>();
+
+  for (const project of projects) {
+    const where = project.id || project.slug || "sin identificar";
+
+    if (!filled(project.id)) fail(where, "`id` vacío");
+    if (seenIds.has(project.id)) fail(where, "`id` duplicado");
+    seenIds.add(project.id);
+
+    if (!filled(project.slug)) fail(where, "`slug` vacío");
+    if (!SLUG_PATTERN.test(project.slug))
+      fail(where, `slug con formato inválido: "${project.slug}"`);
+    if (seenSlugs.has(project.slug)) fail(where, "`slug` duplicado");
+    seenSlugs.add(project.slug);
+
+    for (const field of [
+      "name",
+      "city",
+      "state",
+      "typology",
+      "positioningLine",
+    ] as const) {
+      if (!filled(project[field])) fail(where, `\`${field}\` vacío`);
+    }
+
+    if (project.snapshot.length < 1 || project.snapshot.length > 4)
+      fail(
+        where,
+        `snapshot con ${project.snapshot.length} celdas; se esperan 1-4`,
+      );
+    for (const item of project.snapshot) {
+      if (!filled(item.value) || !filled(item.label))
+        fail(where, "celda de snapshot con `value` o `label` vacío");
+    }
+
+    // Solo rutas locales: nada de orígenes remotos ni protocolo relativo.
+    const assertMedia = (
+      media: { src: string; alt: string; width: number; height: number },
+      kind: string,
+    ) => {
+      if (!media.src.startsWith("/") || media.src.startsWith("//"))
+        fail(where, `${kind}: \`src\` debe ser una ruta local: "${media.src}"`);
+      if (/^[a-z][a-z0-9+.-]*:/i.test(media.src))
+        fail(where, `${kind}: \`src\` no puede ser una URL remota`);
+      if (!filled(media.alt)) fail(where, `${kind}: \`alt\` vacío`);
+      if (!positiveInteger(media.width) || !positiveInteger(media.height))
+        fail(where, `${kind}: \`width\` y \`height\` deben ser enteros > 0`);
+    };
+
+    if (project.heroMedia) assertMedia(project.heroMedia, "heroMedia");
+
+    if (project.gallery) {
+      if (project.gallery.length === 0)
+        fail(where, "`gallery` presente pero vacía; omítela en su lugar");
+      for (const image of project.gallery) {
+        assertMedia(image, "gallery");
+        if (!filled(image.caption)) fail(where, "gallery: `caption` vacío");
+      }
+    }
+  }
 }
 
-/** Devuelve el proyecto publicado, o undefined si no existe. */
-export function getPublicProject(slug: string): PublicProject | undefined {
-  return PUBLIC_PROJECTS.find((project) => project.slug === slug);
+assertProjectsAreValid(PROJECTS);
+
+/* ------------------------------------------------------------------ Origen */
+
+/**
+ * Origen de proyectos.
+ *
+ * Es asíncrono a propósito, aunque hoy los datos estén en memoria: el día que
+ * lleguen de Notion no habrá que tocar ni las funciones públicas ni la página.
+ * Un origen solo devuelve proyectos publicados; el filtro no es cosa de quien
+ * consume.
+ */
+export type ProjectSource = {
+  listPublished(): Promise<readonly PublicProject[]>;
+  getBySlug(slug: string): Promise<PublicProject | undefined>;
+};
+
+export const localProjectSource: ProjectSource = {
+  async listPublished() {
+    return PROJECTS.filter((project) => project.published);
+  },
+  async getBySlug(slug) {
+    return PROJECTS.find(
+      (project) => project.published && project.slug === slug,
+    );
+  },
+};
+
+/** El origen en uso. Aquí se enchufará el adaptador de Notion. */
+const source: ProjectSource = localProjectSource;
+
+/* --------------------------------------------------------- API del módulo */
+
+/** Proyectos publicados. */
+export function getPublishedProjects(): Promise<readonly PublicProject[]> {
+  return source.listPublished();
+}
+
+/** Slugs publicados. Alimenta `generateStaticParams` y el sitemap. */
+export async function getPublishedProjectSlugs(): Promise<readonly string[]> {
+  return (await source.listPublished()).map((project) => project.slug);
+}
+
+/**
+ * Devuelve el proyecto publicado, o `undefined`. Un proyecto sin publicar no
+ * es alcanzable ni escribiendo su URL.
+ */
+export function getPublicProject(
+  slug: string,
+): Promise<PublicProject | undefined> {
+  return source.getBySlug(slug);
 }

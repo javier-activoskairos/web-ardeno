@@ -25,20 +25,28 @@ import { getPublicProject, getPublishedProjectSlugs } from "@/lib/projects";
 
 const PUBLISHED_LOCALE = "en";
 
-export function generateStaticParams({
+/**
+ * Un slug que no se haya prerenderizado se resuelve bajo demanda. Hoy solo
+ * afecta a slugs inexistentes, que acaban en `notFound()`; cuando los
+ * proyectos lleguen de Notion, permitirá publicar uno nuevo sin reconstruir.
+ */
+export const dynamicParams = true;
+
+export async function generateStaticParams({
   params,
 }: {
   params: { locale: string };
 }) {
   if (params.locale !== PUBLISHED_LOCALE) return [];
-  return getPublishedProjectSlugs().map((slug) => ({ slug }));
+  const slugs = await getPublishedProjectSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/portfolio/[slug]">): Promise<Metadata> {
   const { locale, slug } = await params;
-  const project = getPublicProject(slug);
+  const project = await getPublicProject(slug);
 
   if (locale !== PUBLISHED_LOCALE || !project) {
     return { title: { absolute: "Ardeno Group" } };
@@ -66,7 +74,7 @@ export default async function ProjectPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const project = getPublicProject(slug);
+  const project = await getPublicProject(slug);
 
   // La ficha en español no está publicada: sin traducción aprobada, 404.
   if (locale !== PUBLISHED_LOCALE || !project) {

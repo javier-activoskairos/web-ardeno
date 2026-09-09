@@ -12,10 +12,11 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
  */
 const PUBLISHED_LOCALE = "en";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
+  const slugs = await getPublishedProjectSlugs();
 
-  return getPublishedProjectSlugs().map((slug) => ({
+  return slugs.map((slug) => ({
     url: `${siteUrl}/${PUBLISHED_LOCALE}/portfolio/${slug}`,
     lastModified,
   }));
