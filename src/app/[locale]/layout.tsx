@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Manrope } from "next/font/google";
+import { Hanken_Grotesk } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import {
@@ -10,23 +10,17 @@ import {
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
-// Las dos caras del sitio real, verificadas sobre el CSS computado de
-// ardenogroup.com. No se carga ninguna más: Lora aparece allí como acento
-// editorial a 50px/600, pero esta primera pantalla no tiene ningún rol
-// equivalente, así que descargarla sería peso sin uso.
-
-// Manrope — display y contenido. El h1 del sitio es Manrope 60px/300.
-// Variable en Google Fonts, así que un solo archivo cubre 200–800.
-const manrope = Manrope({
+// PRUEBA — Hanken Grotesk en lugar del par Manrope + Geist.
+//
+// Es la cara que declara el design system del v3 en Claude Design. Allí una
+// sola familia cubre display y contenido, así que aquí se asigna a los dos
+// roles: `--font-sans` (titulares y prosa) y `--font-ui` (navegación,
+// etiquetas, controles). Los tokens de tamaño e interletraje siguen siendo los
+// medidos sobre ardenogroup.com y no se tocan: la prueba es solo la fuente.
+//
+// Para volver al par verificado basta con revertir este archivo.
+const hanken = Hanken_Grotesk({
   variable: "--font-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-// Geist — navegación, etiquetas, controles y botones. Verificado: los enlaces
-// de navegación son Geist 18/500 y la etiqueta del CTA, Geist 16/500.
-const geist = Geist({
-  variable: "--font-ui",
   subsets: ["latin"],
   display: "swap",
 });
@@ -97,7 +91,11 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${manrope.variable} ${geist.variable} h-full antialiased`}
+      className={`${hanken.variable} h-full antialiased`}
+      // El rol de interfaz apunta a la misma familia en lugar de declararla
+      // otra vez: dos llamadas a `next/font` con la misma fuente descargan el
+      // mismo woff2 dos veces.
+      style={{ "--font-ui": "var(--font-sans)" } as React.CSSProperties}
     >
       <body className="flex min-h-full flex-col">
         <NextIntlClientProvider messages={clientMessages(messages)}>
