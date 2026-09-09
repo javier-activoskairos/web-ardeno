@@ -115,7 +115,10 @@ export function ProjectHero({ project }: { project: PublicProject }) {
               alt={heroMedia.alt}
               fill
               preload
-              sizes="(min-width: 1440px) 1360px, 100vw"
+              // Desde 1600px el marco deja el contenedor de sitio y crece
+              // hasta los 1672px del archivo, así que el `sizes` tiene que
+              // decirlo o el navegador pediría una variante corta.
+              sizes="(min-width: 1600px) 1672px, (min-width: 1440px) 1360px, 100vw"
               className="ar-hero__media"
             />
           </div>

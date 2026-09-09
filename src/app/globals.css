@@ -416,6 +416,12 @@
     flex-direction: column;
     gap: 24px;
   }
+  /* La columna narrativa es ancha y el cuerpo llegaba a ~74 caracteres por
+     línea. Se acota solo aquí: `--w-measure` y `.ar-body` siguen sirviendo al
+     resto de la ficha y al modal. */
+  .ar-story__body .ar-body {
+    max-width: 52ch;
+  }
 
   @media (min-width: 900px) {
     .ar-story {
@@ -487,14 +493,23 @@
 
   /* Seis hechos reparten en filas completas tanto a dos como a tres columnas.
      Los tres detalles solo lo hacen a tres: a dos, el tercero quedaría solo en
-     una fila con el hueco al lado, así que hasta 900px se apilan. */
+     una fila con el hueco al lado. */
   @media (min-width: 600px) {
     .ar-facts {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   @media (min-width: 900px) {
-    .ar-facts,
+    .ar-facts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  /* Los detalles son prosa, no cifras: necesitan más ancho que los hechos.
+     A tres columnas desde 900px la línea caía a ~31 caracteres, seis renglones
+     cortos y muy irregulares. Apilados, el `max-width: 46ch` del cuerpo manda y
+     la medida se queda donde se lee. Las tres columnas entran a 1200px, que es
+     cuando cada una da de sí lo suficiente. */
+  @media (min-width: 1200px) {
     .ar-details {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -1012,6 +1027,27 @@
     }
   }
 
+  /* En pantallas muy anchas el marco se quedaba en los 1360px del contenedor
+     de sitio y el render bajaba a la mitad del ancho. Aquí, y solo aquí, deja
+     de depender de ese contenedor.
+
+     El relleno arranca en 120px, que a 1600px devuelve exactamente los 1360px
+     de antes: el corte no se nota. A partir de ahí crece con la pantalla, así
+     que los márgenes laterales siguen siendo amplios.
+
+     El tope son los 1672px reales del archivo: más allá no hay detalle que
+     ganar, solo ampliación. El recorte no se toca. */
+  @media (min-width: 1600px) {
+    .ar-hero--media .ar-hero__plate .ar-wrap {
+      max-width: none;
+      padding-inline: clamp(120px, 7.5vw, 200px);
+    }
+    .ar-hero--media .ar-hero__frame {
+      max-width: 1672px;
+      margin-inline: auto;
+    }
+  }
+
   /* ---------- Hero sin media ----------
      Sin fotografía aprobada no tiene sentido reservar el viewport completo:
      el marco vacío quedaba flotando en un lienzo negro y el snapshot caía
@@ -1386,6 +1422,41 @@
   }
   .ar-row2 {
     grid-template-columns: 1fr;
+  }
+
+  /* Cubierta a sangre. En móvil, encajada en los gutters, se leía como una
+     fotografía pequeña entre dos bloques de texto en vez de como la pausa que
+     tiene que ser. Llega a los bordes con un margen negativo del propio gutter,
+     así que sigue siendo el contenedor quien manda la medida.
+
+     La proporción 4:3 y el recorte no se tocan: cualquier encuadre más alto
+     perdería la cuarta residencia. El badge se posiciona contra el botón, que
+     conserva su ancho, de modo que mantiene su separación del borde. */
+  .ar-cover__frame {
+    margin-inline: calc(var(--w-gutter) * -1);
+    border-radius: 0;
+  }
+  /* Pegado a los bordes, un anillo por fuera se saldría de la pantalla, así que
+     hay que dibujarlo hacia dentro. Pero `outline-offset` negativo no vale: la
+     imagen va posicionada dentro del marco y se pinta por encima, de modo que
+     el anillo desaparecía por completo. Medido: cero píxeles cambiaban al
+     enfocar. Se pinta como pseudo-elemento, que sí queda por delante.
+
+     Doble aro, blanco por dentro y tinta por fuera: sobre una fotografía
+     ninguno de los dos colores contrasta en todas partes —el cielo es claro y
+     el césped oscuro—, pero juntos siempre se ve uno. Son los dos tokens de
+     foco que ya existen. */
+  .ar-cover:focus-visible .ar-cover__frame {
+    outline: none;
+  }
+  .ar-cover:focus-visible .ar-cover__frame::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    z-index: 1;
+    border: 2px solid var(--w-focus-on-dark);
+    outline: 2px solid var(--w-focus);
+    pointer-events: none;
   }
 
   /* Footer apilado: el símbolo abre y todo se centra. */
