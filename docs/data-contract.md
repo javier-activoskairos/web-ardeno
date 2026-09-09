@@ -41,18 +41,51 @@ sitemap, **ni es alcanzable escribiendo su URL**: `getPublicProject` devuelve
 **Obligatorios** — `id`, `published`, `slug`, `name`, `city`, `state`,
 `typology`, `positioningLine`, `snapshot`.
 
-**Opcionales** — `heroMedia`, `story`, `architecture`, `gallery`.
+**Opcionales** — `heroMedia`, `story`, `editorialSections`, `architecture`,
+`gallery`.
 
 Un módulo ausente **desaparece entero**: sin `<section>`, sin título, sin
 separador y sin el espacio vertical que ocupaba. No quedan huecos ni marcadores
 de posición.
 
-| Ausente        | Qué ocurre                                                                                            |
-| -------------- | ----------------------------------------------------------------------------------------------------- |
-| `heroMedia`    | El hero cambia a su composición editorial con «Project imagery pending». Es una variante, no un vacío |
-| `story`        | La sección no se emite                                                                                |
-| `architecture` | La sección no se emite                                                                                |
-| `gallery`      | Ni se monta la isla cliente: la comprobación está en el servidor                                      |
+| Ausente             | Qué ocurre                                                                                            |
+| ------------------- | ----------------------------------------------------------------------------------------------------- |
+| `heroMedia`         | El hero cambia a su composición editorial con «Project imagery pending». Es una variante, no un vacío |
+| `story`             | La sección no se emite                                                                                |
+| `editorialSections` | No se emite ningún capítulo: la narrativa enlaza con lo que venga después                             |
+| `architecture`      | La sección no se emite                                                                                |
+| `gallery`           | Ni se monta la isla cliente: la comprobación está en el servidor                                      |
+
+### `editorialSections`
+
+Capítulos de prosa con su render, en el orden en el que se leen. Es lo que
+alterna texto e imagen durante el scroll en lugar de acumular párrafos.
+
+```ts
+type PublicEditorialSection = {
+  id: string; // clave estable y ancla del titular; no se muestra
+  title: string;
+  body: string;
+  media: PublicMedia; // la misma forma que usa `heroMedia`
+};
+```
+
+Deliberadamente mínimo:
+
+- **Sin campo de disposición.** Qué lado ocupa el render lo decide la
+  composición a partir de la posición del capítulo, no el dato. Quien edita no
+  tiene que pensar en columnas, y la alternancia sigue funcionando aunque se
+  reordenen, se quite uno o se añada un tercero.
+- **Sin pie.** Los pies son de la galería, que es el archivo visual completo del
+  proyecto. Aquí la imagen ilustra el texto que tiene al lado.
+- **Sin variantes.** No hay tamaños, ni tonos, ni tipos de capítulo: no existe
+  todavía un consumidor que los pida.
+
+El medio reutiliza `PublicMedia`, la forma común de todo medio sin pie del
+contrato. No hay un tipo de imagen por sección.
+
+Que un render aparezca a la vez en un capítulo y en la galería es correcto y
+esperado: son dos roles distintos del mismo archivo.
 
 ## Invariantes
 
@@ -69,6 +102,8 @@ cliente importan tipos, y los tipos se borran al compilar.
 - `alt` no vacío
 - `width` y `height` enteros mayores que cero
 - si `gallery` existe, al menos una imagen, y todas con `caption` no vacío
+- si `editorialSections` existe, al menos un capítulo, con `id` único dentro del
+  proyecto y con el mismo formato que un slug, y con `title` y `body` no vacíos
 
 No se comprueba que los archivos existan en disco: eso es trabajo de un script
 aparte, no del arranque del módulo.

@@ -431,6 +431,58 @@
     }
   }
 
+  /* ---------- Capítulos editoriales ----------
+     Prosa y render lado a lado, alternando. Sin tarjeta, sin fondo propio, sin
+     caja y sin sombra: la única estructura es la retícula, y el cambio de
+     escala lo da la imagen. Es lo mismo que hace el resto de la ficha.
+
+     El render no se recorta: lleva su proporción nativa y su hueco queda
+     reservado desde el primer pintado. */
+  .ar-chapter {
+    /* Sin separación superior propia. Dos tramos de ritmo seguidos —el de la
+       sección anterior más el suyo— partían la narrativa en bloques sueltos
+       justo donde tiene que leerse de corrido. */
+    padding-top: 0;
+  }
+  .ar-chapter__grid {
+    display: grid;
+    gap: clamp(24px, 4vw, 36px);
+  }
+  .ar-chapter__title {
+    max-width: 16ch;
+  }
+  .ar-chapter__body {
+    margin-top: 20px;
+    max-width: 52ch;
+  }
+  .ar-chapter__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--w-r-img);
+  }
+
+  /* Dos columnas solo cuando la de texto da de sí. A 900px se quedaba en unos
+     38 caracteres por línea, que es justo lo que hay que evitar; a 1200px pasa
+     de 45 y a partir de ahí manda la medida de 52ch.
+
+     El texto va primero en el DOM, así que apilado ya se lee en el orden que
+     toca. El intercambio de lados solo existe cuando hay dos columnas de
+     verdad, y sale de la posición del capítulo, no del dato. */
+  @media (min-width: 1200px) {
+    .ar-chapter__grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(40px, 4.5vw, 64px);
+      align-items: center;
+    }
+    .ar-chapter--mirror .ar-chapter__grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+    .ar-chapter--mirror .ar-chapter__text {
+      order: 2;
+    }
+  }
+
   /* ---------- Architecture and living ----------
      Desarrolla el snapshot en lugar de repetirlo: aquí la etiqueta va encima
      de la cifra y todo se alinea a la izquierda sobre un filete, mientras que
@@ -508,10 +560,17 @@
      A tres columnas desde 900px la línea caía a ~31 caracteres, seis renglones
      cortos y muy irregulares. Apilados, el `max-width: 46ch` del cuerpo manda y
      la medida se queda donde se lee. Las tres columnas entran a 1200px, que es
-     cuando cada una da de sí lo suficiente. */
+     cuando cada una da de sí lo suficiente.
+
+     Cuántas columnas lo dice el recuento, igual que en el snapshot: con un solo
+     detalle la retícula es de una, y ese detalle ocupa su fila entera en lugar
+     de dejar dos huecos a la derecha. El techo sigue siendo tres. */
   @media (min-width: 1200px) {
     .ar-details {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(
+        min(var(--ar-details-cols, 3), 3),
+        minmax(0, 1fr)
+      );
     }
   }
 
@@ -696,6 +755,35 @@
   .ar-lightbox :focus-visible {
     outline: 2px solid var(--w-focus-on-dark);
     outline-offset: 3px;
+  }
+
+  /* ---------- Cierre ----------
+     Última parada antes del pie. Va sobre la superficie oscura del hero, así
+     que la ficha abre y cierra en el mismo tono y el bloque se lee como
+     conclusión y no como un segundo pie: el footer que viene después es claro,
+     bajo y de letra pequeña.
+
+     Sin imagen de fondo, sin decoración y sin formulario en línea. Solo la
+     pregunta, una frase y el botón de siempre. */
+  .ar-closing {
+    background: var(--w-hero-top);
+    color: var(--w-on-dark);
+    padding-block: var(--w-section-y);
+  }
+  .ar-closing__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ar-closing__title {
+    max-width: 18ch;
+  }
+  .ar-closing__body {
+    margin-top: 20px;
+    max-width: 48ch;
+  }
+  .ar-closing__cta {
+    margin-top: 32px;
   }
 
   /* ---------- Footer ----------

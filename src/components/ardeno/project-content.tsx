@@ -1,8 +1,9 @@
+import Image from "next/image";
 import type { PublicProject } from "@/lib/projects";
 import { ArdenoContainer } from "./primitives";
 
 /**
- * Contenido del proyecto: narrativa y arquitectura.
+ * Contenido del proyecto: narrativa, capítulos editoriales y arquitectura.
  *
  * Server Components puros. No llevan estado, ni efectos, ni JavaScript de
  * cliente: son texto compuesto en el servidor. Todo el contenido llega desde
@@ -61,6 +62,90 @@ export function ProjectStory({ project }: { project: PublicProject }) {
   );
 }
 
+/* ------------------------------------------------------ Capítulos editoriales */
+
+/**
+ * Anchura que ocupará el render, para que el navegador pida la variante justa.
+ *
+ * Desde 1200px la imagen es la columna de 7/12 del contenedor: 709px medidos
+ * cuando el contenedor topa en sus 1360px, y algo menos mientras crece. Por
+ * debajo la composición se apila y ocupa el ancho del contenedor; `100vw` se
+ * pasa un poco —los gutters— y esa dirección es la segura: pedir de menos daría
+ * una imagen ampliada.
+ *
+ * Los valores salen de la medición y no de redondear al alza: con 764px y 57vw
+ * el navegador subía a la variante de 828 donde le basta la de 750.
+ */
+const CHAPTER_SIZES =
+  "(min-width: 1440px) 712px, (min-width: 1200px) 53vw, 100vw";
+
+/**
+ * Capítulos: prosa y render, alternando el lado.
+ *
+ * Es lo que interrumpe la sucesión de texto durante el scroll. Cada capítulo
+ * ocupa su propia `<section>`, sin fondo propio, sin tarjeta y sin caja: la
+ * escala del render es todo el cambio de ritmo.
+ *
+ * La disposición sale de la posición, no del dato: los pares llevan el render a
+ * la derecha y los impares lo llevan a la izquierda. Así el contenido no tiene
+ * que declarar columnas y la alternancia sigue funcionando aunque se reordenen
+ * los capítulos, se quite uno o se añada un tercero.
+ *
+ * En el DOM el texto va siempre primero. En una columna —móvil y tablet— eso ya
+ * es el orden que se lee; el intercambio de lados solo existe cuando hay dos
+ * columnas de verdad.
+ *
+ * Las imágenes no son botones y no abren el visor: ilustran el texto que tienen
+ * al lado. El archivo visual completo es la galería.
+ */
+export function ProjectEditorial({ project }: { project: PublicProject }) {
+  const sections = project.editorialSections;
+  if (!sections || sections.length === 0) return null;
+
+  return (
+    <>
+      {sections.map((section, index) => {
+        const titleId = `chapter-${section.id}`;
+        return (
+          <section
+            key={section.id}
+            className={
+              index % 2 === 1
+                ? "ar-sec ar-chapter ar-chapter--mirror"
+                : "ar-sec ar-chapter"
+            }
+            aria-labelledby={titleId}
+          >
+            <ArdenoContainer className="ar-chapter__grid">
+              <div className="ar-chapter__text">
+                <h2 id={titleId} className="ar-display ar-chapter__title">
+                  {section.title}
+                </h2>
+                <p className="ar-body ar-chapter__body">{section.body}</p>
+              </div>
+
+              {/* Sin `fill`: el archivo manda su propia proporción, así que no
+                  hay recorte y el hueco queda reservado desde el primer pintado.
+                  La carga es diferida por defecto — ninguno de los dos entra en
+                  la primera pantalla. */}
+              <div className="ar-chapter__media">
+                <Image
+                  src={section.media.src}
+                  alt={section.media.alt}
+                  width={section.media.width}
+                  height={section.media.height}
+                  sizes={CHAPTER_SIZES}
+                  className="ar-chapter__img"
+                />
+              </div>
+            </ArdenoContainer>
+          </section>
+        );
+      })}
+    </>
+  );
+}
+
 /* -------------------------------------------------- Architecture and living */
 
 /**
@@ -101,7 +186,15 @@ export function ProjectArchitecture({ project }: { project: PublicProject }) {
         ) : null}
 
         {details.length > 0 ? (
-          <div className="ar-details">
+          /* Las columnas salen del recuento, igual que en el snapshot: con un
+             solo detalle la retícula es de una columna y ocupa su fila entera,
+             en vez de dejar dos huecos a la derecha. Nunca pasa de tres. */
+          <div
+            className="ar-details"
+            style={
+              { "--ar-details-cols": details.length } as React.CSSProperties
+            }
+          >
             {details.map((detail) => (
               <div className="ar-detail" key={detail.title}>
                 <h3 className="ar-detail__title">{detail.title}</h3>

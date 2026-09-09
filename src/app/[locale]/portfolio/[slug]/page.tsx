@@ -4,10 +4,12 @@ import { setRequestLocale } from "next-intl/server";
 import { InterestProvider } from "@/components/ardeno/interest-modal";
 import {
   ProjectArchitecture,
+  ProjectEditorial,
   ProjectStory,
 } from "@/components/ardeno/project-content";
 import { ProjectGallery } from "@/components/ardeno/project-gallery";
 import {
+  ProjectClosing,
   ProjectHeader,
   ProjectHero,
   ProjectSnapshot,
@@ -94,16 +96,22 @@ export default async function ProjectPage({
 
         <ProjectHeader />
 
+        {/* El recorrido: promesa, cifras, plan, los capítulos que lo enseñan,
+            la arquitectura que lo sostiene, el archivo visual y el cierre. Cada
+            sección decide si existe, así que un proyecto con menos datos
+            aprobados recorre lo mismo con menos paradas. */}
         <main id="project-content">
           <ProjectHero project={project} />
           <ProjectSnapshot project={project} />
           <ProjectStory project={project} />
+          <ProjectEditorial project={project} />
+          <ProjectArchitecture project={project} />
           {/* La comprobación vive aquí, en el servidor: sin renders no se monta
               la isla cliente y la sección no existe. */}
           {project.gallery && project.gallery.length > 0 ? (
             <ProjectGallery images={project.gallery} />
           ) : null}
-          <ProjectArchitecture project={project} />
+          <ProjectClosing project={project} />
         </main>
 
         <SiteFooter />

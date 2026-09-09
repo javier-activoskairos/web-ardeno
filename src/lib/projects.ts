@@ -22,13 +22,15 @@ export type PublicSnapshotItem = {
 /**
  * Fotografía o render aprobado del proyecto.
  *
- * Su presencia —no el slug— decide qué hero se compone. Mientras sea
- * `undefined`, la ficha muestra el estado explícito de imagen pendiente en una
- * composición pensada para no tener media. En cuanto el cliente entregue
- * material verificado, se rellena y el hero cinematográfico entra sin tocar
- * componentes.
+ * Es la forma común de todo medio del contrato que no lleva pie: la usan
+ * `heroMedia` y los capítulos editoriales. No se duplica por sección; si algún
+ * día un rol necesita un campo propio, se extiende ahí y no aquí.
+ *
+ * En el hero, su presencia —no el slug— decide qué composición se emite.
+ * Mientras sea `undefined`, la ficha muestra el estado explícito de imagen
+ * pendiente en una composición pensada para no tener media.
  */
-export type PublicHeroMedia = {
+export type PublicMedia = {
   readonly src: string;
   readonly alt: string;
   readonly width: number;
@@ -66,7 +68,9 @@ export type PublicStory = {
  * Arquitectura y uso.
  *
  * `facts` son cifras y recuentos escaneables —desarrollan el snapshot, no lo
- * repiten—; `details` son los tres bloques de prosa que los acompañan.
+ * repiten—; `details` son los bloques de prosa que los acompañan, tantos como
+ * haya aprobados. La retícula se ajusta al recuento: uno solo ocupa su fila
+ * entera en lugar de dejar columnas vacías.
  */
 export type PublicArchitecture = {
   readonly headline: string;
@@ -75,6 +79,26 @@ export type PublicArchitecture = {
     readonly title: string;
     readonly body: string;
   }[];
+};
+
+/**
+ * Capítulo editorial: un tramo de prosa con su render.
+ *
+ * Es el recurso con el que la ficha alterna texto e imagen durante el scroll en
+ * lugar de acumular párrafos. Deliberadamente mínimo:
+ *
+ * - `id` da clave estable y ancla; no se muestra.
+ * - No hay campo de disposición. Qué lado ocupa la imagen lo decide la
+ *   composición a partir de la posición, no el dato: un editor no debe tener
+ *   que pensar en columnas.
+ * - No hay pie. Los pies son de la galería, que es el archivo visual completo;
+ *   aquí la imagen ilustra el texto que tiene al lado.
+ */
+export type PublicEditorialSection = {
+  readonly id: string;
+  readonly title: string;
+  readonly body: string;
+  readonly media: PublicMedia;
 };
 
 export type PublicProject = {
@@ -98,9 +122,15 @@ export type PublicProject = {
   readonly positioningLine: string;
   readonly snapshot: readonly PublicSnapshotItem[];
   /** Ausente mientras no haya material gráfico verificado del proyecto. */
-  readonly heroMedia?: PublicHeroMedia;
+  readonly heroMedia?: PublicMedia;
   /** Ausente mientras no haya narrativa aprobada. La sección no se renderiza. */
   readonly story?: PublicStory;
+  /**
+   * Capítulos editoriales, en el orden en el que se leen. Ausente o vacía, no
+   * se emite ni un `<section>`: la narrativa enlaza directamente con lo que
+   * venga después, sin título, sin separador y sin hueco.
+   */
+  readonly editorialSections?: readonly PublicEditorialSection[];
   /** Ausente mientras no haya arquitectura aprobada. La sección no se renderiza. */
   readonly architecture?: PublicArchitecture;
   /**
@@ -124,7 +154,11 @@ const PROJECTS = [
     city: "Raleigh",
     state: "North Carolina",
     typology: "Four Single-Family Residences",
-    positioningLine: "Four homes, one considered plan.",
+    // La tesis del hero y el titular de la historia intercambian su sitio: el
+    // hero abre con la promesa material, que es lo que engancha, y la historia
+    // titula con el plan, que es lo que desarrolla. Mismo copy aprobado, sin
+    // una sola frase repetida entre las dos secciones.
+    positioningLine: "Modern design, natural light and warm materials.",
     snapshot: [
       { value: "4", label: "Residences" },
       { value: "~2,118 SF", label: "Per residence" },
@@ -190,12 +224,46 @@ const PROJECTS = [
     ],
     story: {
       eyebrow: "The project",
-      headline: "Modern design, natural light and warm materials.",
+      headline: "Four homes, one considered plan.",
       body: [
         "Each of the four residences at 720 Sherrybrook combines bright, functional interiors with custom light oak millwork, white quartz countertops, and large black-framed openings that connect every room to the outdoors.",
         "A contemporary, warm, and timeless language — designed for everyday living.",
       ],
     },
+    /*
+     * Los dos capítulos son el texto que antes vivía en la lista de detalles de
+     * arquitectura, sin tocar una coma. Ahí eran dos párrafos más entre otros
+     * seis bloques; aquí cada uno se lee junto al render que describe. El texto
+     * no se duplica: ha dejado de estar en `architecture.details`.
+     *
+     * Los renders siguen siendo los mismos archivos que la galería, y aparecen
+     * también en el visor. No es repetición: el visor es el archivo visual
+     * completo del proyecto, no otro bloque del scroll.
+     */
+    editorialSections: [
+      {
+        id: "interiors",
+        title: "Interiors",
+        body: "Engineered light oak flooring, white quartz island and countertops, custom natural oak cabinetry, recessed LED and indirect lighting, and floor-to-ceiling openings with matte black aluminum frames.",
+        media: {
+          src: "/projects/720-sherrybrook/kitchen-island.jpg",
+          alt: "Kitchen with a white quartz island and light oak cabinetry.",
+          width: 1759,
+          height: 1200,
+        },
+      },
+      {
+        id: "outdoor-living",
+        title: "Outdoor living",
+        body: "A private patio with a built-in grill in every residence, an upper-floor balcony overlooking the backyard, floor-to-ceiling sliding doors, and low-maintenance native landscaping.",
+        media: {
+          src: "/projects/720-sherrybrook/private-balcony.jpg",
+          alt: "Private upper-floor balcony overlooking the backyard.",
+          width: 1448,
+          height: 1086,
+        },
+      },
+    ],
     architecture: {
       headline: "Architecture and living",
       facts: [
@@ -206,15 +274,10 @@ const PROJECTS = [
         { label: "Stories", value: "2" },
         { label: "Outdoor spaces", value: "Patio + balcony" },
       ],
+      // Interiors y Outdoor living se han ido a `editorialSections`, donde cada
+      // uno se lee junto a su render. Exterior se queda: describe el conjunto
+      // construido, que es de lo que va esta sección.
       details: [
-        {
-          title: "Interiors",
-          body: "Engineered light oak flooring, white quartz island and countertops, custom natural oak cabinetry, recessed LED and indirect lighting, and floor-to-ceiling openings with matte black aluminum frames.",
-        },
-        {
-          title: "Outdoor living",
-          body: "A private patio with a built-in grill in every residence, an upper-floor balcony overlooking the backyard, floor-to-ceiling sliding doors, and low-maintenance native landscaping.",
-        },
         {
           title: "Exterior",
           body: "White vertical siding, gabled rooflines, matte black frames, and natural wood accents create a contemporary and restrained material palette.",
@@ -303,6 +366,33 @@ function assertProjectsAreValid(projects: readonly PublicProject[]): void {
       for (const image of project.gallery) {
         assertMedia(image, "gallery");
         if (!filled(image.caption)) fail(where, "gallery: `caption` vacío");
+      }
+    }
+
+    if (project.editorialSections) {
+      if (project.editorialSections.length === 0)
+        fail(
+          where,
+          "`editorialSections` presente pero vacía; omítela en su lugar",
+        );
+      // El `id` es la clave de React y el ancla del titular: dos iguales darían
+      // dos `id` de HTML repetidos y un `aria-labelledby` ambiguo.
+      const seenSectionIds = new Set<string>();
+      for (const section of project.editorialSections) {
+        if (!filled(section.id)) fail(where, "editorialSections: `id` vacío");
+        if (seenSectionIds.has(section.id))
+          fail(where, `editorialSections: \`id\` duplicado "${section.id}"`);
+        seenSectionIds.add(section.id);
+        if (!SLUG_PATTERN.test(section.id))
+          fail(
+            where,
+            `editorialSections: \`id\` con formato inválido: "${section.id}"`,
+          );
+        if (!filled(section.title))
+          fail(where, `editorialSections (${section.id}): \`title\` vacío`);
+        if (!filled(section.body))
+          fail(where, `editorialSections (${section.id}): \`body\` vacío`);
+        assertMedia(section.media, `editorialSections (${section.id})`);
       }
     }
   }

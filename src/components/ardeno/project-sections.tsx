@@ -132,6 +132,41 @@ export function ProjectHero({ project }: { project: PublicProject }) {
   );
 }
 
+/**
+ * Cierre de la ficha: la pregunta y el mismo botón de siempre.
+ *
+ * Va sobre la superficie oscura del hero, así que la narrativa abre y cierra en
+ * el mismo tono y el bloque se lee como conclusión, no como un segundo pie: el
+ * footer es claro, bajo y de letra pequeña, y viene justo después.
+ *
+ * Sin formulario en línea, sin imagen de fondo y sin urgencia inventada. El
+ * botón es `InterestButton`, que dispara el modal compartido a través del
+ * contexto: no hay una segunda instancia, ni estado duplicado, ni una nueva
+ * isla cliente. Al cerrarse, el modal devuelve el foco a quien lo abrió, que
+ * aquí es este botón.
+ */
+export function ProjectClosing({ project }: { project: PublicProject }) {
+  return (
+    <section
+      className="ar-closing ar-on-dark"
+      aria-labelledby="project-closing"
+    >
+      <ArdenoContainer className="ar-closing__inner">
+        <h2 id="project-closing" className="ar-display ar-closing__title">
+          Interested in {project.name}?
+        </h2>
+        <p className="ar-body ar-closing__body">
+          Leave your details and our team will share the latest verified project
+          information.
+        </p>
+        <div className="ar-closing__cta">
+          <InterestButton variant="brand-on-dark" />
+        </div>
+      </ArdenoContainer>
+    </section>
+  );
+}
+
 /** Fila de cifras verificadas. Se reequilibra según cuántas haya. */
 export function ProjectSnapshot({ project }: { project: PublicProject }) {
   if (project.snapshot.length === 0) return null;
