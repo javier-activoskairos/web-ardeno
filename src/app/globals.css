@@ -305,6 +305,12 @@
   }
 
   /* ---------- Skip link ---------- */
+  /* La cabecera es fija: sin este margen, saltar a un ancla deja el titular
+     de destino por debajo de la barra. */
+  .ar-page [id] {
+    scroll-margin-top: calc(var(--w-header-h) + 24px);
+  }
+
   .ar-skip {
     position: absolute;
     left: -9999px;
@@ -449,17 +455,36 @@
     gap: clamp(24px, 4vw, 36px);
   }
   .ar-chapter__title {
-    max-width: 16ch;
+    margin-top: 20px;
+    max-width: 18ch;
   }
   .ar-chapter__body {
     margin-top: 20px;
     max-width: 52ch;
   }
-  .ar-chapter__img {
-    display: block;
-    width: 100%;
-    height: auto;
+  .ar-chapter__list {
+    margin-top: 28px;
+  }
+  .ar-chapter__figure {
+    margin: 0;
+  }
+  /* Marco de proporción fija: los dos renders del capítulo llegan con
+     proporciones distintas (1.47 y 1.33) y apilados uno debajo del otro esa
+     diferencia se lee como descuadre. El 3:2 los iguala y recorta poco más que
+     un margen de cada uno; el archivo completo sigue estando en el visor. */
+  .ar-chapter__frame {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
     border-radius: var(--w-r-img);
+    background: var(--w-panel);
+  }
+  .ar-chapter__img {
+    object-fit: cover;
+    transition: transform var(--w-t) var(--w-ease-out);
+  }
+  .ar-chapter__figure:hover .ar-chapter__img {
+    transform: scale(1.03);
   }
 
   /* Dos columnas solo cuando la de texto da de sí. A 900px se quedaba en unos
@@ -757,35 +782,6 @@
     outline-offset: 3px;
   }
 
-  /* ---------- Cierre ----------
-     Última parada antes del pie. Va sobre la superficie oscura del hero, así
-     que la ficha abre y cierra en el mismo tono y el bloque se lee como
-     conclusión y no como un segundo pie: el footer que viene después es claro,
-     bajo y de letra pequeña.
-
-     Sin imagen de fondo, sin decoración y sin formulario en línea. Solo la
-     pregunta, una frase y el botón de siempre. */
-  .ar-closing {
-    background: var(--w-hero-top);
-    color: var(--w-on-dark);
-    padding-block: var(--w-section-y);
-  }
-  .ar-closing__inner {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .ar-closing__title {
-    max-width: 18ch;
-  }
-  .ar-closing__body {
-    margin-top: 20px;
-    max-width: 48ch;
-  }
-  .ar-closing__cta {
-    margin-top: 32px;
-  }
-
   /* ---------- Footer ----------
      Tres zonas: aviso legal, símbolo y contacto. Sin navegación, porque
      todavía no hay ninguna otra ruta publicada a la que enlazar. */
@@ -977,18 +973,47 @@
   }
 
   /* ---------- Cabecera de proyecto ----------
-     Desviación consciente: la cabecera del sitio corporativo es
-     `position: relative`, transparente y con la navegación en el centro. La
-     ficha no tiene navegación y sí un único objetivo de conversión, así que
-     conserva la barra fija y opaca: mantiene el CTA al alcance en toda la
-     página. Lo que sí se calibra es su altura visual, 78px, y su contenedor,
-     1360px con gutter de 40px, medidos sobre el sitio real. */
+     Cabecera latente. La ficha no tiene navegación y sí una sola imagen que
+     abre a pantalla completa: una barra opaca permanente le come 78px y le
+     quita el efecto. Así que la barra se retira y vuelve cuando se la busca —
+     el puntero entra en la franja superior o algo suyo recibe el foco.
+
+     En dispositivos sin puntero fino no hay «entrar en la franja»: allí la
+     barra es permanente, que es lo que espera quien navega con el pulgar. Esa
+     condición vive en el CSS, no en JavaScript, así que el primer pintado ya
+     es el correcto.
+
+     Se calibra contra el sitio real lo que sí es medible: 78px de altura y el
+     contenedor de 1360px con gutter de 40px. */
   .ar-header {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 100;
     background: rgba(14, 20, 25, 0.92);
+    backdrop-filter: saturate(150%) blur(12px);
     border-bottom: 1px solid var(--w-line-dark);
+    transform: translateY(-101%);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      transform var(--w-t) var(--w-ease),
+      opacity var(--w-t) var(--w-ease);
+  }
+  .ar-header[data-revealed="true"],
+  .ar-header:focus-within {
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  /* Sin puntero fino la barra no se puede «buscar»: se queda quieta y visible. */
+  @media (hover: none), (pointer: coarse) {
+    .ar-header {
+      transform: none;
+      opacity: 1;
+      pointer-events: auto;
+    }
   }
   .ar-header__inner {
     display: flex;
@@ -1004,16 +1029,18 @@
     flex: none;
   }
 
-  /* ---------- Hero ---------- */
+  /* ---------- Hero ----------
+     Base común a las dos composiciones. Con render aprobado el hero es
+     cinematográfico —imagen a sangre, información abajo— y sin él pasa a la
+     composición editorial de dos columnas que hay más abajo. Lo decide el
+     dato, no el slug. */
   .ar-hero {
     display: flex;
     flex-direction: column;
-    min-height: calc(100svh - var(--w-header-h));
+    min-height: 100svh;
     background: var(--w-hero-top);
     color: var(--w-on-dark);
   }
-  /* Apertura principal: es el único sitio de esta pantalla donde el ritmo
-     sube hasta 100px. */
   .ar-hero__plate {
     flex: 1 1 auto;
     min-height: 0;
@@ -1064,76 +1091,73 @@
   .ar-hero__cta {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 16px;
     margin-top: 32px;
   }
-  /* ---------- Hero con media ----------
-     El render mide 1672x941. Reservar `100svh` para él dejaba el título y el
-     CTA fuera de la primera pantalla a 1440 y, en móvil, el marco quedaba
-     flotando a 197px de alto dentro de un plato mucho mayor. Con media el
-     hero se dimensiona por su contenido.
 
-     El recorte solo puede ser vertical. Comprobado sobre el propio archivo:
-     un recorte apaisado centrado al 55% conserva las cuatro residencias
-     completas y se come sólo cielo y césped, mientras que cualquier recorte
-     horizontal —un 4:3 deja fuera el 25% del ancho— pierde la cuarta. Por eso
-     en pantallas estrechas se muestra el fotograma íntegro. */
+  /* ---------- Hero cinematográfico ----------
+     El render ocupa la pantalla entera y la información se apoya sobre él por
+     el borde inferior. Es la única sección de la ficha con imagen a sangre: el
+     resto del scroll es contenedor de sitio y filete.
+
+     El texto no se pone encima de una fotografía sin más. El velo es un
+     degradado de cuatro paradas: oscurece arriba —donde vuelve la cabecera—,
+     abre en el tercio superior para que se vea el edificio, y vuelve a cerrar
+     abajo hasta un 94% de opacidad, que es lo que hace falta para que un
+     cuerpo de 18px sobre blanco supere AA sin recortar la imagen.
+
+     El recorte es vertical y centrado un poco por debajo del medio: comprobado
+     sobre el archivo, conserva las cuatro residencias completas y se come solo
+     cielo y césped. */
   .ar-hero--media {
-    min-height: 0;
+    position: relative;
+    justify-content: flex-end;
+    overflow: hidden;
   }
   .ar-hero--media .ar-hero__plate {
+    position: absolute;
+    inset: 0;
     flex: none;
     display: block;
-    /* El plato centra su contenido cuando es una rejilla. Chrome ya aplica
-       alineación de caja también en layout de bloque, así que `place-items`
-       sobrevive al cambio de `display` y encoge el contenedor a su contenido:
-       el marco se quedaba en 0px de ancho. Hay que devolverlo a `normal`. */
     place-items: normal;
-    min-height: 0;
-    padding: var(--w-section-y-sm) 0 0;
-  }
-  .ar-hero__frame {
-    position: relative;
-    width: 100%;
-    /* Proporción nativa del render: sin recorte y sin salto de composición. */
-    aspect-ratio: 1672 / 941;
-    overflow: hidden;
-    border-radius: var(--w-r-img);
-    background: var(--w-hero-top);
+    padding: 0;
   }
   .ar-hero__media {
     object-fit: cover;
     object-position: 50% 55%;
   }
-
-  @media (min-width: 900px) {
-    /* Franja apaisada: sube el título y el CTA a la primera pantalla sin
-       tocar una sola residencia. */
-    .ar-hero__frame {
-      aspect-ratio: 21 / 9;
-      max-height: 56svh;
+  /* Entrada larga y muy corta en recorrido: el render se asienta en lugar de
+     aparecer. No hay movimiento en el eje, así que no arrastra la mirada. */
+  @media (prefers-reduced-motion: no-preference) {
+    .ar-hero__media {
+      animation: ar-hero-settle 1400ms var(--w-ease-out) both;
     }
   }
-
-  /* En pantallas muy anchas el marco se quedaba en los 1360px del contenedor
-     de sitio y el render bajaba a la mitad del ancho. Aquí, y solo aquí, deja
-     de depender de ese contenedor.
-
-     El relleno arranca en 120px, que a 1600px devuelve exactamente los 1360px
-     de antes: el corte no se nota. A partir de ahí crece con la pantalla, así
-     que los márgenes laterales siguen siendo amplios.
-
-     El tope son los 1672px reales del archivo: más allá no hay detalle que
-     ganar, solo ampliación. El recorte no se toca. */
-  @media (min-width: 1600px) {
-    .ar-hero--media .ar-hero__plate .ar-wrap {
-      max-width: none;
-      padding-inline: clamp(120px, 7.5vw, 200px);
+  @keyframes ar-hero-settle {
+    from {
+      transform: scale(1.06);
     }
-    .ar-hero--media .ar-hero__frame {
-      max-width: 1672px;
-      margin-inline: auto;
+    to {
+      transform: none;
     }
+  }
+  .ar-hero__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(8, 12, 16, 0.62) 0%,
+      rgba(8, 12, 16, 0.14) 34%,
+      rgba(8, 12, 16, 0.66) 74%,
+      rgba(8, 12, 16, 0.94) 100%
+    );
+    pointer-events: none;
+  }
+  .ar-hero--media .ar-hero__body {
+    position: relative;
+    z-index: 1;
+    padding-block: var(--w-section-y-sm);
   }
 
   /* ---------- Hero sin media ----------
@@ -1250,6 +1274,422 @@
   }
   .ar-snap__cell .ar-label {
     line-height: 1.35;
+  }
+
+  /* ---------- Superficies oscuras ----------
+     Dos, y con papeles distintos: el navy de marca sostiene un bloque de datos
+     dentro del scroll claro —la disponibilidad—, y el oscuro del hero cierra
+     la página, de modo que la ficha abre y cierra en el mismo tono. */
+  .ar-navy {
+    background: var(--w-navy);
+    color: var(--w-on-dark);
+  }
+  .ar-deep {
+    background: var(--w-hero-top);
+    color: var(--w-on-dark);
+  }
+
+  /* ---------- Cabecera de sección ----------
+     Rótulo y titular. Es lo único que se repite entre secciones, así que se
+     declara una vez en lugar de arrastrar márgenes sueltos por cada bloque. */
+  .ar-sechead__title {
+    margin-top: 20px;
+    max-width: 22ch;
+  }
+
+  /* ---------- Distintivo de estado ----------
+     Píldora de contorno con punto. Dice en qué punto de venta está el conjunto
+     o cada residencia. Toma el color de su contexto: no hay verde de
+     «disponible» ni rojo de «vendido», porque el estado es información, no
+     alarma. Lo vendido se distingue por peso, no por color. */
+  .ar-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px;
+    border: 1px solid currentColor;
+    border-radius: var(--w-r-pill);
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    line-height: var(--w-lh-ui);
+    white-space: nowrap;
+  }
+  .ar-chip__dot {
+    flex: none;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  /* Sobre oscuro el contorno a plena opacidad compite con el CTA. */
+  .ar-on-dark .ar-chip,
+  .ar-navy .ar-chip,
+  .ar-deep .ar-chip {
+    color: var(--w-on-dark-2);
+  }
+
+  /* ---------- Lista de filete ----------
+     Materiales, acabados y distancias. Un guion corto y un filete superior por
+     renglón: la misma estructura que el resto de la ficha, sin viñetas ni
+     iconos. Con `data-split` la etiqueta y su valor se separan a los extremos,
+     que es como se leen los tiempos de trayecto. */
+  .ar-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .ar-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding-block: 13px;
+    border-top: 1px solid var(--w-line);
+    font-size: var(--w-body-sm);
+    line-height: var(--w-lh-body);
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink-2);
+  }
+  .ar-list li::before {
+    content: "";
+    flex: none;
+    width: 10px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.45;
+    transform: translateY(-4px);
+  }
+  .ar-navy .ar-list li,
+  .ar-deep .ar-list li,
+  .ar-on-dark .ar-list li {
+    border-top-color: var(--w-line-dark);
+    color: var(--w-on-dark-2);
+  }
+  .ar-list[data-split="true"] li > span:first-of-type {
+    flex: 1 1 auto;
+  }
+  .ar-list__val {
+    flex: none;
+    color: var(--w-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .ar-navy .ar-list__val,
+  .ar-deep .ar-list__val,
+  .ar-on-dark .ar-list__val {
+    color: var(--w-on-dark);
+  }
+
+  /* ---------- Pie de imagen ---------- */
+  .ar-cap {
+    margin: 10px 0 0;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-ink-3);
+  }
+
+  /* ---------- Disponibilidad ----------
+     Una fila por residencia sobre el navy de marca. No es una tabla de datos
+     tabulares cualquiera: es la única parte de la ficha donde el visitante
+     compara, así que va en `<table>` de verdad —cabecera, celdas y ámbito— y no
+     en una retícula de `<div>`.
+
+     Sin precios. La nota que acompaña al titular dice quién los comparte y
+     cuándo, que es la pregunta que deja abierta cualquier lista de estados. */
+  .ar-avail__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: var(--w-section-y-sm);
+  }
+  .ar-avail__note {
+    max-width: 34ch;
+  }
+  /* Cuatro columnas no caben en 390px sin partir palabras ni encoger la
+     tipografía por debajo de lo legible. En vez de deformar la tabla, la
+     tabla se desplaza dentro de su propia caja: la página nunca scrollea en
+     horizontal. La región es enfocable y lleva etiqueta, que es lo que exige
+     un contenedor con scroll para quien navega con teclado. */
+  .ar-scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .ar-scroll:focus-visible {
+    outline: 2px solid var(--w-focus-on-dark);
+    outline-offset: 4px;
+  }
+  .ar-units {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    font-size: var(--w-body-sm);
+    letter-spacing: var(--w-ls-body);
+  }
+  .ar-units thead th {
+    padding: 0 12px 14px 0;
+    border-bottom: 1px solid var(--w-line-dark);
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--w-on-dark-2);
+  }
+  /* La celda de nombre es cabecera de su fila —de ahí el `<th scope="row">`—,
+     pero se lee como una celda más: el filete y las versales son de la
+     cabecera de la tabla, no suyos. */
+  .ar-units tbody th,
+  .ar-units td {
+    padding: 14px 12px 14px 0;
+    border-top: 1px solid var(--w-line-dark);
+    color: var(--w-on-dark);
+    text-align: left;
+    vertical-align: middle;
+  }
+  .ar-units tbody th {
+    font-weight: var(--w-fw-medium);
+  }
+  .ar-units tbody tr:first-child th,
+  .ar-units tbody tr:first-child td {
+    border-top: none;
+  }
+  .ar-units td:last-child,
+  .ar-units th:last-child {
+    padding-right: 0;
+  }
+  /* Lo vendido ya no está a la venta: se retira sin sacarlo de la lista, que
+     es información legítima sobre cómo va el conjunto. */
+  .ar-units tr[data-status="sold"] th,
+  .ar-units tr[data-status="sold"] td {
+    color: var(--w-on-dark-2);
+  }
+
+  /* En móvil ni cuatro columnas ni scroll lateral: el estado, que es el dato
+     que se busca, quedaría fuera de pantalla. Cada residencia pasa a ser un
+     bloque con su nombre, su estado y sus dos cifras etiquetadas.
+
+     Al romper la retícula de tabla se pierde su semántica, así que el marcado
+     declara los roles a mano y cada celda lleva su etiqueta impresa: nadie
+     depende ya de la cabecera, que aquí no se muestra. */
+  @media (max-width: 600px) {
+    .ar-scroll {
+      overflow-x: visible;
+    }
+    .ar-units {
+      min-width: 0;
+      display: block;
+    }
+    .ar-units thead {
+      display: none;
+    }
+    .ar-units tbody,
+    .ar-units tr,
+    .ar-units tbody th,
+    .ar-units td {
+      display: block;
+    }
+    .ar-units tbody tr {
+      padding-block: 18px;
+      border-top: 1px solid var(--w-line-dark);
+    }
+    .ar-units tbody tr:first-child {
+      border-top: none;
+    }
+    .ar-units tbody th,
+    .ar-units td {
+      padding: 0;
+      border-top: none;
+    }
+    .ar-units tbody th {
+      font-size: var(--w-s-18);
+    }
+    .ar-units td {
+      margin-top: 8px;
+    }
+    /* La etiqueta que estaba en la cabecera, ahora delante de su valor. */
+    .ar-units td[data-label]::before {
+      content: attr(data-label);
+      display: inline-block;
+      min-width: 9ch;
+      margin-right: 12px;
+      font-family: var(--w-font-ui);
+      font-size: var(--w-s-14);
+      letter-spacing: var(--w-ls-label);
+      text-transform: uppercase;
+      color: var(--w-on-dark-2);
+    }
+    .ar-units td[data-label="Status"]::before {
+      display: none;
+    }
+    .ar-units td[data-label="Status"] {
+      margin-top: 14px;
+    }
+  }
+
+  /* ---------- Emplazamiento ----------
+     Texto y distancias, uno al lado del otro entre dos filetes. No hay mapa:
+     un mapa embebido es un tercero cargando dentro de la ficha, y las
+     distancias son el dato que de verdad se consulta. */
+  .ar-authority {
+    display: grid;
+    gap: clamp(28px, 4vw, 50px);
+    align-items: start;
+    padding-block: clamp(28px, 3.5vw, 48px);
+    border-top: 1px solid var(--w-line);
+    border-bottom: 1px solid var(--w-line);
+  }
+  .ar-authority__title {
+    margin-top: 20px;
+    max-width: 20ch;
+  }
+  .ar-authority__body {
+    margin-top: 20px;
+    max-width: 46ch;
+  }
+  @media (min-width: 900px) {
+    .ar-authority {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+  }
+
+  /* ---------- Pareja de renders ----------
+     Debajo de la cubierta, dos renders por fila que abren el visor en su
+     propia posición. Es el único sitio de la ficha donde la imagen es un
+     control, así que llevan el mismo foco visible que el resto. */
+  .ar-pair {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(16px, 2vw, 28px);
+    margin-top: clamp(16px, 2vw, 28px);
+  }
+  @media (min-width: 768px) {
+    .ar-pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .ar-tile {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: none;
+    border-radius: var(--w-r-img);
+    overflow: hidden;
+    background: var(--w-panel);
+    aspect-ratio: 3 / 2;
+    cursor: pointer;
+  }
+  .ar-tile__img {
+    object-fit: cover;
+    transition: transform var(--w-t) var(--w-ease-out);
+  }
+  .ar-tile:hover .ar-tile__img {
+    transform: scale(1.03);
+  }
+  .ar-tile:focus-visible {
+    outline: 2px solid var(--w-focus);
+    outline-offset: 3px;
+  }
+
+  /* ---------- Cierre y captación ----------
+     Última parada antes del pie, sobre el oscuro del hero. A la izquierda la
+     pregunta y las vías de contacto directo; a la derecha el formulario, en un
+     panel claro. El formulario va en la página y no solo en el modal: quien
+     llega hasta abajo ya ha decidido, y pedirle un clic más para ver los
+     campos es fricción sin contrapartida.
+
+     El símbolo de marca es marca de agua al 6%: decoración, no contenido, y
+     por eso se pinta desde el token en lugar de cargar un `<img>`. */
+  .ar-interest {
+    position: relative;
+    overflow: hidden;
+  }
+  .ar-interest__mark {
+    position: absolute;
+    right: -3%;
+    bottom: -16%;
+    width: min(34%, 380px);
+    aspect-ratio: 1204 / 1432;
+    background-color: var(--w-bone);
+    -webkit-mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
+    mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
+    opacity: 0.06;
+    pointer-events: none;
+  }
+  .ar-interest__grid {
+    position: relative;
+    display: grid;
+    gap: clamp(32px, 4vw, 56px);
+    align-items: start;
+  }
+  .ar-interest__title {
+    margin-top: 20px;
+    max-width: 16ch;
+  }
+  .ar-interest__lede {
+    margin-top: 24px;
+    color: var(--w-on-dark);
+  }
+  .ar-interest__contact {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 28px;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-body-sm);
+    line-height: var(--w-lh-ui);
+  }
+  .ar-interest__contact a {
+    color: var(--w-on-dark);
+    text-decoration: none;
+  }
+  .ar-interest__contact a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* Isla clara dentro del cierre oscuro: dentro de ella mandan los tokens de
+     superficie clara, así que los campos y el CTA son los mismos de siempre. */
+  .ar-panel {
+    background: var(--w-bg);
+    color: var(--w-ink);
+    border-radius: var(--w-r);
+    padding: clamp(20px, 3vw, 34px);
+  }
+  @media (min-width: 900px) {
+    .ar-interest__grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+  }
+
+  /* ---------- Aparición al entrar ----------
+     Sin JavaScript: la línea de tiempo es el propio scroll. Donde el navegador
+     no soporta `view()` —Firefox, hoy— no hay animación y el contenido está
+     visible desde el primer pintado, que es el comportamiento correcto de un
+     efecto puramente decorativo. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .ar-reveal {
+        animation: ar-fade-up linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 40%;
+      }
+    }
+  }
+  @keyframes ar-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   /* ---------- Formulario ---------- */

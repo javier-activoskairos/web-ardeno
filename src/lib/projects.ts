@@ -2,13 +2,19 @@
  * Modelo público de proyecto — módulo de servidor.
  *
  * Contiene EXCLUSIVAMENTE datos verificados y aprobados para publicación.
- * Campos operativos o financieros (etapa, financiación, plazo, disponibilidad,
- * precio, valor estimado, socios, retorno, valor de salida) están AUSENTES del
- * tipo, no puestos a `null`: no existen, así que no pueden renderizarse ni
- * viajar a un componente cliente por descuido.
+ * Campos financieros u operativos internos (financiación, precio, valor
+ * estimado, socios, retorno, valor de salida) están AUSENTES del tipo, no
+ * puestos a `null`: no existen, así que no pueden renderizarse ni viajar a un
+ * componente cliente por descuido.
  *
- * Cuando el cliente verifique alguno, se añade aquí de forma explícita y se
- * diseña su estado en la interfaz. Hasta entonces, la ficha no los menciona.
+ * La disponibilidad comercial —qué residencias siguen abiertas— sí forma parte
+ * del contrato desde el rediseño v3, porque es información de venta que el
+ * comprador necesita. Los precios siguen fuera: la ficha dice explícitamente
+ * que los comparte el equipo.
+ *
+ * Toda sección es opcional salvo la identidad, el posicionamiento y el
+ * snapshot. Un proyecto con menos datos aprobados recorre la misma plantilla
+ * con menos paradas: la sección que no tiene dato no se emite.
  *
  * El contrato y su frontera están descritos en `docs/data-contract.md`.
  */
@@ -22,9 +28,9 @@ export type PublicSnapshotItem = {
 /**
  * Fotografía o render aprobado del proyecto.
  *
- * Es la forma común de todo medio del contrato que no lleva pie: la usan
- * `heroMedia` y los capítulos editoriales. No se duplica por sección; si algún
- * día un rol necesita un campo propio, se extiende ahí y no aquí.
+ * Es la forma común de todo medio del contrato: la usan `heroMedia` y los
+ * capítulos editoriales. No se duplica por sección; si algún día un rol
+ * necesita un campo propio, se extiende ahí y no aquí.
  *
  * En el hero, su presencia —no el slug— decide qué composición se emite.
  * Mientras sea `undefined`, la ficha muestra el estado explícito de imagen
@@ -35,6 +41,8 @@ export type PublicMedia = {
   readonly alt: string;
   readonly width: number;
   readonly height: number;
+  /** Pie corto en versales. Ausente, la imagen va sin pie. */
+  readonly caption?: string;
 };
 
 /**
@@ -73,6 +81,7 @@ export type PublicStory = {
  * entera en lugar de dejar columnas vacías.
  */
 export type PublicArchitecture = {
+  readonly eyebrow?: string;
   readonly headline: string;
   readonly facts: readonly { readonly label: string; readonly value: string }[];
   readonly details: readonly {
@@ -91,14 +100,66 @@ export type PublicArchitecture = {
  * - No hay campo de disposición. Qué lado ocupa la imagen lo decide la
  *   composición a partir de la posición, no el dato: un editor no debe tener
  *   que pensar en columnas.
- * - No hay pie. Los pies son de la galería, que es el archivo visual completo;
- *   aquí la imagen ilustra el texto que tiene al lado.
+ * - `highlights` son los cuatro o cinco materiales y acabados que el texto
+ *   menciona, listados para quien escanea en lugar de leer. Ausente, el
+ *   capítulo es solo prosa.
  */
 export type PublicEditorialSection = {
   readonly id: string;
+  /** Rótulo en versales: "Interiors", "Outdoor living". */
+  readonly eyebrow?: string;
   readonly title: string;
   readonly body: string;
+  readonly highlights?: readonly string[];
   readonly media: PublicMedia;
+};
+
+/**
+ * Estado comercial de una residencia.
+ *
+ * Tres valores cerrados y nada más: no hay "próximamente", ni "última
+ * oportunidad", ni ningún matiz que induzca urgencia. La interfaz decide cómo
+ * se pinta cada uno; el dato solo dice cuál es.
+ */
+export type PublicUnitStatus = "available" | "reserved" | "sold";
+
+/**
+ * Disponibilidad por residencia.
+ *
+ * Sin precios: el propio bloque explica que los comparte el equipo junto al
+ * calendario de obra. `note` es esa explicación, y es obligatoria: publicar
+ * estados de venta sin decir cómo se obtiene el precio deja la pregunta
+ * evidente sin responder.
+ */
+export type PublicAvailability = {
+  readonly eyebrow?: string;
+  readonly headline: string;
+  readonly note: string;
+  readonly units: readonly {
+    /** Clave estable de la fila; no se muestra. */
+    readonly id: string;
+    readonly name: string;
+    /** Superficie interior, ya formateada: "2,180 SF". */
+    readonly interior: string;
+    readonly bedrooms: string;
+    readonly status: PublicUnitStatus;
+  }[];
+};
+
+/**
+ * Emplazamiento y distancias.
+ *
+ * `distances` son tiempos de trayecto verificados, con su unidad ya escrita:
+ * el componente no calcula, no convierte y no ordena.
+ */
+export type PublicLocation = {
+  readonly eyebrow?: string;
+  readonly headline: string;
+  readonly body: string;
+  readonly distances: readonly {
+    readonly label: string;
+    readonly value: string;
+  }[];
 };
 
 export type PublicProject = {
@@ -120,6 +181,11 @@ export type PublicProject = {
   readonly state: string;
   readonly typology: string;
   readonly positioningLine: string;
+  /**
+   * Estado comercial del conjunto, en dos o tres palabras: "Now selling".
+   * Se pinta como distintivo junto al CTA del hero. Ausente, no hay distintivo.
+   */
+  readonly status?: string;
   readonly snapshot: readonly PublicSnapshotItem[];
   /** Ausente mientras no haya material gráfico verificado del proyecto. */
   readonly heroMedia?: PublicMedia;
@@ -131,6 +197,8 @@ export type PublicProject = {
    * venga después, sin título, sin separador y sin hueco.
    */
   readonly editorialSections?: readonly PublicEditorialSection[];
+  /** Ausente mientras el cliente no verifique los estados de venta. */
+  readonly availability?: PublicAvailability;
   /** Ausente mientras no haya arquitectura aprobada. La sección no se renderiza. */
   readonly architecture?: PublicArchitecture;
   /**
@@ -138,6 +206,8 @@ export type PublicProject = {
    * sección entera desaparece: ni título, ni botón, ni marcador de posición.
    */
   readonly gallery?: readonly PublicGalleryImage[];
+  /** Ausente mientras no haya distancias verificadas. */
+  readonly location?: PublicLocation;
 };
 
 /**
@@ -153,16 +223,18 @@ const PROJECTS = [
     name: "720 Sherrybrook",
     city: "Raleigh",
     state: "North Carolina",
-    typology: "Four Single-Family Residences",
+    typology: "Four attached residences",
     // La tesis del hero y el titular de la historia intercambian su sitio: el
     // hero abre con la promesa material, que es lo que engancha, y la historia
     // titula con el plan, que es lo que desarrolla. Mismo copy aprobado, sin
     // una sola frase repetida entre las dos secciones.
     positioningLine: "Modern design, natural light and warm materials.",
+    status: "Now selling",
     snapshot: [
       { value: "4", label: "Residences" },
-      { value: "~2,118 SF", label: "Per residence" },
-      { value: "Raleigh, NC", label: "Location" },
+      { value: "2,050–2,180 SF", label: "Per residence" },
+      { value: "3 + office", label: "Bedrooms" },
+      { value: "Q2 2027", label: "Estimated delivery" },
     ],
     heroMedia: {
       src: "/projects/720-sherrybrook/hero-front-exterior.jpg",
@@ -226,45 +298,93 @@ const PROJECTS = [
       eyebrow: "The project",
       headline: "Four homes, one considered plan.",
       body: [
-        "Each of the four residences at 720 Sherrybrook combines bright, functional interiors with custom light oak millwork, white quartz countertops, and large black-framed openings that connect every room to the outdoors.",
-        "A contemporary, warm, and timeless language — designed for everyday living.",
+        "The Sherrybrook residences draw inspiration from Scandinavian design, pairing cleanly detailed interiors and exteriors with warm, natural materials.",
+        "Light wood finishes and an open plan create welcoming living spaces that emphasize simplicity, comfort, and crafted functionality. Private gardens connect the living areas to outdoors, offering quiet retreats and a close connection to nature. Elevated front porches create a sense of community for this enclave.",
       ],
     },
     /*
-     * Los dos capítulos son el texto que antes vivía en la lista de detalles de
-     * arquitectura, sin tocar una coma. Ahí eran dos párrafos más entre otros
-     * seis bloques; aquí cada uno se lee junto al render que describe. El texto
-     * no se duplica: ha dejado de estar en `architecture.details`.
-     *
-     * Los renders siguen siendo los mismos archivos que la galería, y aparecen
-     * también en el visor. No es repetición: el visor es el archivo visual
-     * completo del proyecto, no otro bloque del scroll.
+     * Cada capítulo se lee junto al render que describe. Los renders son los
+     * mismos archivos que la galería y aparecen también en el visor. No es
+     * repetición: el visor es el archivo visual completo del proyecto, no otro
+     * bloque del scroll.
      */
     editorialSections: [
       {
         id: "interiors",
-        title: "Interiors",
+        eyebrow: "Interiors",
+        title: "Light oak, quartz and black steel.",
         body: "Engineered light oak flooring, white quartz island and countertops, custom natural oak cabinetry, recessed LED and indirect lighting, and floor-to-ceiling openings with matte black aluminum frames.",
+        highlights: [
+          "Light oak flooring",
+          "White quartz surfaces",
+          "Custom oak millwork",
+          "Matte black frames",
+        ],
         media: {
           src: "/projects/720-sherrybrook/kitchen-island.jpg",
           alt: "Kitchen with a white quartz island and light oak cabinetry.",
           width: 1759,
           height: 1200,
+          caption: "Interior render · kitchen",
         },
       },
       {
         id: "outdoor-living",
-        title: "Outdoor living",
+        eyebrow: "Outdoor living",
+        title: "Every room opens to the outdoors.",
         body: "A private patio with a built-in grill in every residence, an upper-floor balcony overlooking the backyard, floor-to-ceiling sliding doors, and low-maintenance native landscaping.",
+        highlights: [
+          "Patio with grill",
+          "Upper balcony",
+          "Sliding glass doors",
+          "Native landscaping",
+        ],
         media: {
           src: "/projects/720-sherrybrook/private-balcony.jpg",
           alt: "Private upper-floor balcony overlooking the backyard.",
           width: 1448,
           height: 1086,
+          caption: "Exterior render · upper balcony",
         },
       },
     ],
+    availability: {
+      eyebrow: "Availability",
+      headline: "Four residences, two still open",
+      note: "Pricing is shared directly by our team with the current construction schedule.",
+      units: [
+        {
+          id: "unit-a",
+          name: "Unit A · corner",
+          interior: "2,180 SF",
+          bedrooms: "3 + office",
+          status: "available",
+        },
+        {
+          id: "unit-b",
+          name: "Unit B",
+          interior: "2,050 SF",
+          bedrooms: "3 + office",
+          status: "reserved",
+        },
+        {
+          id: "unit-c",
+          name: "Unit C",
+          interior: "2,050 SF",
+          bedrooms: "3 + office",
+          status: "available",
+        },
+        {
+          id: "unit-d",
+          name: "Unit D · corner",
+          interior: "2,180 SF",
+          bedrooms: "3 + office",
+          status: "sold",
+        },
+      ],
+    },
     architecture: {
+      eyebrow: "Specifications",
       headline: "Architecture and living",
       facts: [
         { label: "Ground floor", value: "982 SF" },
@@ -274,14 +394,34 @@ const PROJECTS = [
         { label: "Stories", value: "2" },
         { label: "Outdoor spaces", value: "Patio + balcony" },
       ],
-      // Interiors y Outdoor living se han ido a `editorialSections`, donde cada
-      // uno se lee junto a su render. Exterior se queda: describe el conjunto
+      // Interiors y Outdoor living viven en `editorialSections`, donde cada uno
+      // se lee junto a su render. Aquí queda lo que describe el conjunto
       // construido, que es de lo que va esta sección.
       details: [
         {
           title: "Exterior",
           body: "White vertical siding, gabled rooflines, matte black frames, and natural wood accents create a contemporary and restrained material palette.",
         },
+        {
+          title: "Systems",
+          body: "High-efficiency HVAC, tankless water heating, and an insulated envelope built to current North Carolina energy code with Habitech Builders.",
+        },
+        {
+          title: "Parking",
+          body: "One covered space and one driveway space per residence, with dedicated guest parking along the shared entry court.",
+        },
+      ],
+    },
+    location: {
+      eyebrow: "Location",
+      headline: "Inside the beltline, minutes from downtown Raleigh",
+      body: "Wake County adds roughly 100 new residents a day. Sherrybrook sits on a quiet residential street with direct access to the corridors that carry that growth.",
+      distances: [
+        { label: "Downtown Raleigh", value: "9 min" },
+        { label: "North Carolina State University", value: "12 min" },
+        { label: "Research Triangle Park", value: "24 min" },
+        { label: "RDU International Airport", value: "21 min" },
+        { label: "Nearest elementary school", value: "6 min" },
       ],
     },
   },
@@ -299,6 +439,12 @@ const PROJECTS = [
  * compilar, así que nada de esto llega al navegador.
  */
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+const UNIT_STATUSES: readonly PublicUnitStatus[] = [
+  "available",
+  "reserved",
+  "sold",
+];
 
 function assertProjectsAreValid(projects: readonly PublicProject[]): void {
   const fail = (id: string, message: string): never => {
@@ -334,6 +480,9 @@ function assertProjectsAreValid(projects: readonly PublicProject[]): void {
       if (!filled(project[field])) fail(where, `\`${field}\` vacío`);
     }
 
+    if (project.status !== undefined && !filled(project.status))
+      fail(where, "`status` presente pero vacío; omítalo en su lugar");
+
     if (project.snapshot.length < 1 || project.snapshot.length > 4)
       fail(
         where,
@@ -345,10 +494,7 @@ function assertProjectsAreValid(projects: readonly PublicProject[]): void {
     }
 
     // Solo rutas locales: nada de orígenes remotos ni protocolo relativo.
-    const assertMedia = (
-      media: { src: string; alt: string; width: number; height: number },
-      kind: string,
-    ) => {
+    const assertMedia = (media: PublicMedia, kind: string) => {
       if (!media.src.startsWith("/") || media.src.startsWith("//"))
         fail(where, `${kind}: \`src\` debe ser una ruta local: "${media.src}"`);
       if (/^[a-z][a-z0-9+.-]*:/i.test(media.src))
@@ -356,13 +502,15 @@ function assertProjectsAreValid(projects: readonly PublicProject[]): void {
       if (!filled(media.alt)) fail(where, `${kind}: \`alt\` vacío`);
       if (!positiveInteger(media.width) || !positiveInteger(media.height))
         fail(where, `${kind}: \`width\` y \`height\` deben ser enteros > 0`);
+      if (media.caption !== undefined && !filled(media.caption))
+        fail(where, `${kind}: \`caption\` presente pero vacío`);
     };
 
     if (project.heroMedia) assertMedia(project.heroMedia, "heroMedia");
 
     if (project.gallery) {
       if (project.gallery.length === 0)
-        fail(where, "`gallery` presente pero vacía; omítela en su lugar");
+        fail(where, "`gallery` presente pero vacía; omítala en su lugar");
       for (const image of project.gallery) {
         assertMedia(image, "gallery");
         if (!filled(image.caption)) fail(where, "gallery: `caption` vacío");
@@ -392,7 +540,56 @@ function assertProjectsAreValid(projects: readonly PublicProject[]): void {
           fail(where, `editorialSections (${section.id}): \`title\` vacío`);
         if (!filled(section.body))
           fail(where, `editorialSections (${section.id}): \`body\` vacío`);
+        if (section.highlights) {
+          if (section.highlights.length === 0)
+            fail(
+              where,
+              `editorialSections (${section.id}): \`highlights\` vacía; omítala`,
+            );
+          for (const item of section.highlights) {
+            if (!filled(item))
+              fail(where, `editorialSections (${section.id}): highlight vacío`);
+          }
+        }
         assertMedia(section.media, `editorialSections (${section.id})`);
+      }
+    }
+
+    if (project.availability) {
+      const { headline, note, units } = project.availability;
+      if (!filled(headline)) fail(where, "availability: `headline` vacío");
+      // Publicar estados de venta sin decir cómo se obtiene el precio deja la
+      // pregunta evidente sin responder: la nota es obligatoria.
+      if (!filled(note)) fail(where, "availability: `note` vacía");
+      if (units.length === 0)
+        fail(where, "`availability` presente sin residencias; omítala");
+      const seenUnitIds = new Set<string>();
+      for (const unit of units) {
+        if (!filled(unit.id)) fail(where, "availability: `id` de unidad vacío");
+        if (seenUnitIds.has(unit.id))
+          fail(where, `availability: \`id\` duplicado "${unit.id}"`);
+        seenUnitIds.add(unit.id);
+        for (const field of ["name", "interior", "bedrooms"] as const) {
+          if (!filled(unit[field]))
+            fail(where, `availability (${unit.id}): \`${field}\` vacío`);
+        }
+        if (!UNIT_STATUSES.includes(unit.status))
+          fail(
+            where,
+            `availability (${unit.id}): estado desconocido "${unit.status}"`,
+          );
+      }
+    }
+
+    if (project.location) {
+      const { headline, body, distances } = project.location;
+      if (!filled(headline)) fail(where, "location: `headline` vacío");
+      if (!filled(body)) fail(where, "location: `body` vacío");
+      if (distances.length === 0)
+        fail(where, "`location` presente sin distancias; omítala");
+      for (const distance of distances) {
+        if (!filled(distance.label) || !filled(distance.value))
+          fail(where, "location: distancia con `label` o `value` vacío");
       }
     }
   }

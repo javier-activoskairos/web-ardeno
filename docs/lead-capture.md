@@ -7,7 +7,9 @@
 ## Arquitectura
 
 ```
-Modal Express interest  (Client Component)
+InterestForm            (Client Component, uno solo)
+ ├─ bloque en línea del cierre de la ficha
+ └─ modal que abre el CTA de la cabecera
         │  POST JSON, mismo origen
         ▼
 /api/interest           (Route Handler, servidor)
@@ -35,17 +37,36 @@ jamás al navegador. Verificado: no aparecen ni en el HTML ni en los bundles.
 Si falta cualquiera de las tres, la captación queda apagada. **Aunque el
 webhook esté configurado, el interruptor manda.**
 
-## Estados del modal
+## Dos superficies, un solo formulario
+
+La ficha convierte por dos sitios: el **bloque en línea** del cierre, con los
+campos ya montados en la página para quien llega hasta abajo, y el **modal** que
+abre el CTA de la cabecera, que tiene que funcionar desde cualquier punto del
+scroll. Los CTA del hero no abren nada: son anclas a `#interest`.
+
+Los dos montan el mismo `<InterestForm>`
+([`src/components/ardeno/interest-form.tsx`](../src/components/ardeno/interest-form.tsx)),
+que es donde vive toda la lógica: validación, trampa para bots, atribución de
+campaña, estados y la llamada al endpoint. El modal
+([`interest-modal.tsx`](../src/components/ardeno/interest-modal.tsx)) solo añade
+lo propio de un diálogo —foco, Escape, bloqueo del scroll— y ajusta su titular a
+partir del estado que el formulario le comunica.
+
+Una segunda copia del formulario sería una segunda validación que alguien
+olvidaría actualizar; por eso no la hay.
+
+## Estados del formulario
 
 | Estado         | Cuándo                             | Qué ve quien lo usa                              |
 | -------------- | ---------------------------------- | ------------------------------------------------ |
 | `idle`         | de partida                         | El formulario                                    |
 | `pending`      | mientras se envía                  | Botón bloqueado, «Sending…», `aria-busy`         |
-| `success`      | solo tras un 200 real              | Agradecimiento, campos limpios, modal abierto    |
+| `success`      | solo tras un 200 real              | Agradecimiento, campos limpios, sin cerrar nada  |
 | `error`        | red caída o 4xx/5xx que no sea 503 | Mensaje reintentable, valores conservados        |
 | `unconfigured` | el servidor responde 503           | Aviso honesto: no se ha enviado ni guardado nada |
 
-El éxito **nunca** se pinta sin respuesta 200. El modal no se cierra solo.
+El éxito **nunca** se pinta sin respuesta 200. El modal no se cierra solo: la
+confirmación recibe el foco y el control de cierre queda a un tabulador.
 
 ## Respuestas del endpoint
 

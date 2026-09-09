@@ -1,9 +1,10 @@
 import Image from "next/image";
-import type { PublicProject } from "@/lib/projects";
-import { ArdenoContainer } from "./primitives";
+import type { PublicProject, PublicUnitStatus } from "@/lib/projects";
+import { ArdenoChip, ArdenoContainer } from "./primitives";
 
 /**
- * Contenido del proyecto: narrativa, capítulos editoriales y arquitectura.
+ * Contenido del proyecto: narrativa, capítulos, disponibilidad, arquitectura y
+ * emplazamiento.
  *
  * Server Components puros. No llevan estado, ni efectos, ni JavaScript de
  * cliente: son texto compuesto en el servidor. Todo el contenido llega desde
@@ -34,7 +35,7 @@ export function ProjectStory({ project }: { project: PublicProject }) {
   return (
     <section className="ar-sec" aria-labelledby="project-story">
       <ArdenoContainer className="ar-story">
-        <div className="ar-story__head">
+        <div className="ar-story__head ar-reveal">
           {hasText(story.eyebrow) ? (
             <p className="ar-eyebrow">{story.eyebrow}</p>
           ) : null}
@@ -46,7 +47,7 @@ export function ProjectStory({ project }: { project: PublicProject }) {
         </div>
 
         {body.length > 0 ? (
-          <div className="ar-story__body">
+          <div className="ar-story__body ar-reveal">
             {body.map((paragraph, index) => (
               <p
                 key={paragraph}
@@ -72,9 +73,6 @@ export function ProjectStory({ project }: { project: PublicProject }) {
  * debajo la composición se apila y ocupa el ancho del contenedor; `100vw` se
  * pasa un poco —los gutters— y esa dirección es la segura: pedir de menos daría
  * una imagen ampliada.
- *
- * Los valores salen de la medición y no de redondear al alza: con 764px y 57vw
- * el navegador subía a la variante de 828 donde le basta la de 750.
  */
 const CHAPTER_SIZES =
   "(min-width: 1440px) 712px, (min-width: 1200px) 53vw, 100vw";
@@ -117,32 +115,152 @@ export function ProjectEditorial({ project }: { project: PublicProject }) {
             aria-labelledby={titleId}
           >
             <ArdenoContainer className="ar-chapter__grid">
-              <div className="ar-chapter__text">
+              <div className="ar-chapter__text ar-reveal">
+                {hasText(section.eyebrow) ? (
+                  <p className="ar-eyebrow">{section.eyebrow}</p>
+                ) : null}
                 <h2 id={titleId} className="ar-display ar-chapter__title">
                   {section.title}
                 </h2>
                 <p className="ar-body ar-chapter__body">{section.body}</p>
+
+                {section.highlights && section.highlights.length > 0 ? (
+                  <ul className="ar-list ar-chapter__list">
+                    {section.highlights.map((item) => (
+                      <li key={item}>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </div>
 
-              {/* Sin `fill`: el archivo manda su propia proporción, así que no
-                  hay recorte y el hueco queda reservado desde el primer pintado.
-                  La carga es diferida por defecto — ninguno de los dos entra en
-                  la primera pantalla. */}
-              <div className="ar-chapter__media">
-                <Image
-                  src={section.media.src}
-                  alt={section.media.alt}
-                  width={section.media.width}
-                  height={section.media.height}
-                  sizes={CHAPTER_SIZES}
-                  className="ar-chapter__img"
-                />
-              </div>
+              {/* La carga es diferida por defecto: ninguno de los capítulos
+                  entra en la primera pantalla. */}
+              <figure className="ar-chapter__figure ar-reveal">
+                <div className="ar-chapter__frame">
+                  <Image
+                    src={section.media.src}
+                    alt={section.media.alt}
+                    fill
+                    sizes={CHAPTER_SIZES}
+                    className="ar-chapter__img"
+                  />
+                </div>
+                {hasText(section.media.caption) ? (
+                  <figcaption className="ar-cap">
+                    {section.media.caption}
+                  </figcaption>
+                ) : null}
+              </figure>
             </ArdenoContainer>
           </section>
         );
       })}
     </>
+  );
+}
+
+/* ------------------------------------------------------------ Availability */
+
+/** Etiqueta pública de cada estado. El dato es interno; esto es lo que se lee. */
+const UNIT_STATUS_LABEL: Record<PublicUnitStatus, string> = {
+  available: "Available",
+  reserved: "Reserved",
+  sold: "Sold",
+};
+
+/**
+ * Disponibilidad por residencia.
+ *
+ * Es la única parte de la ficha donde el visitante compara filas, así que va en
+ * una tabla de verdad —cabecera, ámbito y celdas— y no en una retícula de
+ * `<div>`: un lector de pantalla anuncia «Unit B, interior 2.050 SF» en lugar
+ * de leer catorce fragmentos sueltos.
+ *
+ * Sin precios. La nota dice quién los comparte y cuándo, que es la pregunta
+ * que deja abierta cualquier lista de estados de venta.
+ */
+export function ProjectAvailability({ project }: { project: PublicProject }) {
+  const availability = project.availability;
+  if (!availability) return null;
+
+  const { eyebrow, headline, note, units } = availability;
+
+  return (
+    <section
+      className="ar-sec ar-navy ar-on-dark"
+      aria-labelledby="project-availability"
+    >
+      <ArdenoContainer>
+        <div className="ar-avail__head ar-reveal">
+          <div>
+            {hasText(eyebrow) ? <p className="ar-eyebrow">{eyebrow}</p> : null}
+            <h2
+              id="project-availability"
+              className="ar-display ar-sechead__title"
+            >
+              {headline}
+            </h2>
+          </div>
+          <p className="ar-body ar-avail__note">{note}</p>
+        </div>
+
+        {/* La tabla se desplaza dentro de su caja en pantallas estrechas; la
+            página no. La región lleva `tabIndex` y etiqueta porque un
+            contenedor con scroll tiene que ser alcanzable con el teclado. */}
+        <div
+          className="ar-scroll ar-reveal"
+          role="region"
+          aria-labelledby="project-availability"
+          tabIndex={0}
+        >
+          {/* Los roles van escritos porque en móvil la tabla se rompe en
+              bloques con `display: block`, y eso borra la semántica que el
+              navegador deduce del elemento. */}
+          <table className="ar-units" role="table">
+            <thead role="rowgroup">
+              <tr role="row">
+                <th role="columnheader" scope="col">
+                  Residence
+                </th>
+                <th role="columnheader" scope="col">
+                  Interior
+                </th>
+                <th role="columnheader" scope="col">
+                  Bedrooms
+                </th>
+                <th role="columnheader" scope="col">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody role="rowgroup">
+              {units.map((unit) => (
+                <tr key={unit.id} data-status={unit.status} role="row">
+                  <th role="rowheader" scope="row">
+                    {unit.name}
+                  </th>
+                  <td role="cell" data-label="Interior">
+                    {unit.interior}
+                  </td>
+                  <td role="cell" data-label="Bedrooms">
+                    {unit.bedrooms}
+                  </td>
+                  <td role="cell" data-label="Status">
+                    {/* Lo que sigue abierto lleva punto; lo cerrado, no. La
+                        distinción no es de color: el punto es la señal. */}
+                    <ArdenoChip dot={unit.status === "available"}>
+                      {UNIT_STATUS_LABEL[unit.status]}
+                    </ArdenoChip>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </ArdenoContainer>
+    </section>
   );
 }
 
@@ -162,20 +280,26 @@ export function ProjectArchitecture({ project }: { project: PublicProject }) {
   const architecture = project.architecture;
   if (!architecture) return null;
 
-  const { headline, facts, details } = architecture;
+  const { eyebrow, headline, facts, details } = architecture;
   if (facts.length === 0 && details.length === 0) return null;
 
   return (
     <section className="ar-sec ar-stone" aria-labelledby="project-architecture">
       <ArdenoContainer>
-        {hasText(headline) ? (
-          <h2 id="project-architecture" className="ar-display ar-arch__title">
-            {headline}
-          </h2>
-        ) : null}
+        <div className="ar-reveal">
+          {hasText(eyebrow) ? <p className="ar-eyebrow">{eyebrow}</p> : null}
+          {hasText(headline) ? (
+            <h2
+              id="project-architecture"
+              className="ar-display ar-sechead__title"
+            >
+              {headline}
+            </h2>
+          ) : null}
+        </div>
 
         {facts.length > 0 ? (
-          <dl className="ar-facts">
+          <dl className="ar-facts ar-reveal">
             {facts.map((fact) => (
               <div className="ar-fact" key={fact.label}>
                 <dt className="ar-label">{fact.label}</dt>
@@ -190,7 +314,7 @@ export function ProjectArchitecture({ project }: { project: PublicProject }) {
              solo detalle la retícula es de una columna y ocupa su fila entera,
              en vez de dejar dos huecos a la derecha. Nunca pasa de tres. */
           <div
-            className="ar-details"
+            className="ar-details ar-reveal"
             style={
               { "--ar-details-cols": details.length } as React.CSSProperties
             }
@@ -203,6 +327,51 @@ export function ProjectArchitecture({ project }: { project: PublicProject }) {
             ))}
           </div>
         ) : null}
+      </ArdenoContainer>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------- Location */
+
+/**
+ * Emplazamiento y distancias, entre dos filetes.
+ *
+ * Sin mapa embebido: sería un tercero cargando dentro de la ficha —con su
+ * script, sus cookies y su consentimiento— para dar menos información que esta
+ * lista. Los tiempos llegan ya escritos desde el contrato; aquí no se calcula
+ * nada.
+ */
+export function ProjectLocation({ project }: { project: PublicProject }) {
+  const location = project.location;
+  if (!location) return null;
+
+  const { eyebrow, headline, body, distances } = location;
+
+  return (
+    <section className="ar-sec--tight" aria-labelledby="project-location">
+      <ArdenoContainer>
+        <div className="ar-authority ar-reveal">
+          <div>
+            {hasText(eyebrow) ? <p className="ar-eyebrow">{eyebrow}</p> : null}
+            <h2
+              id="project-location"
+              className="ar-display ar-authority__title"
+            >
+              {headline}
+            </h2>
+            <p className="ar-body ar-authority__body">{body}</p>
+          </div>
+
+          <ul className="ar-list" data-split="true">
+            {distances.map((distance) => (
+              <li key={distance.label}>
+                <span>{distance.label}</span>
+                <span className="ar-list__val">{distance.value}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </ArdenoContainer>
     </section>
   );

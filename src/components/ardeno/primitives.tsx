@@ -113,18 +113,76 @@ export function ArdenoButton({
       className={cn("ar-btn", `ar-btn--${variant}`, className)}
       {...props}
     >
-      {BRAND_VARIANTS.has(variant) ? (
-        <>
-          <span className="ar-btn__label">{children}</span>
-          <span className="ar-btn__mark" aria-hidden="true">
-            <span className="ar-btn__disc" />
-            <ArrowRight className="ar-btn__arrow" strokeWidth={2} />
-          </span>
-        </>
-      ) : (
-        children
-      )}
+      <ArdenoButtonBody variant={variant}>{children}</ArdenoButtonBody>
     </button>
+  );
+}
+
+/**
+ * El mismo botón cuando lo que hace es llevar a otro sitio de la página.
+ *
+ * Los CTA del hero saltan al bloque de captación del cierre, que ya tiene el
+ * formulario montado: eso es navegación, no una acción, así que es un enlace y
+ * no un `<button>`. Con el ancla real el destino se puede abrir en otra
+ * pestaña, copiar y compartir, y el teclado lo anuncia como lo que es.
+ */
+export function ArdenoLinkButton({
+  variant = "primary",
+  className,
+  children,
+  ...props
+}: ComponentProps<"a"> & { variant?: ArdenoButtonVariant }) {
+  return (
+    <a className={cn("ar-btn", `ar-btn--${variant}`, className)} {...props}>
+      <ArdenoButtonBody variant={variant}>{children}</ArdenoButtonBody>
+    </a>
+  );
+}
+
+/** Interior compartido: solo las variantes de marca llevan disco y flecha. */
+function ArdenoButtonBody({
+  variant,
+  children,
+}: {
+  variant: ArdenoButtonVariant;
+  children: ReactNode;
+}) {
+  if (!BRAND_VARIANTS.has(variant)) return <>{children}</>;
+
+  return (
+    <>
+      <span className="ar-btn__label">{children}</span>
+      <span className="ar-btn__mark" aria-hidden="true">
+        <span className="ar-btn__disc" />
+        <ArrowRight className="ar-btn__arrow" strokeWidth={2} />
+      </span>
+    </>
+  );
+}
+
+/* -------------------------------------------------------------- Distintivo */
+
+/**
+ * Píldora de estado: "Now selling", "Available", "Sold".
+ *
+ * Toma el color de su contexto en lugar de tener uno propio. El estado
+ * comercial es información, no alarma: pintar «vendido» de rojo lo convertiría
+ * en un aviso, y lo que hace es simplemente cerrar una fila.
+ */
+export function ArdenoChip({
+  children,
+  dot = true,
+  className,
+}: {
+  children: ReactNode;
+  dot?: boolean;
+  className?: string;
+}) {
+  return (
+    <span className={cn("ar-chip", className)}>
+      {dot ? <span className="ar-chip__dot" aria-hidden="true" /> : null}
+      {children}
+    </span>
   );
 }
 

@@ -8,10 +8,11 @@ import { ArdenoContainer } from "./primitives";
 /**
  * Galería de renders del proyecto.
  *
- * En la página solo hay una cubierta: el primer render a tamaño editorial con
- * un botón que abre el resto a pantalla completa. Sin cuadrícula, sin
- * miniaturas permanentes y sin copy explicativo — la sucesión de texto se
- * interrumpe con una imagen, no con más texto.
+ * En la página hay una cubierta a tamaño editorial y hasta cuatro renders más
+ * en dos parejas. Cualquiera de ellos abre el visor a pantalla completa por su
+ * propia posición. El resto del archivo vive solo ahí dentro: la galería
+ * interrumpe la sucesión de texto con imagen, no la sustituye por una
+ * cuadrícula.
  *
  * Todo el contenido llega por props desde `projects.ts`; aquí no hay ni una
  * ruta ni una descripción del proyecto. El estado del visor es React puro: no
@@ -21,6 +22,18 @@ import { ArdenoContainer } from "./primitives";
 /** Ancho de la cubierta: el contenedor de sitio, con sus gutters. */
 const COVER_SIZES = "(min-width: 1440px) 1360px, 100vw";
 
+/** Las miniaturas ocupan media columna desde 768px. */
+const TILE_SIZES = "(min-width: 1440px) 672px, (min-width: 768px) 48vw, 100vw";
+
+/**
+ * Cuántos renders se muestran bajo la cubierta antes de mandar al visor.
+ *
+ * Cuatro, en dos filas de dos: los suficientes para que se vea que hay un
+ * archivo detrás, y no tantos como para que la galería se coma el scroll y
+ * deje de tener sentido abrir el visor.
+ */
+const MAX_TILES = 4;
+
 export function ProjectGallery({
   images,
 }: {
@@ -28,15 +41,28 @@ export function ProjectGallery({
 }) {
   const [index, setIndex] = useState<number | null>(null);
   const coverRef = useRef<HTMLButtonElement | null>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const touchX = useRef<number | null>(null);
 
   const count = images.length;
   const isOpen = index !== null;
 
+  // Devuelve el foco a lo que abrió el visor —la cubierta o la miniatura—, no
+  // siempre a la cubierta: cerrar y aparecer a tres pantallas de donde estabas
+  // es exactamente lo que hay que evitar.
   const close = useCallback(() => {
     setIndex(null);
-    coverRef.current?.focus();
+    (openerRef.current ?? coverRef.current)?.focus();
+  }, []);
+
+  // Quién abrió el visor, para devolverle el foco al cerrarlo.
+  const openAt = useCallback((position: number) => {
+    openerRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    setIndex(position);
   }, []);
 
   // Navegación circular: del último se vuelve al primero y al revés.
@@ -104,20 +130,35 @@ export function ProjectGallery({
 
   const cover = images[0];
   const label = count > 1 ? `View all ${count} renders` : "View render";
+  // Las miniaturas empiezan después de la cubierta y se emiten por parejas: una
+  // fila suelta con una sola imagen dejaría media columna vacía.
+  const tiles = images
+    .map((image, position) => ({ image, position }))
+    .slice(1, 1 + MAX_TILES);
+  const rows = [tiles.slice(0, 2), tiles.slice(2, 4)].filter(
+    (row) => row.length === 2,
+  );
   // Imagen y posición juntas: un solo objeto que TypeScript sabe estrechar.
   const active =
     index === null ? null : { image: images[index], position: index + 1 };
 
   return (
-    <section className="ar-sec--tight" aria-label="Project renders">
+    <section className="ar-sec--tight" aria-labelledby="project-gallery">
       <ArdenoContainer>
+        <div className="ar-reveal">
+          <p className="ar-eyebrow">Gallery</p>
+          <h2 id="project-gallery" className="ar-display ar-sechead__title">
+            The project, rendered
+          </h2>
+        </div>
+
         {/* La descripción del render viaja en la etiqueta del botón, así que
             la imagen no la repite y el badge queda fuera del árbol. */}
         <button
           type="button"
-          className="ar-cover"
+          className="ar-cover ar-reveal"
           ref={coverRef}
-          onClick={() => setIndex(0)}
+          onClick={() => openAt(0)}
           aria-label={`${label}. ${cover.alt}`}
         >
           <span className="ar-cover__frame">
@@ -133,6 +174,30 @@ export function ProjectGallery({
             {label}
           </span>
         </button>
+
+        {/* Cada miniatura abre el visor por donde está, no por el principio:
+            quien pulsa el baño quiere ver el baño. */}
+        {rows.map((row) => (
+          <div className="ar-pair ar-reveal" key={row[0].image.src}>
+            {row.map(({ image, position }) => (
+              <button
+                type="button"
+                className="ar-tile"
+                key={image.src}
+                onClick={() => openAt(position)}
+                aria-label={`Open render: ${image.alt}`}
+              >
+                <Image
+                  src={image.src}
+                  alt=""
+                  fill
+                  sizes={TILE_SIZES}
+                  className="ar-tile__img"
+                />
+              </button>
+            ))}
+          </div>
+        ))}
       </ArdenoContainer>
 
       {active ? (
