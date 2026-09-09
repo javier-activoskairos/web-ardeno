@@ -254,15 +254,15 @@ const PROJECTS = [
       {
         src: "/projects/720-sherrybrook/kitchen-island.jpg",
         alt: "Kitchen with a white quartz island and light oak cabinetry.",
-        width: 1759,
-        height: 1200,
+        width: 1602,
+        height: 942,
         caption: "Kitchen",
       },
       {
         src: "/projects/720-sherrybrook/dining-living.jpg",
         alt: "Open dining and living area on the ground floor.",
-        width: 2099,
-        height: 1431,
+        width: 1912,
+        height: 1118,
         caption: "Dining and living",
       },
       {
@@ -323,8 +323,8 @@ const PROJECTS = [
         media: {
           src: "/projects/720-sherrybrook/kitchen-island.jpg",
           alt: "Kitchen with a white quartz island and light oak cabinetry.",
-          width: 1759,
-          height: 1200,
+          width: 1602,
+          height: 942,
           caption: "Interior render · kitchen",
         },
       },
