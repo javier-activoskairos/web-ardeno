@@ -298,6 +298,13 @@
   .ar-sec--tight {
     padding-block: var(--w-section-y-sm);
   }
+  /* Ritmo entre bloques: dos secciones sobre el mismo fondo suman 100px de
+     aire entre ellas, y una sección que sigue a otra con color propio se apoya
+     en los 100px que ese color ya aporta por dentro. Sin esta regla, la banda
+     de cifras y la narrativa acumulaban 150. */
+  .ar-sec--tight + .ar-sec {
+    padding-top: var(--w-section-y-sm);
+  }
   /* Superficie clara de contraste. Es el panel medido del sitio real; el
      texto secundario sobre él llega a 5.85:1, por encima de AA. */
   .ar-stone {
@@ -464,6 +471,8 @@
   }
   .ar-chapter__list {
     margin-top: 28px;
+    border-top: 1px solid var(--w-line);
+    border-bottom: 1px solid var(--w-line);
   }
   .ar-chapter__figure {
     margin: 0;
@@ -498,7 +507,10 @@
     .ar-chapter__grid {
       grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
       gap: clamp(40px, 4.5vw, 64px);
-      align-items: center;
+      /* Por arriba, no centradas: el rótulo y el borde superior del render
+         arrancan en la misma línea, y esa horizontal es la que da orden a los
+         dos capítulos aunque tengan alturas distintas. */
+      align-items: start;
     }
     .ar-chapter--mirror .ar-chapter__grid {
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
@@ -515,6 +527,9 @@
   .ar-arch__title {
     max-width: 20ch;
   }
+  /* En una sola columna los hechos se leen como una lista continua y sus
+     filetes tienen que ir seguidos; el aire entre filas solo hace falta cuando
+     hay columnas de verdad, y se añade con ellas más abajo. */
   .ar-facts {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -574,6 +589,9 @@
   @media (min-width: 600px) {
     .ar-facts {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      /* Con las filas pegadas, el filete de la segunda caía a 35px de la cifra
+         de la primera y las dos se leían como una sola tabla apretada. */
+      row-gap: 24px;
     }
   }
   @media (min-width: 900px) {
@@ -975,6 +993,15 @@
   .ar-btn--brand-on-dark:hover .ar-btn__label {
     color: #fff;
   }
+  /* El disco crece hasta cubrir el botón, pero el recorte redondeado deja
+     asomar una hebra del relleno claro en todo el contorno. El fondo pasa a
+     navy cuando el círculo ya lo ha tapado —de ahí el retardo—, así el borde
+     queda macizo sin que se vea el cambio. */
+  .ar-btn--brand:hover,
+  .ar-btn--brand-on-dark:hover {
+    background: var(--w-navy);
+    transition-delay: 170ms;
+  }
 
   /* ---------- Cabecera de proyecto ----------
      Cabecera latente. La ficha no tiene navegación y sí una sola imagen que
@@ -1345,16 +1372,23 @@
     margin: 0;
     padding: 0;
   }
+  /* El filete separa un renglón del siguiente, así que va ENTRE elementos y no
+     encima de cada uno. Puesto en todos, el primero se lee como subrayado del
+     párrafo que hay arriba, y dentro de un bloque ya enmarcado —el de
+     emplazamiento— duplicaba la línea del contenedor a pocos píxeles. Quien
+     necesite abrir y cerrar la lista lo dice en su propia clase. */
   .ar-list li {
     display: flex;
     align-items: baseline;
     gap: 12px;
     padding-block: 13px;
-    border-top: 1px solid var(--w-line);
     font-size: var(--w-body-sm);
     line-height: var(--w-lh-body);
     letter-spacing: var(--w-ls-body);
     color: var(--w-ink-2);
+  }
+  .ar-list li + li {
+    border-top: 1px solid var(--w-line);
   }
   .ar-list li::before {
     content: "";
@@ -1368,7 +1402,7 @@
   .ar-navy .ar-list li,
   .ar-deep .ar-list li,
   .ar-on-dark .ar-list li {
-    border-top-color: var(--w-line-dark);
+    border-color: var(--w-line-dark);
     color: var(--w-on-dark-2);
   }
   .ar-list[data-split="true"] li > span:first-of-type {
@@ -1406,13 +1440,16 @@
   .ar-avail__head {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 24px;
     margin-bottom: var(--w-section-y-sm);
   }
+  /* La nota arranca a la altura del titular, no del último renglón: con un
+     titular de dos líneas quedaba flotando a media altura. */
   .ar-avail__note {
     max-width: 34ch;
+    margin-top: 20px;
   }
   /* Cuatro columnas no caben en 390px sin partir palabras ni encoger la
      tipografía por debajo de lo legible. En vez de deformar la tabla, la
@@ -1614,17 +1651,26 @@
     position: relative;
     overflow: hidden;
   }
+  /* Bajo la columna de texto, que es donde queda sitio libre. A la derecha la
+     tapaba el panel del formulario y solo asomaban tres trazos sueltos por el
+     canto, que se leían como un fallo de render y no como una marca. */
   .ar-interest__mark {
     position: absolute;
-    right: -3%;
-    bottom: -16%;
-    width: min(34%, 380px);
+    left: var(--w-gutter);
+    bottom: calc(var(--w-section-y) * -0.25);
+    width: min(30%, 300px);
     aspect-ratio: 1204 / 1432;
     background-color: var(--w-bone);
     -webkit-mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
     mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
-    opacity: 0.06;
+    opacity: 0.07;
     pointer-events: none;
+  }
+  /* Apilado no hay columna libre: el símbolo caería detrás del formulario. */
+  @media (max-width: 900px) {
+    .ar-interest__mark {
+      display: none;
+    }
   }
   .ar-interest__grid {
     position: relative;
