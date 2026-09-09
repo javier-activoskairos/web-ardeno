@@ -467,9 +467,13 @@ export function InterestProvider({
                   {state === "pending" ? "Sending…" : "Express interest"}
                 </ArdenoButton>
 
+                {/* Tiene que ser cierto en los cinco estados. La promesa de
+                    que no se envía nada solo vale con la captación apagada, y
+                    eso ya lo dice su propio aviso; aquí queda lo que se cumple
+                    siempre. */}
                 <p className="ar-modal__note">
-                  No enquiry is transmitted or stored while the integration is
-                  pending. Nothing you type here leaves your browser.
+                  Your details are only sent to the Ardeno team when you submit
+                  this form. Nothing is saved in your browser.
                 </p>
               </form>
             </div>
