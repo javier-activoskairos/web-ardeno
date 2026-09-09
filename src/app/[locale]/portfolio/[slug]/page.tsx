@@ -82,7 +82,11 @@ export default async function ProjectPage({
   }
 
   return (
-    <InterestProvider projectName={project.name}>
+    <InterestProvider
+      projectId={project.id}
+      projectSlug={project.slug}
+      projectName={project.name}
+    >
       <div className="ar-page flex flex-1 flex-col">
         <a className="ar-skip" href="#project-content">
           Skip to project content

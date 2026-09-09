@@ -1210,6 +1210,29 @@
     margin-top: 1.75rem;
   }
 
+  /* Trampa para bots. Fuera de pantalla, nunca `display: none`: los bots
+     saltan lo que está oculto de forma obvia, y quien navega con lector de
+     pantalla tampoco la encuentra porque el contenedor va `aria-hidden`. */
+  .ar-hp {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  /* Confirmación de envío. Mismo peso que `.ar-alert`, en tinta neutra. */
+  .ar-note {
+    padding: 12px 14px;
+    border: 1px solid var(--w-line);
+    border-radius: var(--w-r-field);
+    background: var(--w-panel);
+    color: var(--w-ink);
+    font-size: var(--w-s-16);
+    line-height: 1.5;
+  }
+
   /* ---------- Modal ----------
      El scroll vive dentro del diálogo, nunca en la capa ni en el body: con la
      capa scrollable, en móvil el gesto se propagaba a la página de detrás y el

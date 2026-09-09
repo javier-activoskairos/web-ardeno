@@ -22,14 +22,14 @@ import {
 /**
  * Modal único de captación — "Express interest".
  *
- * Todos los CTA de la ficha abren este mismo modal, igual que en el design
- * system. Deliberadamente NO hay envío: no existe endpoint configurado, así
- * que el formulario valida en local y después declara con honestidad que la
- * integración está pendiente. Nunca simula un envío correcto.
+ * Todos los CTA de la ficha abren este mismo modal. El envío va a
+ * `/api/interest`, que nace apagado: mientras el interruptor del servidor esté
+ * en `false` responde `unconfigured` y el modal lo dice con todas las letras.
+ * Nunca se simula un envío correcto — el éxito solo se muestra tras un 200.
  *
- * Lo introducido vive solo en el estado de React mientras el modal está
- * abierto y se descarta al cerrarlo: no se persiste, no se registra y no sale
- * del navegador.
+ * Lo que se escribe vive en el estado de React mientras el modal está abierto
+ * y se descarta al cerrarlo. No se persiste nada: ni `localStorage`, ni
+ * `sessionStorage`, ni cookies.
  */
 
 type InterestContextValue = { open: () => void };
@@ -42,6 +42,32 @@ const EMPTY_VALUES = { name: "", email: "", phone: "", reason: "" };
 
 type FieldName = keyof typeof EMPTY_VALUES;
 type Errors = Partial<Record<FieldName, string>>;
+
+/** Los cinco estados del envío. `unconfigured` es el de hoy. */
+type SubmitState = "idle" | "pending" | "success" | "error" | "unconfigured";
+
+const UTM_KEYS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "utm_term",
+] as const;
+
+type Utm = Record<(typeof UTM_KEYS)[number], string>;
+
+const EMPTY_UTM: Utm = {
+  utm_source: "",
+  utm_medium: "",
+  utm_campaign: "",
+  utm_content: "",
+  utm_term: "",
+};
+
+const MAX_UTM = 200;
+const MAX_URL = 2048;
+
+const cap = (value: string, max: number) => value.slice(0, max);
 
 /** Dispara el modal compartido. Debe usarse dentro de <InterestProvider>. */
 export function InterestButton({
@@ -65,16 +91,42 @@ export function InterestButton({
 }
 
 export function InterestProvider({
+  projectId,
+  projectSlug,
   projectName,
   children,
 }: {
+  projectId: string;
+  projectSlug: string;
   projectName: string;
   children: ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [values, setValues] = useState(EMPTY_VALUES);
   const [errors, setErrors] = useState<Errors>({});
-  const [submitted, setSubmitted] = useState(false);
+  const [state, setState] = useState<SubmitState>("idle");
+
+  // Guarda inmediata contra el doble envío: el estado de React llega tarde si
+  // alguien pulsa dos veces seguidas.
+  const sendingRef = useRef(false);
+  const utmRef = useRef<Utm>(EMPTY_UTM);
+  const honeypotRef = useRef<HTMLInputElement | null>(null);
+
+  /*
+   * Atribución al montar, no al enviar: el visitante puede navegar y perder
+   * los parámetros por el camino. Se lee `window.location.search` a mano
+   * porque `useSearchParams` obligaría a renderizar en cliente todo el árbol
+   * hasta el `Suspense` más cercano —y este proveedor envuelve la página
+   * entera, que se prerenderiza—. No se persiste en ningún sitio.
+   */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const captured = { ...EMPTY_UTM };
+    for (const key of UTM_KEYS) {
+      captured[key] = cap(params.get(key) ?? "", MAX_UTM);
+    }
+    utmRef.current = captured;
+  }, []);
 
   const panelRef = useRef<HTMLDivElement | null>(null);
   const openerRef = useRef<HTMLElement | null>(null);
@@ -85,7 +137,10 @@ export function InterestProvider({
   );
 
   const ids = useId();
-  const fieldId = useCallback((name: FieldName) => `${ids}-${name}`, [ids]);
+  const fieldId = useCallback(
+    (name: FieldName | "company") => `${ids}-${name}`,
+    [ids],
+  );
   const titleId = `${ids}-title`;
 
   const open = useCallback(() => {
@@ -101,7 +156,8 @@ export function InterestProvider({
     // Nada de lo introducido sobrevive al cierre.
     setValues(EMPTY_VALUES);
     setErrors({});
-    setSubmitted(false);
+    setState("idle");
+    sendingRef.current = false;
     openerRef.current?.focus();
   }, []);
 
@@ -158,8 +214,9 @@ export function InterestProvider({
       setErrors((current) => ({ ...current, [name]: undefined }));
     };
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (sendingRef.current) return;
 
     const nextErrors: Errors = {};
     if (!values.name.trim()) nextErrors.name = "Please enter your name.";
@@ -178,13 +235,53 @@ export function InterestProvider({
     );
 
     if (firstInvalid) {
-      setSubmitted(false);
+      setState("idle");
       inputRefs.current[firstInvalid]?.focus();
       return;
     }
 
-    // No hay endpoint. No se envía nada y no se finge un envío correcto.
-    setSubmitted(true);
+    sendingRef.current = true;
+    setState("pending");
+
+    try {
+      const response = await fetch("/api/interest", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          projectId,
+          projectSlug,
+          name: values.name.trim(),
+          email: values.email.trim(),
+          phone: values.phone.trim(),
+          reason: values.reason.trim(),
+          // La trampa viaja tal cual: el servidor decide qué hacer con ella.
+          company: honeypotRef.current?.value ?? "",
+          pageUrl: cap(window.location.href, MAX_URL),
+          queryString: cap(window.location.search, MAX_URL),
+          locale: document.documentElement.lang,
+          submittedAt: new Date().toISOString(),
+          utm: utmRef.current,
+        }),
+      });
+
+      if (response.status === 503) {
+        setState("unconfigured");
+        return;
+      }
+      if (!response.ok) {
+        setState("error");
+        return;
+      }
+
+      // El éxito solo se pinta tras un 200 de verdad.
+      setState("success");
+      setValues(EMPTY_VALUES);
+      setErrors({});
+    } catch {
+      setState("error");
+    } finally {
+      sendingRef.current = false;
+    }
   };
 
   const contextValue = useMemo<InterestContextValue>(() => ({ open }), [open]);
@@ -236,7 +333,7 @@ export function InterestProvider({
                 noValidate
                 onSubmit={onSubmit}
               >
-                {submitted ? (
+                {state === "unconfigured" ? (
                   <div className="ar-alert" role="alert">
                     We cannot send your request yet. The enquiry integration is
                     not configured for this project.
@@ -246,6 +343,35 @@ export function InterestProvider({
                     </span>
                   </div>
                 ) : null}
+
+                {state === "error" ? (
+                  <div className="ar-alert" role="alert">
+                    We could not send your request. Please try again.
+                  </div>
+                ) : null}
+
+                {state === "success" ? (
+                  <div className="ar-note" role="status">
+                    Thank you. Our team will be in touch shortly.
+                  </div>
+                ) : null}
+
+                {/* Trampa para bots: fuera de pantalla, nunca oculta con
+                    `display:none`, fuera del orden de tabulación y fuera del
+                    árbol de accesibilidad. Quien la rellene recibe un éxito
+                    genérico y su envío no se reenvía a ningún sitio. */}
+                <div className="ar-hp" aria-hidden="true">
+                  <label htmlFor={fieldId("company")}>Company</label>
+                  <input
+                    id={fieldId("company")}
+                    name="company"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    ref={honeypotRef}
+                    defaultValue=""
+                  />
+                </div>
 
                 <ArdenoField
                   id={fieldId("name")}
@@ -335,8 +461,10 @@ export function InterestProvider({
                   type="submit"
                   variant="brand"
                   className="mt-1 self-start"
+                  disabled={state === "pending"}
+                  aria-busy={state === "pending"}
                 >
-                  Express interest
+                  {state === "pending" ? "Sending…" : "Express interest"}
                 </ArdenoButton>
 
                 <p className="ar-modal__note">
