@@ -607,6 +607,10 @@
   .ar-cover {
     display: block;
     width: 100%;
+    /* El titular de la sección va justo encima: sin este aire, el texto se
+       apoya en el borde de la imagen. Es la misma separación que hay entre la
+       cubierta y las parejas de renders. */
+    margin-top: clamp(28px, 4vw, 50px);
     padding: 0;
     border: none;
     background: none;
@@ -1677,7 +1681,12 @@
       .ar-reveal {
         animation: ar-fade-up linear both;
         animation-timeline: view();
-        animation-range: entry 0% entry 40%;
+        /* `cover` y no `entry`: el rango de entrada solo se completa cuando el
+           elemento cabe entero en la pantalla, así que un bloque más alto que
+           el viewport —la cubierta de la galería en un portátil— se quedaba a
+           medio camino, translúcido y desplazado, para siempre. El recorrido
+           completo siempre avanza. */
+        animation-range: cover 0% cover 14%;
       }
     }
   }
