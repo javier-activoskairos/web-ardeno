@@ -8,6 +8,7 @@ import {
   setRequestLocale,
 } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { IS_INDEXABLE, SITE_URL } from "@/lib/site";
 import "../globals.css";
 
 // Hanken Grotesk — una sola cara para toda la ficha.
@@ -27,8 +28,18 @@ const hanken = Hanken_Grotesk({
   display: "swap",
 });
 
-// Base URL del sitio (para canonical / Open Graph). Definir por proyecto.
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+/**
+ * Directiva `robots` de toda la app.
+ *
+ * Se declara en el layout y no en cada página para que una ruta nueva nazca
+ * protegida: fuera de producción, cualquier cosa que se renderice bajo este
+ * layout sale con `noindex, nofollow, noarchive`. `noarchive` evita además que
+ * quede copia en caché de un buscador, que es lo que sobrevive a la preview
+ * cuando se apaga.
+ */
+const ROBOTS: Metadata["robots"] = IS_INDEXABLE
+  ? { index: true, follow: true }
+  : { index: false, follow: false, noarchive: true };
 
 /**
  * Espacios de nombres que viajan al cliente.
@@ -61,10 +72,11 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "Metadata" });
 
   return {
-    metadataBase: new URL(siteUrl),
+    metadataBase: new URL(SITE_URL),
     title: { default: t("title"), template: "%s — Ardeno Group" },
     description: t("description"),
     applicationName: "Ardeno Group",
+    robots: ROBOTS,
     openGraph: {
       siteName: "Ardeno Group",
       title: t("title"),

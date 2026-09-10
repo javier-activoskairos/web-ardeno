@@ -7,10 +7,16 @@
  * puestos a `null`: no existen, así que no pueden renderizarse ni viajar a un
  * componente cliente por descuido.
  *
- * La disponibilidad comercial —qué residencias siguen abiertas— sí forma parte
- * del contrato desde el rediseño v3, porque es información de venta que el
+ * La disponibilidad comercial —qué residencias siguen abiertas— forma parte del
+ * contrato desde el rediseño v3, porque es información de venta que el
  * comprador necesita. Los precios siguen fuera: la ficha dice explícitamente
  * que los comparte el equipo.
+ *
+ * Que un campo quepa en el contrato no significa que su valor esté verificado.
+ * Hoy 720 Sherrybrook publica MENOS de lo que el tipo admite: la entrega
+ * estimada, la disponibilidad por residencia y el distintivo de estado están
+ * retirados a la espera de confirmación escrita de Ardeno. La capacidad sigue
+ * en pie; lo que falta es el dato.
  *
  * Toda sección es opcional salvo la identidad, el posicionamiento y el
  * snapshot. Un proyecto con menos datos aprobados recorre la misma plantilla
@@ -229,12 +235,19 @@ const PROJECTS = [
     // titula con el plan, que es lo que desarrolla. Mismo copy aprobado, sin
     // una sola frase repetida entre las dos secciones.
     positioningLine: "Modern design, natural light and warm materials.",
-    status: "Now selling",
+    // `status` ("Now selling") viaja con la disponibilidad: es la misma
+    // afirmación comercial resumida en dos palabras, y sin la tabla que la
+    // sostenga quedaría además huérfana. Retirada hasta confirmación escrita;
+    // el campo es opcional y el hero deja de pintar el distintivo del CTA.
+
+    // La celda de entrega estimada ("Q2 2027") está RETIRADA hasta que Ardeno
+    // la confirme por escrito: es una afirmación comercial sobre un plazo de
+    // obra y nadie la ha verificado. El snapshot admite de 1 a 4 celdas y la
+    // retícula sale de `snapshot.length`, así que con tres se reequilibra sola.
     snapshot: [
       { value: "4", label: "Residences" },
       { value: "2,050–2,180 SF", label: "Per residence" },
       { value: "3 + office", label: "Bedrooms" },
-      { value: "Q2 2027", label: "Estimated delivery" },
     ],
     heroMedia: {
       src: "/projects/720-sherrybrook/hero-front-exterior.jpg",
@@ -348,41 +361,17 @@ const PROJECTS = [
         },
       },
     ],
-    availability: {
-      eyebrow: "Availability",
-      headline: "Four residences, two still open",
-      note: "Pricing is shared directly by our team with the current construction schedule.",
-      units: [
-        {
-          id: "unit-a",
-          name: "Unit A · corner",
-          interior: "2,180 SF",
-          bedrooms: "3 + office",
-          status: "available",
-        },
-        {
-          id: "unit-b",
-          name: "Unit B",
-          interior: "2,050 SF",
-          bedrooms: "3 + office",
-          status: "reserved",
-        },
-        {
-          id: "unit-c",
-          name: "Unit C",
-          interior: "2,050 SF",
-          bedrooms: "3 + office",
-          status: "available",
-        },
-        {
-          id: "unit-d",
-          name: "Unit D · corner",
-          interior: "2,180 SF",
-          bedrooms: "3 + office",
-          status: "sold",
-        },
-      ],
-    },
+    /*
+     * `availability` está RETIRADA hasta que Ardeno confirme por escrito qué
+     * residencias siguen abiertas. Publicar que una unidad está vendida o
+     * reservada es una afirmación comercial sobre una venta concreta, y ninguna
+     * de las cuatro estaba verificada.
+     *
+     * Se retira el DATO, no la capacidad: el tipo `PublicAvailability`, los
+     * invariantes, `ProjectAvailability` y su CSS siguen intactos. Al ser un
+     * campo opcional, la sección desaparece entera —sin título, sin filete y
+     * sin el hueco que ocupaba— y vuelve escribiendo otra vez esta clave.
+     */
     architecture: {
       eyebrow: "Specifications",
       headline: "Architecture and living",

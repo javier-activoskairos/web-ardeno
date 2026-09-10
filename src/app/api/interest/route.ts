@@ -1,4 +1,5 @@
 import { getPublicProject } from "@/lib/projects";
+import { SITE_URL } from "@/lib/site";
 
 /**
  * Captación de interés — POST /api/interest
@@ -219,8 +220,9 @@ export async function POST(request: Request): Promise<Response> {
     return done("unconfigured");
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  if (!isAllowedOrigin(request.headers.get("origin"), siteUrl)) {
+  // El mismo origen normalizado que usan canonical y sitemap: si divergieran,
+  // el endpoint rechazaría peticiones legítimas de su propia página.
+  if (!isAllowedOrigin(request.headers.get("origin"), SITE_URL)) {
     return done("invalid_request");
   }
 

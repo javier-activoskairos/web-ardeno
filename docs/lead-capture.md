@@ -121,7 +121,9 @@ Solo se registra: `correlationId`, `projectId`, desenlace y duración.
 ## Protecciones
 
 - **Interruptor**: antes que nada. Apagado, el cuerpo ni se mira.
-- **Origen**: debe coincidir con `NEXT_PUBLIC_SITE_URL`. La excepción para
+- **Origen**: debe coincidir con la URL del sitio, que llega ya normalizada
+  desde `SITE_URL` en [`src/lib/site.ts`](../src/lib/site.ts) —el mismo origen
+  que usan canonical y sitemap, para que no puedan divergir—. La excepción para
   bucle local solo se abre cuando el propio sitio es local, así que en el
   dominio real un origen de bucle se rechaza. Sin cabecera `Origin`, se
   rechaza. Sin CORS abierto y sin `Access-Control-Allow-Origin: *`.

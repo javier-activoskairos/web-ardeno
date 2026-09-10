@@ -18,6 +18,7 @@ import {
 } from "@/components/ardeno/project-sections";
 import { SiteFooter } from "@/components/ardeno/site-footer";
 import { getPublicProject, getPublishedProjectSlugs } from "@/lib/projects";
+import { siteUrl } from "@/lib/site";
 
 /**
  * Ficha pública de proyecto — /[locale]/portfolio/[slug]
@@ -58,10 +59,22 @@ export async function generateMetadata({
 
   const description = `${project.typology} in ${project.city}, ${project.state}.`;
 
-  // El sufijo de marca lo pone la plantilla del layout: aquí solo el proyecto.
+  /*
+   * Canonical explícito, y sin `languages`.
+   *
+   * La ficha existe en una sola URL publicada. Declarar una alternativa en
+   * español mientras `/es/portfolio/[slug]` devuelve 404 sería anunciar a los
+   * buscadores una URL rota; el `hreflang` vuelve —aquí y en `routing.ts`— el
+   * día que haya traducción aprobada, no antes.
+   *
+   * El sufijo de marca lo pone la plantilla del layout: aquí solo el proyecto.
+   */
   return {
     title: project.name,
     description,
+    alternates: {
+      canonical: siteUrl(`/${PUBLISHED_LOCALE}/portfolio/${project.slug}`),
+    },
     openGraph: {
       siteName: "Ardeno Group",
       title: `${project.name} — Ardeno Group`,

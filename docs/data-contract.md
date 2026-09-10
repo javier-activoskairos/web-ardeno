@@ -19,6 +19,28 @@ La consecuencia práctica: para publicar algo nuevo hay que añadirlo al tipo a
 propósito y diseñar su estado en la interfaz. No hay forma de que un dato se
 cuele por descuido.
 
+## Caber en el contrato no es estar verificado
+
+Son dos filtros distintos y hay que pasarlos los dos. El contrato dice qué
+_puede_ publicarse; Ardeno dice qué _está confirmado_. Un campo bien modelado
+con un valor que nadie ha verificado sigue siendo una afirmación comercial sin
+respaldo.
+
+Hoy 720 Sherrybrook publica **menos** de lo que el tipo admite. Retirados a la
+espera de confirmación escrita:
+
+| Dato                                     | Campo                   |
+| ---------------------------------------- | ----------------------- |
+| `Q2 2027` / «Estimated delivery»         | una celda de `snapshot` |
+| Disponibilidad por residencia (Unit A–D) | `availability`          |
+| `Now selling`                            | `status`                |
+
+Se retiró el **dato**, no la capacidad: `PublicUnitStatus`,
+`PublicAvailability`, los invariantes, `ProjectAvailability` y su CSS siguen
+intactos. Por eso el contrato modela estas secciones como opcionales — la ficha
+recorre la misma plantilla con menos paradas y no queda ni un título huérfano.
+Vuelven escribiendo otra vez esas claves, cuando haya confirmación.
+
 ## `id` y `slug` no son lo mismo
 
 |              | `id`                     | `slug`                         |
