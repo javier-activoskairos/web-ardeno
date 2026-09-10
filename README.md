@@ -17,11 +17,21 @@ Sitio web de **Ardeno Group**, promotora inmobiliaria en Carolina del Norte.
 
 ## Empezar
 
+Requiere **Node 24**. La versión está fijada en dos sitios que se leen solos:
+[`.nvmrc`](.nvmrc) —para `nvm use`— y `engines.node` en
+[`package.json`](package.json), acotado a `>=24.0.0 <25.0.0`.
+
 ```bash
+nvm use                      # lee .nvmrc → Node 24
 npm install
 cp .env.example .env.local   # revisar ARDENO_DEPLOYMENT_ENV y NEXT_PUBLIC_SITE_URL
 npm run dev                  # http://localhost:3000
 ```
+
+Next 16 solo exige Node ≥ 20.9, pero el rango se cierra en la mayor a
+propósito: es la versión con la que se compila y se prueba, y es la que debe
+elegir Nixpacks al construir en el VPS. Sin fijarla, el instalador escoge su
+Node por defecto y el primer build de la preview se decide por azar.
 
 ## Scripts
 
@@ -149,6 +159,12 @@ La preview se desplegará en el **VPS propio de Ardeno con EasyPanel +
 Nixpacks**. Nixpacks detecta el proyecto Next.js y construye sin necesidad de
 Dockerfile: el despliegue se configura desde EasyPanel indicando el repositorio,
 la rama y las variables de entorno.
+
+**Nixpacks debe construir con Node 24.** Lo deduce de
+[`.nvmrc`](.nvmrc) y de `engines.node`, así que no hace falta configurarlo en
+EasyPanel; si aun así el build arrancara con otra versión, hay que forzarla
+antes de seguir. Los comandos que detecta son `npm ci`, `npm run build` y
+`npm run start`, sobre el puerto **3000**.
 
 Variables a definir en EasyPanel para la preview:
 

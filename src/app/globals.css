@@ -1385,7 +1385,9 @@
     display: flex;
     align-items: baseline;
     gap: 12px;
-    padding-block: 13px;
+    /* El renglón respira por igual arriba y abajo. Con menos aire el texto se
+       leía pegado al filete que lo separa del anterior. */
+    padding-block: 18px;
     font-size: var(--w-body-sm);
     line-height: var(--w-lh-body);
     letter-spacing: var(--w-ls-body);

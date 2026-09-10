@@ -103,17 +103,35 @@ export function ProjectGallery({
 
       const first = focusables[0];
       const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
 
-      if (event.shiftKey && document.activeElement === first) {
+      // Si el foco se quedó fuera del visor, el Tab lo mete dentro en vez de
+      // recorrer la página de fondo. Comparar solo contra el primero y el
+      // último daba por supuesto que el foco ya estaba dentro, y no siempre lo
+      // está: al abrir desde una miniatura el navegador puede devolverlo al
+      // botón de origen después de que el efecto lo haya movido, y entonces la
+      // trampa no llegaba a activarse.
+      if (!panelRef.current.contains(active)) {
+        event.preventDefault();
+        first.focus();
+        return;
+      }
+
+      if (event.shiftKey && active === first) {
         event.preventDefault();
         last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
+      } else if (!event.shiftKey && active === last) {
         event.preventDefault();
         first.focus();
       }
     };
 
     document.addEventListener("keydown", onKeyDown, true);
+
+    // El foco entra en el visor en cuanto se monta. El temporizador queda como
+    // red por si el panel todavía no tiene botones en este punto del ciclo;
+    // volver a enfocar lo ya enfocado no hace nada.
+    panelRef.current?.querySelector("button")?.focus();
     const focusTimer = window.setTimeout(
       () => panelRef.current?.querySelector("button")?.focus(),
       30,
