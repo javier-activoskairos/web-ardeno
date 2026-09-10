@@ -181,10 +181,15 @@
   --w-focus-on-dark: #ffffff;
 
   /* ---------- Tipografía ----------
-     [ok] Manrope para display y contenido; Geist para navegación,
-     etiquetas, controles y botones. Ambos roles verificados sobre el CSS
-     computado. Lora existe en el sitio real como acento a 50px/600, pero
-     esta primera pantalla no tiene un rol equivalente: no se carga. */
+     Hanken Grotesk en los dos roles: la cara del Ardeno Group Design System.
+     Sustituye al par medido sobre el CSS computado del sitio real —Manrope
+     para display y contenido, Geist para navegación, etiquetas y controles—,
+     que se conserva documentado aquí porque es lo que sigue publicado en
+     ardenogroup.com mientras la web corporativa no se rehaga.
+
+     Los dos roles se mantienen separados aunque hoy resuelvan a la misma
+     familia: el día que la interfaz quiera una segunda cara, basta con
+     apuntar `--font-ui` a otra y ni una regla cambia. */
   --w-font: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
   --w-font-ui: var(--font-ui), var(--w-font);
   --w-fw-light: 300;

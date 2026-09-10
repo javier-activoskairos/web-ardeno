@@ -10,15 +10,17 @@ import {
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
-// PRUEBA — Hanken Grotesk en lugar del par Manrope + Geist.
+// Hanken Grotesk — una sola cara para toda la ficha.
 //
-// Es la cara que declara el design system del v3 en Claude Design. Allí una
-// sola familia cubre display y contenido, así que aquí se asigna a los dos
-// roles: `--font-sans` (titulares y prosa) y `--font-ui` (navegación,
-// etiquetas, controles). Los tokens de tamaño e interletraje siguen siendo los
-// medidos sobre ardenogroup.com y no se tocan: la prueba es solo la fuente.
+// Es la que declara el Ardeno Group Design System, y la que gana tras
+// compararla con el par Manrope + Geist que se midió en ardenogroup.com. Cubre
+// los dos roles: `--font-sans` (titulares y prosa) y `--font-ui` (navegación,
+// etiquetas, controles).
 //
-// Para volver al par verificado basta con revertir este archivo.
+// La web corporativa publicada todavía va con el par anterior, así que hasta
+// que se rehaga habrá esa diferencia entre ella y las fichas de proyecto. Los
+// tokens de tamaño, interlineado e interletraje siguen siendo los medidos y no
+// se han recalibrado para esta cara.
 const hanken = Hanken_Grotesk({
   variable: "--font-sans",
   subsets: ["latin"],
