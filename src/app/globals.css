@@ -474,8 +474,13 @@
     margin-top: 20px;
     max-width: 52ch;
   }
-  .ar-chapter__list {
-    margin-top: 28px;
+  /* Doble clase a propósito. `.ar-list` declara `margin: 0` y vive más abajo en
+     esta hoja, así que con un solo `.ar-chapter__list` ganaba por orden de
+     cascada y el margen superior no llegaba a aplicarse nunca: el filete de
+     arranque quedaba pegado al último renglón del párrafo y se leía como un
+     subrayado suyo en vez del borde de la lista que viene después. */
+  .ar-list.ar-chapter__list {
+    margin-top: 40px;
     border-top: 1px solid var(--w-line);
     border-bottom: 1px solid var(--w-line);
   }

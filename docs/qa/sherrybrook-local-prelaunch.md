@@ -226,11 +226,15 @@ se había abierto y cerrado el modal de captación: una condición de carrera, n
 fallo constante. La causa es que el manejador de `Tab` solo comparaba el foco
 contra el primer y el último botón, y daba por supuesto que ya estaba dentro.
 
-**2. Listas de materiales apretadas contra su filete — corregido a petición de
-Javier.** Revisando la preview en local, los renglones de `highlights` de los
-capítulos se leían pegados a la línea que los separa. Es un juicio de
-composición, no una medición, así que no se tocó por iniciativa propia: se
-corrigió cuando Javier lo pidió durante la sesión.
+**2. El margen superior de las listas de capítulo nunca se aplicaba —
+corregido.** Empezó como una observación de Javier sobre la preview —el párrafo
+se leía pegado al filete de la lista— y al medirlo resultó ser un defecto de
+cascada, no una cuestión de gusto: `.ar-chapter__list` declaraba
+`margin-top: 28px`, pero `.ar-list` declara `margin: 0` y vive más abajo en la
+misma capa `components`, así que ganaba por orden y el margen computado era
+**0 px**. El filete de arranque quedaba pegado al último renglón del párrafo y se
+leía como un subrayado suyo. Los renglones de la lista, además, iban justos de
+aire.
 
 **3. Enlaces de contacto por debajo de 24 × 24 px — no corregido, anotado.** Ver
 §7. Entra en la excepción de WCAG para enlaces en línea; agrandarlos es una
@@ -260,11 +264,22 @@ en dos partes:
 Verificado después: **5 de 5** aperturas dejan el foco en el botón de cierre, y
 las tabulaciones ya no salen del diálogo. No cambia nada visual ni de copy.
 
-**Aire en las listas de materiales**
-([`globals.css`](../../src/app/globals.css)): `padding-block` de `.ar-list li`
-pasa de 13 px a 18 px, igual arriba y abajo. Afecta a los `highlights` de los
-capítulos y a la lista de distancias del emplazamiento, que son la misma lista.
-No cambia tipografía, color ni composición.
+**Aire en las listas** ([`globals.css`](../../src/app/globals.css)), en dos
+partes:
+
+- `padding-block` de `.ar-list li` pasa de 13 px a 18 px, igual arriba y abajo.
+  Afecta a los `highlights` de los capítulos y a la lista de distancias del
+  emplazamiento, que son la misma lista.
+- La regla del capítulo pasa a `.ar-list.ar-chapter__list` para ganar a
+  `.ar-list { margin: 0 }` por especificidad en vez de depender del orden, y su
+  `margin-top` sube a 40 px. Verificado en el navegador: el margen computado
+  pasa de **0 px a 40 px** y la separación real entre párrafo y filete es de
+  40 px en los dos capítulos.
+
+El emplazamiento no estaba afectado: su primer renglón no lleva filete, y en
+escritorio párrafo y lista ocupan columnas distintas.
+
+Ninguno de los dos cambios toca tipografía, color ni composición.
 
 **Node fijado a 24** — `.nvmrc` y `engines.node` (`>=24.0.0 <25.0.0`), sin tocar
 gestor de paquetes ni dependencias. `package-lock.json` quedó byte a byte igual.
