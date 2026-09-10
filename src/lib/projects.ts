@@ -316,51 +316,22 @@ const PROJECTS = [
       ],
     },
     /*
-     * Cada capítulo se lee junto al render que describe. Los renders son los
-     * mismos archivos que la galería y aparecen también en el visor. No es
-     * repetición: el visor es el archivo visual completo del proyecto, no otro
-     * bloque del scroll.
+     * `editorialSections` está RETIRADA. Los dos capítulos —Interiors y Outdoor
+     * living— eran la parte del contrato más difícil de mapear desde Notion:
+     * cada uno lleva prosa larga, una lista de materiales y un render propio con
+     * sus dimensiones, y modelar eso obliga a una base de datos anidada por
+     * proyecto. Se retira para simplificar el esquema mientras se define.
+     *
+     * Se retira el DATO, no la capacidad: el tipo `PublicEditorialSection`, los
+     * invariantes, `ProjectEditorial` y su CSS siguen intactos. Al ser un campo
+     * opcional, la ficha enlaza la narrativa directamente con la arquitectura.
+     *
+     * Ningún render se pierde de la ficha: los dos que usaban los capítulos
+     * siguen publicados en la galería.
+     *
+     * El contenido exacto y cómo volver a ponerlo:
+     * `docs/content/720-sherrybrook-editorial-sections.md`.
      */
-    editorialSections: [
-      {
-        id: "interiors",
-        eyebrow: "Interiors",
-        title: "Light oak, quartz and black steel.",
-        body: "Engineered light oak flooring, white quartz island and countertops, custom natural oak cabinetry, recessed LED and indirect lighting, and floor-to-ceiling openings with matte black aluminum frames.",
-        highlights: [
-          "Light oak flooring",
-          "White quartz surfaces",
-          "Custom oak millwork",
-          "Matte black frames",
-        ],
-        media: {
-          src: "/projects/720-sherrybrook/kitchen-island.jpg",
-          alt: "Kitchen with a white quartz island and light oak cabinetry.",
-          width: 1602,
-          height: 942,
-          caption: "Interior render · kitchen",
-        },
-      },
-      {
-        id: "outdoor-living",
-        eyebrow: "Outdoor living",
-        title: "Every room opens to the outdoors.",
-        body: "A private patio with a built-in grill in every residence, an upper-floor balcony overlooking the backyard, floor-to-ceiling sliding doors, and low-maintenance native landscaping.",
-        highlights: [
-          "Patio with grill",
-          "Upper balcony",
-          "Sliding glass doors",
-          "Native landscaping",
-        ],
-        media: {
-          src: "/projects/720-sherrybrook/private-balcony.jpg",
-          alt: "Private upper-floor balcony overlooking the backyard.",
-          width: 1448,
-          height: 1086,
-          caption: "Exterior render · upper balcony",
-        },
-      },
-    ],
     /*
      * `availability` está RETIRADA hasta que Ardeno confirme por escrito qué
      * residencias siguen abiertas. Publicar que una unidad está vendida o
@@ -383,9 +354,10 @@ const PROJECTS = [
         { label: "Stories", value: "2" },
         { label: "Outdoor spaces", value: "Patio + balcony" },
       ],
-      // Interiors y Outdoor living viven en `editorialSections`, donde cada uno
-      // se lee junto a su render. Aquí queda lo que describe el conjunto
-      // construido, que es de lo que va esta sección.
+      // Lo que describe el conjunto construido, que es de lo que va esta
+      // sección. Interiores y espacio exterior tuvieron capítulo propio hasta
+      // que se retiró `editorialSections`; su contenido no se ha reubicado
+      // aquí, que trata de otra cosa.
       details: [
         {
           title: "Exterior",

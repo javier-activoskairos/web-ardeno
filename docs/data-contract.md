@@ -26,20 +26,28 @@ _puede_ publicarse; Ardeno dice qué _está confirmado_. Un campo bien modelado
 con un valor que nadie ha verificado sigue siendo una afirmación comercial sin
 respaldo.
 
-Hoy 720 Sherrybrook publica **menos** de lo que el tipo admite. Retirados a la
-espera de confirmación escrita:
+Hoy 720 Sherrybrook publica **menos** de lo que el tipo admite. Esto es lo
+retirado, y por qué:
 
-| Dato                                     | Campo                   |
-| ---------------------------------------- | ----------------------- |
-| `Q2 2027` / «Estimated delivery»         | una celda de `snapshot` |
-| Disponibilidad por residencia (Unit A–D) | `availability`          |
-| `Now selling`                            | `status`                |
+| Dato                                     | Campo                   | Motivo                 |
+| ---------------------------------------- | ----------------------- | ---------------------- |
+| `Q2 2027` / «Estimated delivery»         | una celda de `snapshot` | sin verificar          |
+| Disponibilidad por residencia (Unit A–D) | `availability`          | sin verificar          |
+| `Now selling`                            | `status`                | sin verificar          |
+| Capítulos Interiors y Outdoor living     | `editorialSections`     | simplificar el esquema |
 
-Se retiró el **dato**, no la capacidad: `PublicUnitStatus`,
-`PublicAvailability`, los invariantes, `ProjectAvailability` y su CSS siguen
-intactos. Por eso el contrato modela estas secciones como opcionales — la ficha
-recorre la misma plantilla con menos paradas y no queda ni un título huérfano.
-Vuelven escribiendo otra vez esas claves, cuando haya confirmación.
+Los tres primeros esperan confirmación escrita de Ardeno. El cuarto es una
+decisión propia: los capítulos editoriales son la parte del contrato más difícil
+de mapear desde Notion —prosa larga, lista de materiales y un render con sus
+dimensiones, por capítulo— y se retiran para no cerrar el esquema en falso. Su
+contenido queda guardado en
+[`content/720-sherrybrook-editorial-sections.md`](content/720-sherrybrook-editorial-sections.md).
+
+En los cuatro casos se retiró el **dato**, no la capacidad: los tipos, los
+invariantes, los componentes y su CSS siguen intactos. Por eso el contrato modela
+estas secciones como opcionales — la ficha recorre la misma plantilla con menos
+paradas y no queda ni un título huérfano. Vuelven escribiendo otra vez esas
+claves.
 
 ## `id` y `slug` no son lo mismo
 
