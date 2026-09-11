@@ -55,7 +55,6 @@ export function ProjectFloorPlans({
               {headline}
             </h2>
           </div>
-          {note ? <p className="ar-body ar-avail__note">{note}</p> : null}
         </div>
 
         <div className="ar-plans ar-reveal">
@@ -91,6 +90,9 @@ export function ProjectFloorPlans({
             </div>
           ))}
         </div>
+        {/* Al pie y en letra pequeña: es una salvedad legal, no un argumento
+            de venta, y arriba competía con el titular de la sección. */}
+        {note ? <p className="ar-note ar-reveal">* {note}</p> : null}
       </ArdenoContainer>
 
       <MediaLightbox

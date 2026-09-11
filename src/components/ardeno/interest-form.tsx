@@ -16,7 +16,7 @@ import {
 } from "./primitives";
 
 /**
- * Formulario de captación — "Express interest".
+ * Formulario de captación — "Contact us".
  *
  * Es el único sitio del proyecto donde vive la lógica de envío: validación,
  * trampa para bots, atribución de campaña, estados y llamada a
@@ -348,7 +348,7 @@ export function InterestForm({
         disabled={state === "pending"}
         aria-busy={state === "pending"}
       >
-        {state === "pending" ? "Sending…" : "Express interest"}
+        {state === "pending" ? "Sending…" : "Contact us"}
       </ArdenoButton>
 
       {/* Acompaña al formulario en idle, pending y error. En `unconfigured`

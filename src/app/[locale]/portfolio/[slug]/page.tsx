@@ -6,6 +6,7 @@ import {
   ProjectArchitecture,
   ProjectAvailability,
   ProjectEditorial,
+  ProjectLegal,
   ProjectLocation,
   ProjectStory,
 } from "@/components/ardeno/project-content";
@@ -142,6 +143,7 @@ export default async function ProjectPage({
           <ProjectAvailability project={project} />
           <ProjectLocation project={project} />
           <ProjectInterest project={project} />
+          <ProjectLegal project={project} />
         </main>
 
         <SiteFooter />

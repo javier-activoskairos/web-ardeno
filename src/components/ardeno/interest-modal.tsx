@@ -34,7 +34,7 @@ const InterestContext = createContext<InterestContextValue | null>(null);
 /** Dispara el modal compartido. Debe usarse dentro de <InterestProvider>. */
 export function InterestButton({
   variant = "light",
-  children = "Express interest",
+  children = "Contact us",
 }: {
   variant?: ArdenoButtonVariant;
   children?: ReactNode;

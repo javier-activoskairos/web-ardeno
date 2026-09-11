@@ -261,6 +261,18 @@ export type PublicProject = {
    */
   readonly floorPlans?: PublicFloorPlans;
   /**
+   * Quién construye y quién firma el proyecto. Texto plano, sin enlaces ni
+   * logotipos: el crédito se menciona y quien quiera ampliarlo encuentra a las
+   * dos empresas por su nombre. Enlazar fuera desde una ficha de venta manda
+   * visitas a otro sitio justo cuando están decidiendo.
+   */
+  readonly credits?: string;
+  /**
+   * Salvedad legal sobre el material gráfico. Va al cierre de la ficha, en
+   * letra pequeña: protege sin estorbar a la venta.
+   */
+  readonly disclaimer?: string;
+  /**
    * Renders del proyecto. El primero hace de cubierta. Vacía o ausente, la
    * sección entera desaparece: ni título, ni botón, ni marcador de posición.
    */
@@ -349,29 +361,15 @@ const PROJECTS = [
       },
       {
         src: "/projects/720-sherrybrook/primary-bathroom.jpg",
-        alt: "Primary bathroom with double vanity and walk-in shower.",
+        alt: "Secondary bathroom with double vanity and walk-in shower.",
         width: 1448,
         height: 1086,
-        caption: "Primary bathroom",
-      },
-      {
-        src: "/projects/720-sherrybrook/private-balcony.jpg",
-        alt: "Private upper-floor balcony overlooking the backyard.",
-        width: 1448,
-        height: 1086,
-        caption: "Private balcony",
-      },
-      {
-        src: "/projects/720-sherrybrook/home-office.jpg",
-        alt: "Dedicated home office on the upper floor.",
-        width: 1419,
-        height: 1064,
-        caption: "Home office",
+        caption: "Secondary bathroom",
       },
     ],
     story: {
       eyebrow: "The project",
-      headline: "Four homes, two floor plans.",
+      headline: "Clean design, functional balance.",
       body: [
         "The Sherrybrook residences draw inspiration from Scandinavian design, pairing cleanly detailed interiors and exteriors with warm, natural materials.",
         "Light wood finishes and an open plan create welcoming living spaces that emphasize simplicity, comfort, and crafted functionality. Private gardens connect the living areas to outdoors, offering quiet retreats and a close connection to nature. Elevated front porches create a sense of community for this enclave.",
@@ -417,7 +415,7 @@ const PROJECTS = [
      */
     floorPlans: {
       eyebrow: "Floor plans",
-      headline: "Two plans, four residences",
+      headline: "Four residences, two floor plans",
       note: "Room dimensions are taken from the architectural drawings. Furniture is shown for scale.",
       plans: [
         {
@@ -469,11 +467,15 @@ const PROJECTS = [
           body: "Gray vertical siding, shed rooflines, matte black frames, and natural wood accents create a contemporary and restrained material palette.",
         },
         {
-          title: "Systems",
+          title: "Energy Efficient",
           body: "High-efficiency HVAC, tankless water heating, and an insulated envelope built to current North Carolina energy code with Habitech Builders.",
         },
       ],
     },
+    credits:
+      "Built and backed by Habitech Builders. Designed by Olive Architecture.",
+    disclaimer:
+      "Renderings, floor plans and dimensions are for illustrative purposes only and are subject to change. Finishes, furnishings and landscaping shown are not included and do not represent the final built product.",
     location: {
       eyebrow: "Location",
       headline: "Inside the beltline, minutes from downtown Raleigh",
@@ -614,6 +616,12 @@ function assertProjectsAreValid(projects: readonly PublicProject[]): void {
         }
         assertMedia(section.media, `editorialSections (${section.id})`);
       }
+    }
+
+    for (const field of ["credits", "disclaimer"] as const) {
+      const value = project[field];
+      if (value !== undefined && !filled(value))
+        fail(where, `\`${field}\` presente pero vacío; omítalo en su lugar`);
     }
 
     if (project.floorPlans) {

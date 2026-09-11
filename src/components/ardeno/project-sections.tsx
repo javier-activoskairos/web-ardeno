@@ -74,7 +74,7 @@ export function ProjectHero({ project }: { project: PublicProject }) {
 
       <div className="ar-hero__cta ar-reveal">
         <ArdenoLinkButton variant="brand-on-dark" href={`#${INTEREST_ANCHOR}`}>
-          Express interest
+          Contact us
         </ArdenoLinkButton>
         {project.status ? <ArdenoChip>{project.status}</ArdenoChip> : null}
       </div>
@@ -175,7 +175,7 @@ export function ProjectInterest({ project }: { project: PublicProject }) {
     >
       <ArdenoContainer className="ar-interest__grid">
         <div className="ar-reveal">
-          <p className="ar-eyebrow">Express interest</p>
+          <p className="ar-eyebrow">Contact us</p>
           <h2 id="project-interest" className="ar-display ar-interest__title">
             Interested in {project.name}?
           </h2>

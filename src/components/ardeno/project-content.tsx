@@ -368,6 +368,43 @@ export function ProjectArchitecture({ project }: { project: PublicProject }) {
   );
 }
 
+/* ------------------------------------------------------ Créditos y salvedad */
+
+/**
+ * Cierre legal de la ficha: quién la construye y qué no promete el material
+ * gráfico.
+ *
+ * Va en letra pequeña y al final, después de todo lo que vende. No es una
+ * sección con título propio porque no compite por la atención: está para que
+ * conste, y para que nadie llegue a la visita esperando el jarrón del render.
+ *
+ * Los créditos son texto plano, sin enlaces ni logotipos: enlazar fuera desde
+ * una ficha de venta manda visitas a otro sitio justo cuando están decidiendo,
+ * y a las dos empresas se las encuentra por su nombre.
+ */
+export function ProjectLegal({ project }: { project: PublicProject }) {
+  const { credits, disclaimer } = project;
+  if (!hasText(credits) && !hasText(disclaimer)) return null;
+
+  return (
+    <section
+      className="ar-sec--tight"
+      aria-label="Project credits and disclaimer"
+    >
+      <ArdenoContainer>
+        <div className="ar-legal ar-reveal">
+          {hasText(credits) ? (
+            <p className="ar-legal__credits">{credits}</p>
+          ) : null}
+          {hasText(disclaimer) ? (
+            <p className="ar-note ar-legal__disclaimer">{disclaimer}</p>
+          ) : null}
+        </div>
+      </ArdenoContainer>
+    </section>
+  );
+}
+
 /* ----------------------------------------------------------------- Location */
 
 /**

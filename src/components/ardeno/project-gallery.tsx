@@ -49,7 +49,9 @@ export function ProjectGallery({
   if (count === 0) return null;
 
   const cover = images[0];
-  const label = count > 1 ? `View all ${count} renders` : "View render";
+  // Sin recuento: el número no aporta y obliga a recontar cada vez que entra
+  // o sale un render.
+  const label = count > 1 ? "View all images" : "View image";
   // Las miniaturas empiezan después de la cubierta y se emiten por parejas: una
   // fila suelta con una sola imagen dejaría media columna vacía.
   const tiles = images
@@ -65,7 +67,7 @@ export function ProjectGallery({
         <div className="ar-reveal">
           <p className="ar-eyebrow">Gallery</p>
           <h2 id="project-gallery" className="ar-display ar-sechead__title">
-            The project, rendered
+            Discover the Residences
           </h2>
         </div>
 

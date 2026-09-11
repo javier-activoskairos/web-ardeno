@@ -1607,6 +1607,37 @@
     color: var(--w-on-dark);
   }
 
+  /* ---------- Nota al pie y cierre legal ----------
+     Letra pequeña de verdad: una salvedad legal tiene que constar, no vender.
+     Se apoya en el tono más apagado de la escala para que el ojo la salte al
+     recorrer la página y solo la encuentre quien la busca. */
+  .ar-note {
+    margin: 24px 0 0;
+    max-width: 78ch;
+    font-size: var(--w-s-14);
+    line-height: 1.5;
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink-3);
+  }
+  .ar-legal {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: clamp(24px, 3vw, 40px);
+    border-top: 1px solid var(--w-line);
+  }
+  .ar-legal__credits {
+    margin: 0;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-ink-2);
+  }
+  .ar-legal__disclaimer {
+    margin: 0;
+  }
+
   /* ---------- Pie de imagen ---------- */
   .ar-cap {
     margin: 10px 0 0;
