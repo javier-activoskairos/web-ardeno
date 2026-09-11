@@ -915,6 +915,44 @@
     object-fit: contain;
     padding: 20px;
   }
+
+  /* ---------- Lupa sobre el plano ----------
+     Un plano se mira dos veces: primero entero, para leer la distribución, y
+     luego de cerca, para las cotas de cada estancia. La lupa resuelve lo
+     segundo sin sacar al visitante del visor.
+
+     El recorte vive en el marco y el origen de la escala lo pone el cursor, así
+     que la imagen se desplaza bajo el puntero en lugar de crecer desde el
+     centro. Sin transición mientras la lupa está activa —el seguimiento tiene
+     que ser inmediato o se siente pegajoso— y con una salida corta al soltar. */
+  .ar-lightbox[data-fit="contain"] .ar-lightbox__frame {
+    overflow: hidden;
+    cursor: zoom-in;
+  }
+  .ar-lightbox[data-fit="contain"] .ar-lightbox__frame[data-zoomed] {
+    cursor: zoom-out;
+  }
+  .ar-lightbox[data-fit="contain"] .ar-lightbox__img {
+    transition: transform 0.18s var(--w-ease-out);
+    will-change: transform;
+  }
+  .ar-lightbox[data-fit="contain"]
+    .ar-lightbox__frame[data-zoomed]
+    .ar-lightbox__img {
+    transition: none;
+  }
+  /* Sin puntero fino la lupa no se activa: el cursor sobra y el gesto de
+     pellizcar del navegador hace el mismo trabajo. */
+  @media (hover: none), (pointer: coarse) {
+    .ar-lightbox[data-fit="contain"] .ar-lightbox__frame {
+      cursor: default;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ar-lightbox[data-fit="contain"] .ar-lightbox__img {
+      transition: none;
+    }
+  }
   .ar-lightbox__cap {
     flex: none;
     text-align: center;

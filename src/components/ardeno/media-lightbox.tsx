@@ -86,6 +86,28 @@ export function MediaLightbox({
   const panelRef = useRef<HTMLDivElement | null>(null);
   const touchX = useRef<number | null>(null);
 
+  /**
+   * Punto que sigue la lupa, en porcentaje del marco. `null` es sin ampliar.
+   *
+   * Solo con `fit="contain"`: un render ya llena la pantalla y ampliarlo no
+   * enseña nada nuevo, mientras que en un plano es la diferencia entre ver la
+   * distribución y poder leer las cotas de cada estancia.
+   */
+  const [zoom, setZoom] = useState<{
+    x: number;
+    y: number;
+    at: number;
+  } | null>(null);
+  const zoomable = fit === "contain";
+
+  /*
+   * La lupa lleva anotado sobre qué medio se abrió, y solo se aplica si sigue
+   * siendo el mismo. Así cambiar de plano la deja en reposo sin necesidad de un
+   * efecto que persiga al índice: el estado se descarta al derivarlo, que es
+   * donde corresponde.
+   */
+  const activeZoom = zoom && zoom.at === index ? zoom : null;
+
   const count = items.length;
   const isOpen = index !== null;
 
@@ -215,6 +237,7 @@ export function MediaLightbox({
       <figure className="ar-lightbox__stage">
         <span
           className="ar-lightbox__frame"
+          data-zoomed={activeZoom ? "true" : undefined}
           style={
             fit === "contain" && active.width && active.height
               ? ({
@@ -222,6 +245,26 @@ export function MediaLightbox({
                 } as React.CSSProperties)
               : undefined
           }
+          onMouseMove={
+            zoomable
+              ? (event) => {
+                  // Sin puntero fino no hay lupa: en táctil el gesto de pellizcar
+                  // del navegador hace el mismo trabajo y mejor.
+                  if (
+                    !window.matchMedia("(hover: hover) and (pointer: fine)")
+                      .matches
+                  )
+                    return;
+                  const rect = event.currentTarget.getBoundingClientRect();
+                  setZoom({
+                    x: ((event.clientX - rect.left) / rect.width) * 100,
+                    y: ((event.clientY - rect.top) / rect.height) * 100,
+                    at: index,
+                  });
+                }
+              : undefined
+          }
+          onMouseLeave={zoomable ? () => setZoom(null) : undefined}
         >
           <Image
             src={active.src}
@@ -229,6 +272,14 @@ export function MediaLightbox({
             fill
             sizes="100vw"
             className="ar-lightbox__img"
+            style={
+              activeZoom
+                ? {
+                    transformOrigin: `${activeZoom.x}% ${activeZoom.y}%`,
+                    transform: "scale(var(--ar-lightbox-zoom, 2.4))",
+                  }
+                : undefined
+            }
           />
         </span>
         {active.caption ? (
