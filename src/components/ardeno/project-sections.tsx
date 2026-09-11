@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Fragment } from "react";
 import type { PublicProject } from "@/lib/projects";
 import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_HREF } from "@/lib/site";
 import { InterestForm } from "./interest-form";
@@ -39,8 +40,13 @@ export const INTEREST_ANCHOR = "interest";
  * "Project imagery pending" es contenido honesto, no decoración.
  */
 export function ProjectHero({ project }: { project: PublicProject }) {
-  const location = `${project.city}, ${project.state}`;
   const { heroMedia } = project;
+  // Colección (si la hay), tipología y ubicación, en ese orden.
+  const metaSegments = [
+    project.collection,
+    project.typology,
+    `${project.city}, ${project.state}`,
+  ].filter((segment): segment is string => Boolean(segment));
 
   const info = (
     <>
@@ -48,10 +54,20 @@ export function ProjectHero({ project }: { project: PublicProject }) {
         {project.name}
       </h1>
 
+      {/* El meta se compone de segmentos y el punto separador lo pinta la
+          interfaz entre uno y el siguiente, nunca al final. Así un proyecto sin
+          colección arranca por la tipología sin arrastrar un separador suelto, y
+          añadir un segmento más no obliga a tocar el marcado. En móvil el punto
+          desaparece por CSS y los segmentos se apilan. */}
       <p className="ar-hero__meta ar-reveal">
-        <span>{project.typology}</span>
-        <span className="ar-hero__sep" aria-hidden="true" />
-        <span>{location}</span>
+        {metaSegments.map((segment, index) => (
+          <Fragment key={segment}>
+            {index > 0 ? (
+              <span className="ar-hero__sep" aria-hidden="true" />
+            ) : null}
+            <span>{segment}</span>
+          </Fragment>
+        ))}
       </p>
 
       <p className="ar-hero__thesis ar-reveal">{project.positioningLine}</p>
@@ -157,7 +173,6 @@ export function ProjectInterest({ project }: { project: PublicProject }) {
       id={INTEREST_ANCHOR}
       aria-labelledby="project-interest"
     >
-      <span className="ar-interest__mark" aria-hidden="true" />
       <ArdenoContainer className="ar-interest__grid">
         <div className="ar-reveal">
           <p className="ar-eyebrow">Express interest</p>

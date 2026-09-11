@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import type { PublicGalleryImage } from "@/lib/projects";
+import { MediaLightbox, useLightbox } from "./media-lightbox";
 import { ArdenoContainer } from "./primitives";
 
 /**
@@ -14,9 +15,11 @@ import { ArdenoContainer } from "./primitives";
  * interrumpe la sucesión de texto con imagen, no la sustituye por una
  * cuadrícula.
  *
+ * El visor es compartido con los planos y vive en `media-lightbox.tsx`; aquí
+ * solo se decide qué se muestra en página y por dónde se abre.
+ *
  * Todo el contenido llega por props desde `projects.ts`; aquí no hay ni una
- * ruta ni una descripción del proyecto. El estado del visor es React puro: no
- * hay eventos globales, ni almacenamiento, ni peticiones externas.
+ * ruta ni una descripción del proyecto.
  */
 
 /** Ancho de la cubierta: el contenedor de sitio, con sus gutters. */
@@ -39,111 +42,10 @@ export function ProjectGallery({
 }: {
   images: readonly PublicGalleryImage[];
 }) {
-  const [index, setIndex] = useState<number | null>(null);
+  const { index, open, close, goTo } = useLightbox();
   const coverRef = useRef<HTMLButtonElement | null>(null);
-  const openerRef = useRef<HTMLElement | null>(null);
-  const panelRef = useRef<HTMLDivElement | null>(null);
-  const touchX = useRef<number | null>(null);
 
   const count = images.length;
-  const isOpen = index !== null;
-
-  // Devuelve el foco a lo que abrió el visor —la cubierta o la miniatura—, no
-  // siempre a la cubierta: cerrar y aparecer a tres pantallas de donde estabas
-  // es exactamente lo que hay que evitar.
-  const close = useCallback(() => {
-    setIndex(null);
-    (openerRef.current ?? coverRef.current)?.focus();
-  }, []);
-
-  // Quién abrió el visor, para devolverle el foco al cerrarlo.
-  const openAt = useCallback((position: number) => {
-    openerRef.current =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    setIndex(position);
-  }, []);
-
-  // Navegación circular: del último se vuelve al primero y al revés.
-  const step = useCallback(
-    (delta: number) =>
-      setIndex((current) =>
-        current === null ? current : (current + delta + count) % count,
-      ),
-    [count],
-  );
-
-  // Escape, flechas, trampa de foco y bloqueo del scroll de fondo.
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.stopPropagation();
-        close();
-        return;
-      }
-      if (
-        count > 1 &&
-        (event.key === "ArrowRight" || event.key === "ArrowLeft")
-      ) {
-        event.preventDefault();
-        step(event.key === "ArrowRight" ? 1 : -1);
-        return;
-      }
-      if (event.key !== "Tab" || !panelRef.current) return;
-
-      const focusables =
-        panelRef.current.querySelectorAll<HTMLElement>("button");
-      if (focusables.length === 0) return;
-
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-      const active = document.activeElement;
-
-      // Si el foco se quedó fuera del visor, el Tab lo mete dentro en vez de
-      // recorrer la página de fondo. Comparar solo contra el primero y el
-      // último daba por supuesto que el foco ya estaba dentro, y no siempre lo
-      // está: al abrir desde una miniatura el navegador puede devolverlo al
-      // botón de origen después de que el efecto lo haya movido, y entonces la
-      // trampa no llegaba a activarse.
-      if (!panelRef.current.contains(active)) {
-        event.preventDefault();
-        first.focus();
-        return;
-      }
-
-      if (event.shiftKey && active === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && active === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener("keydown", onKeyDown, true);
-
-    // El foco entra en el visor en cuanto se monta. El temporizador queda como
-    // red por si el panel todavía no tiene botones en este punto del ciclo;
-    // volver a enfocar lo ya enfocado no hace nada.
-    panelRef.current?.querySelector("button")?.focus();
-    const focusTimer = window.setTimeout(
-      () => panelRef.current?.querySelector("button")?.focus(),
-      30,
-    );
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", onKeyDown, true);
-      window.clearTimeout(focusTimer);
-    };
-  }, [isOpen, close, step, count]);
-
   if (count === 0) return null;
 
   const cover = images[0];
@@ -156,9 +58,6 @@ export function ProjectGallery({
   const rows = [tiles.slice(0, 2), tiles.slice(2, 4)].filter(
     (row) => row.length === 2,
   );
-  // Imagen y posición juntas: un solo objeto que TypeScript sabe estrechar.
-  const active =
-    index === null ? null : { image: images[index], position: index + 1 };
 
   return (
     <section className="ar-sec--tight" aria-labelledby="project-gallery">
@@ -176,7 +75,7 @@ export function ProjectGallery({
           type="button"
           className="ar-cover ar-reveal"
           ref={coverRef}
-          onClick={() => openAt(0)}
+          onClick={() => open(0)}
           aria-label={`${label}. ${cover.alt}`}
         >
           <span className="ar-cover__frame">
@@ -202,7 +101,7 @@ export function ProjectGallery({
                 type="button"
                 className="ar-tile"
                 key={image.src}
-                onClick={() => openAt(position)}
+                onClick={() => open(position)}
                 aria-label={`Open render: ${image.alt}`}
               >
                 <Image
@@ -218,82 +117,13 @@ export function ProjectGallery({
         ))}
       </ArdenoContainer>
 
-      {active ? (
-        <div
-          className="ar-lightbox"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Project renders"
-          ref={panelRef}
-          // Cierra al pulsar el fondo. El visor es una columna cuyos hijos lo
-          // cubren entero, así que comparar con `currentTarget` sólo habría
-          // funcionado en la franja exacta del contenedor: se descarta por lo
-          // que hay debajo del puntero, no por en qué caja ha caído.
-          onMouseDown={(event) => {
-            const target = event.target as HTMLElement;
-            if (!target.closest("button") && target.tagName !== "IMG") close();
-          }}
-          onTouchStart={(event) => {
-            touchX.current = event.touches[0].clientX;
-          }}
-          onTouchEnd={(event) => {
-            if (touchX.current === null || count < 2) return;
-            const dx = event.changedTouches[0].clientX - touchX.current;
-            if (Math.abs(dx) > 48) step(dx < 0 ? 1 : -1);
-            touchX.current = null;
-          }}
-        >
-          <div className="ar-lightbox__bar">
-            <span className="ar-lightbox__count">
-              {active.position} / {count}
-            </span>
-            <button
-              type="button"
-              className="ar-lightbox__close"
-              onClick={close}
-              aria-label="Close gallery"
-            >
-              ✕
-            </button>
-          </div>
-
-          <figure className="ar-lightbox__stage">
-            <span className="ar-lightbox__frame">
-              <Image
-                src={active.image.src}
-                alt={active.image.alt}
-                fill
-                sizes="100vw"
-                className="ar-lightbox__img"
-              />
-            </span>
-            <figcaption className="ar-lightbox__cap">
-              {active.image.caption}
-            </figcaption>
-          </figure>
-
-          {count > 1 ? (
-            <>
-              <button
-                type="button"
-                className="ar-lightbox__nav ar-lightbox__nav--prev"
-                onClick={() => step(-1)}
-                aria-label="Previous render"
-              >
-                ‹
-              </button>
-              <button
-                type="button"
-                className="ar-lightbox__nav ar-lightbox__nav--next"
-                onClick={() => step(1)}
-                aria-label="Next render"
-              >
-                ›
-              </button>
-            </>
-          ) : null}
-        </div>
-      ) : null}
+      <MediaLightbox
+        items={images}
+        index={index}
+        onClose={close}
+        onIndexChange={goTo}
+        label="Project renders"
+      />
     </section>
   );
 }

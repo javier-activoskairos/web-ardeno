@@ -18,6 +18,33 @@ import { ArdenoChip, ArdenoContainer } from "./primitives";
 const hasText = (value: string | undefined): value is string =>
   typeof value === "string" && value.trim().length > 0;
 
+/**
+ * Cuántas columnas reparten mejor `count` celdas sin dejar huérfanas.
+ *
+ * Una retícula fija se rompe en cuanto cambia el recuento: seis datos en tres
+ * columnas son dos filas llenas, pero cuatro dejan tres arriba y una sola
+ * abajo, flotando contra el vacío. Y el recuento cambia solo —basta con que un
+ * proyecto no tenga un dato aprobado—, así que la retícula tiene que salir del
+ * contenido y no al revés.
+ *
+ * Se prueba de más a menos columnas y gana la que deja la última fila más
+ * llena; a igualdad, la de más columnas, que es la más compacta. Con 4 da 4, con
+ * 6 da 3, con 5 da 3 —tres y dos, mejor que cuatro y uno—.
+ */
+function balancedColumns(count: number, max = 4): number {
+  if (count <= 1) return 1;
+  let best = 1;
+  let fewestGaps = Number.POSITIVE_INFINITY;
+  for (let columns = Math.min(max, count); columns >= 1; columns--) {
+    const gaps = (columns - (count % columns)) % columns;
+    if (gaps < fewestGaps) {
+      fewestGaps = gaps;
+      best = columns;
+    }
+  }
+  return best;
+}
+
 /* ----------------------------------------------------------- The project */
 
 /**
@@ -299,7 +326,14 @@ export function ProjectArchitecture({ project }: { project: PublicProject }) {
         </div>
 
         {facts.length > 0 ? (
-          <dl className="ar-facts ar-reveal">
+          <dl
+            className="ar-facts ar-reveal"
+            style={
+              {
+                "--ar-facts-cols": balancedColumns(facts.length),
+              } as React.CSSProperties
+            }
+          >
             {facts.map((fact) => (
               <div className="ar-fact" key={fact.label}>
                 <dt className="ar-label">{fact.label}</dt>
@@ -316,7 +350,9 @@ export function ProjectArchitecture({ project }: { project: PublicProject }) {
           <div
             className="ar-details ar-reveal"
             style={
-              { "--ar-details-cols": details.length } as React.CSSProperties
+              {
+                "--ar-details-cols": balancedColumns(details.length, 3),
+              } as React.CSSProperties
             }
           >
             {details.map((detail) => (

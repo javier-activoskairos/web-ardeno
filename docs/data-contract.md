@@ -29,25 +29,54 @@ respaldo.
 Hoy 720 Sherrybrook publica **menos** de lo que el tipo admite. Esto es lo
 retirado, y por qué:
 
-| Dato                                     | Campo                   | Motivo                 |
-| ---------------------------------------- | ----------------------- | ---------------------- |
-| `Q2 2027` / «Estimated delivery»         | una celda de `snapshot` | sin verificar          |
-| Disponibilidad por residencia (Unit A–D) | `availability`          | sin verificar          |
-| `Now selling`                            | `status`                | sin verificar          |
-| Capítulos Interiors y Outdoor living     | `editorialSections`     | simplificar el esquema |
+| Dato                                     | Campo               | Motivo                 |
+| ---------------------------------------- | ------------------- | ---------------------- |
+| Disponibilidad por residencia (Unit A–D) | `availability`      | sin verificar          |
+| `Now selling`                            | `status`            | sin verificar          |
+| Capítulos Interiors y Outdoor living     | `editorialSections` | simplificar el esquema |
 
-Los tres primeros esperan confirmación escrita de Ardeno. El cuarto es una
+Los dos primeros esperan confirmación escrita de Ardeno. El tercero es una
 decisión propia: los capítulos editoriales son la parte del contrato más difícil
 de mapear desde Notion —prosa larga, lista de materiales y un render con sus
 dimensiones, por capítulo— y se retiran para no cerrar el esquema en falso. Su
 contenido queda guardado en
 [`content/720-sherrybrook-editorial-sections.md`](content/720-sherrybrook-editorial-sections.md).
 
-En los cuatro casos se retiró el **dato**, no la capacidad: los tipos, los
+En los tres casos se retiró el **dato**, no la capacidad: los tipos, los
 invariantes, los componentes y su CSS siguen intactos. Por eso el contrato modela
 estas secciones como opcionales — la ficha recorre la misma plantilla con menos
 paradas y no queda ni un título huérfano. Vuelven escribiendo otra vez esas
 claves.
+
+### Datos provisionales en curso
+
+Dos valores del snapshot están puestos a la espera de confirmación y **hay que
+revisarlos**:
+
+| Valor        | Origen                                                     | Estado                   |
+| ------------ | ---------------------------------------------------------- | ------------------------ |
+| `2,118 SF`   | Suma de las dos plantas del brochure (982 + 1.136)         | Provisional              |
+| `March 2027` | Plazo dado por Ardeno en su feedback de septiembre de 2026 | Sin confirmación escrita |
+
+Sobre la superficie: **no sale de los planos**. Los del arquitecto acotan
+estancias pero no dan superficie construida, y sumar habitaciones dejaría fuera
+muros, pasillos y escalera, así que daría una cifra falsa con apariencia de
+precisión. La suma de plantas del brochure sí es aritmética directa sobre datos
+que ya se publicaban, y cae dentro del rango 2,050–2,180 SF que sustituye.
+
+El límite: corresponde a **una sola configuración**, y hay dos tipologías. En
+cuanto Ardeno dé la superficie por tipología, este valor se sustituye —y lo
+suyo sería llevarlo a `floorPlans`, que es donde vive cada tipología, en vez de
+a una cifra única del snapshot—.
+
+### La fecha de entrega volvió, con otro valor
+
+`Q2 2027` salió del brochure y se retiró por no estar verificado. La celda
+vuelve al snapshot como **`March 2027` / «Expected completion»**, que es el
+plazo que Ardeno dio en su feedback de septiembre de 2026.
+
+`Q2 2027` **no debe reaparecer**: no es el mismo dato ni tiene el mismo
+respaldo.
 
 ## `id` y `slug` no son lo mismo
 
@@ -75,8 +104,9 @@ sitemap, **ni es alcanzable escribiendo su URL**: `getPublicProject` devuelve
 **Obligatorios** — `id`, `published`, `slug`, `name`, `city`, `state`,
 `typology`, `positioningLine`, `snapshot`.
 
-**Opcionales** — `status`, `heroMedia`, `story`, `editorialSections`,
-`availability`, `architecture`, `gallery`, `location`.
+**Opcionales** — `collection`, `status`, `heroMedia`, `story`,
+`editorialSections`, `availability`, `architecture`, `floorPlans`, `gallery`,
+`location`.
 
 Un módulo ausente **desaparece entero**: sin `<section>`, sin título, sin
 separador y sin el espacio vertical que ocupaba. No quedan huecos ni marcadores
@@ -89,6 +119,8 @@ de posición.
 | `story`             | La sección no se emite                                                                                |
 | `editorialSections` | No se emite ningún capítulo: la narrativa enlaza con lo que venga después                             |
 | `availability`      | La sección no se emite: la ficha no menciona estados de venta                                         |
+| `floorPlans`        | La sección no se emite: la arquitectura enlaza con la galería                                         |
+| `collection`        | El meta del hero arranca por la tipología, sin separador suelto                                       |
 | `architecture`      | La sección no se emite                                                                                |
 | `gallery`           | Ni se monta la isla cliente: la comprobación está en el servidor                                      |
 | `location`          | La sección no se emite                                                                                |
@@ -148,6 +180,39 @@ type PublicAvailability = {
 `note` es obligatoria a propósito: publicar una lista de estados sin decir cómo
 se obtiene el precio deja abierta la pregunta evidente.
 
+### `floorPlans`
+
+Los planos de planta del proyecto. Un proyecto puede tener varias tipologías y
+cada una es una entrada de `plans`.
+
+```ts
+type PublicFloorPlans = {
+  eyebrow?: string;
+  headline: string;
+  note?: string; // lo que el dibujo no dice: cotas aproximadas, mobiliario orientativo
+  plans: readonly {
+    id: string; // clave estable y ancla; no se muestra
+    name: string; // "Three bedrooms + office"
+    summary?: string; // qué distingue esta tipología, en una línea
+    media: PublicMedia; // la misma forma que `heroMedia` y la galería
+  }[];
+};
+```
+
+Deliberadamente plano: **una imagen y dos textos por tipología**, sin anidar,
+para que una fila de Notion se mapee sin estructuras intermedias. Es lo contrario
+de `editorialSections`, que se retiró justamente por lo difícil que era de
+mapear.
+
+**Sin superficie propia, a propósito.** Publicar los pies cuadrados por tipología
+exige una cifra verificada, y los planos del arquitecto acotan estancias pero no
+dan totales. Cuando Ardeno confirme las superficies, se añaden como campo propio
+—nunca mezcladas dentro de `name`—.
+
+**Sin visor.** El de la galería amplía hasta el ancho del viewport, que en un
+plano no basta para leer cotas y además lo saca de contexto. Si hace falta
+ampliar, lo suyo es enlazar el PDF del arquitecto.
+
 ### `location`
 
 Emplazamiento y tiempos de trayecto verificados, con su unidad ya escrita. El
@@ -184,6 +249,9 @@ cliente importan tipos, y los tipos se borran al compilar.
 - si `availability` existe, `headline` y `note` no vacíos, al menos una
   residencia, `id` único dentro del proyecto, `name`, `interior` y `bedrooms` no
   vacíos, y `status` dentro de los tres valores admitidos
+- si `floorPlans` existe, `headline` no vacío, `note` no vacía si está presente,
+  al menos una tipología, cada una con `id` único y con formato de slug, `name`
+  no vacío, `summary` no vacío si está presente, y media válida
 - si `location` existe, `headline` y `body` no vacíos y al menos una distancia,
   con `label` y `value` no vacíos
 - `caption` de un medio, si está, no vacío

@@ -9,6 +9,7 @@ import {
   ProjectLocation,
   ProjectStory,
 } from "@/components/ardeno/project-content";
+import { ProjectFloorPlans } from "@/components/ardeno/project-floor-plans";
 import { ProjectGallery } from "@/components/ardeno/project-gallery";
 import { ProjectHeader } from "@/components/ardeno/project-header";
 import {
@@ -111,23 +112,34 @@ export default async function ProjectPage({
 
         <ProjectHeader />
 
-        {/* El recorrido: promesa, cifras, plan, los capítulos que lo enseñan,
-            qué queda libre, la arquitectura que lo sostiene, el archivo visual,
-            dónde está y el cierre con el formulario. Cada sección decide si
-            existe, así que un proyecto con menos datos aprobados recorre lo
-            mismo con menos paradas. */}
+        {/* El recorrido de una landing, no el de una ficha técnica: primero se
+            enamora y después se comprueba.
+
+            Promesa y cifras. La historia, que da el porqué. El archivo visual
+            enseguida, porque las imágenes son lo que de verdad vende y dejarlas
+            al final es pedir que alguien baje media página para ver la casa.
+            Solo entonces el bloque de comprobación —arquitectura y planos, que
+            van juntos porque responden a la misma pregunta—, lo que queda libre,
+            dónde está, y el cierre con el formulario.
+
+            Cada sección decide si existe, así que un proyecto con menos datos
+            aprobados recorre lo mismo con menos paradas. */}
         <main id="project-content">
           <ProjectHero project={project} />
           <ProjectSnapshot project={project} />
           <ProjectStory project={project} />
           <ProjectEditorial project={project} />
-          <ProjectAvailability project={project} />
-          <ProjectArchitecture project={project} />
           {/* La comprobación vive aquí, en el servidor: sin renders no se monta
               la isla cliente y la sección no existe. */}
           {project.gallery && project.gallery.length > 0 ? (
             <ProjectGallery images={project.gallery} />
           ) : null}
+          <ProjectArchitecture project={project} />
+          {/* Lo mismo que la galería: sin planos no se monta la isla cliente. */}
+          {project.floorPlans ? (
+            <ProjectFloorPlans floorPlans={project.floorPlans} />
+          ) : null}
+          <ProjectAvailability project={project} />
           <ProjectLocation project={project} />
           <ProjectInterest project={project} />
         </main>

@@ -1,7 +1,45 @@
 # 720 Sherrybrook — activos gráficos
 
-**Estado: provisionales.** Sirven para construir y previsualizar la ficha; se
-sustituyen en cuanto lleguen los originales finales.
+**Estado: mixto.** Las dos perspectivas exteriores y los planos son originales
+definitivos entregados por Ardeno el 11 de septiembre de 2026. Los interiores
+siguen siendo extracciones del brochure y se sustituirán cuando lleguen sus
+originales.
+
+## Perspectivas definitivas — 11 de septiembre de 2026
+
+`front-elevation.jpg` y `rear-elevation.jpg` sustituyen a los dos renders
+anteriores de frente y trasera, que estaban generados con IA y quedan
+**eliminados del repositorio**. Proceden de `Front Elevation Perspective.png` y
+`Rear Elevation Perspective.png` (7680×5114 px, PNG con alfa, 88 y 76 MB),
+reducidos a 1920 px de ancho y convertidos a JPEG con calidad 68 sobre fondo
+blanco.
+
+Cambian de proporción: los anteriores eran 16:9 y estos son 3:2, así que el
+recorte del hero a pantalla completa no encuadra igual. Verificado que el velo
+sigue dando contraste suficiente sobre un render diurno.
+
+Los interiores **no se han tocado**: siguen aprobados. En la carpeta de origen
+están sus PNG sin comprimir por si algún día se quiere subir la calidad, y
+también un segundo ángulo de cocina (`Kitchen - B.png`) que hoy no se publica.
+
+## Planos
+
+`floor-plan-three-bedroom.png` y `floor-plan-three-bedroom-office.png`
+(1277×1500 px, ~180 KB) salen de la
+**página 2** —la amueblada— de los dos PDF de Olive Architecture, recortando el
+margen blanco y el cajetín del estudio. El recorte del cajetín es deliberado:
+lleva el teléfono comercial de un tercero y no tiene por qué publicarse en la
+web de Ardeno.
+
+Se recortan a su contenido con la **misma ventana** para las dos tipologías
+—así se leen a la misma escala al compararlas— y **desplazada** para centrar
+cada dibujo en su lienzo, porque cada uno ocupa una zona distinta de su página.
+Los nombres de archivo llevan la tipología, no el número de lote del arquitecto:
+así se ve de qué plano se trata y, al cambiar de nombre, se invalida de paso la
+caché del optimizador.
+
+Los PDF completos, con las elevaciones, no se publican. Si en algún momento se
+quiere ofrecer la descarga, están en la carpeta de origen.
 
 - **Procedencia:** brochure de 720 Sherrybrook en inglés.
 - **Autorización:** Fran autoriza su uso para construcción y preview, con
@@ -16,16 +54,16 @@ imágenes del proyecto y así se presentan.
 
 Todos en `public/projects/720-sherrybrook/`.
 
-| Archivo                   | Rol      | Dimensiones |   Peso |
-| ------------------------- | -------- | ----------: | -----: |
-| `hero-front-exterior.jpg` | Hero     |    1672×941 | 306 KB |
-| `exterior-rear.jpg`       | Cubierta |    1672×941 | 349 KB |
-| `kitchen-island.jpg`      | Galería  |    1602×942 | 253 KB |
-| `dining-living.jpg`       | Galería  |   1912×1118 | 390 KB |
-| `primary-suite.jpg`       | Galería  |   1448×1086 | 264 KB |
-| `primary-bathroom.jpg`    | Galería  |   1448×1086 | 206 KB |
-| `private-balcony.jpg`     | Galería  |   1448×1086 | 306 KB |
-| `home-office.jpg`         | Galería  |   1419×1064 | 215 KB |
+| Archivo                | Rol      | Dimensiones |   Peso |
+| ---------------------- | -------- | ----------: | -----: |
+| `front-elevation.jpg`  | Hero     |   1920×1278 | 646 KB |
+| `rear-elevation.jpg`   | Cubierta |   1920×1278 | 499 KB |
+| `kitchen-island.jpg`   | Galería  |    1602×942 | 253 KB |
+| `dining-living.jpg`    | Galería  |   1912×1118 | 390 KB |
+| `primary-suite.jpg`    | Galería  |   1448×1086 | 264 KB |
+| `primary-bathroom.jpg` | Galería  |   1448×1086 | 206 KB |
+| `private-balcony.jpg`  | Galería  |   1448×1086 | 306 KB |
+| `home-office.jpg`      | Galería  |   1419×1064 | 215 KB |
 
 Total: 2,2 MB. JPEG sRGB sin canal alfa.
 

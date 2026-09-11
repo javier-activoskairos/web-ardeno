@@ -434,11 +434,20 @@
     flex-direction: column;
     gap: 24px;
   }
-  /* La columna narrativa es ancha y el cuerpo llegaba a ~74 caracteres por
-     línea. Se acota solo aquí: `--w-measure` y `.ar-body` siguen sirviendo al
-     resto de la ficha y al modal. */
+  /* La narrativa se lee como un solo bloque, así que sus dos párrafos terminan
+     a la misma altura en lugar de escalonarse.
+
+     La medida la fija el contenedor y no cada párrafo. Con `52ch` en los dos,
+     el `ch` se calcula sobre el tamaño de cada uno: el lede, más grande, daba
+     641px y el cuerpo 524px, y el escalón de 117px se leía como un bloque roto.
+     Fijándola aquí, el cuerpo queda en unos 64 caracteres por línea, que es
+     mejor medida para prosa continua que los 52 que tenía. */
+  .ar-story__body {
+    max-width: min(40rem, var(--w-editorial));
+  }
+  .ar-story__body .ar-lede,
   .ar-story__body .ar-body {
-    max-width: 52ch;
+    max-width: none;
   }
 
   @media (min-width: 900px) {
@@ -530,6 +539,111 @@
     }
   }
 
+  /* ---------- Floor plans ----------
+     En página son previsualización, no lectura: a tamaño legible cada plano se
+     comía media pantalla y empujaba el resto de la ficha fuera del scroll. Aquí
+     se reconoce la distribución y se decide si interesa; las cotas se leen en
+     el visor, que es el mismo de la galería.
+
+     El dibujo se ve entero sobre fondo claro —nunca recortado a sangre, que en
+     un plano equivale a perder habitaciones—, así que el marco tiene proporción
+     fija y la imagen se contiene dentro. */
+  .ar-plans {
+    display: grid;
+    gap: 36px;
+    margin-top: 44px;
+  }
+  @media (min-width: 900px) {
+    .ar-plans {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 40px;
+    }
+  }
+  .ar-plan {
+    display: flex;
+    flex-direction: column;
+  }
+  .ar-plan__button {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+  }
+  .ar-plan__frame {
+    display: block;
+    position: relative;
+    /* La proporción del propio dibujo, ya recortado a su contenido: así el
+       plano llena el marco en vez de flotar entre dos franjas de fondo. Los dos
+       archivos salen del mismo recorte, con la misma escala y cada uno centrado
+       en su lienzo, de modo que lado a lado se leen a la misma medida. */
+    aspect-ratio: 1277 / 1500;
+    overflow: hidden;
+    border: 1px solid var(--w-line);
+    border-radius: var(--w-r-img);
+    background: var(--w-panel);
+    padding: 22px;
+    transition: border-color var(--w-t) var(--w-ease-out);
+  }
+  .ar-plan__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+  }
+  .ar-plan__badge {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(16, 16, 20, 0.82);
+    color: var(--w-on-dark);
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity var(--w-t) var(--w-ease-out);
+  }
+  .ar-plan__button:hover .ar-plan__frame,
+  .ar-plan__button:focus-visible .ar-plan__frame {
+    border-color: var(--w-ink-3);
+  }
+  .ar-plan__button:hover .ar-plan__badge,
+  .ar-plan__button:focus-visible .ar-plan__badge {
+    opacity: 1;
+  }
+  /* Sin puntero fino no hay hover que revele el distintivo: se deja visible. */
+  @media (hover: none), (pointer: coarse) {
+    .ar-plan__badge {
+      opacity: 1;
+    }
+  }
+  .ar-plan__button:focus-visible {
+    outline: none;
+  }
+  .ar-plan__name {
+    margin: 18px 0 0;
+    font-size: var(--w-s-22);
+    font-weight: var(--w-fw-regular);
+    line-height: 1.2;
+    letter-spacing: var(--w-ls-display);
+    color: var(--w-ink);
+  }
+  .ar-plan__summary {
+    margin: 8px 0 0;
+    max-width: 46ch;
+    font-size: var(--w-body-sm);
+    line-height: var(--w-lh-body);
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink-2);
+  }
+
   /* ---------- Architecture and living ----------
      Desarrolla el snapshot en lugar de repetirlo: aquí la etiqueta va encima
      de la cifra y todo se alinea a la izquierda sobre un filete, mientras que
@@ -598,15 +712,22 @@
      una fila con el hueco al lado. */
   @media (min-width: 600px) {
     .ar-facts {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(
+        min(var(--ar-facts-cols, 2), 2),
+        minmax(0, 1fr)
+      );
       /* Con las filas pegadas, el filete de la segunda caía a 35px de la cifra
          de la primera y las dos se leían como una sola tabla apretada. */
       row-gap: 24px;
     }
   }
   @media (min-width: 900px) {
+    /* Las columnas salen del recuento, no de un número fijo: con tres datos son
+       tres, con cuatro son cuatro y con seis vuelven a ser tres en dos filas
+       llenas. Así ninguna celda se queda sola al final de la retícula cuando un
+       proyecto publica menos datos que otro. */
     .ar-facts {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(var(--ar-facts-cols, 3), minmax(0, 1fr));
     }
   }
   /* Los detalles son prosa, no cifras: necesitan más ancho que los hechos.
@@ -773,6 +894,26 @@
   }
   .ar-lightbox__img {
     object-fit: contain;
+  }
+  /* Un plano no se mira como un render: se ve entero y sobre claro, o las
+     cotas se pierden en el negro del visor.
+
+     El fondo claro toma la proporción del propio dibujo en vez de estirarse a
+     todo el escenario. Si no, el plano quedaba como un bloque pequeño flotando
+     dentro de una plancha mucho más ancha, y esa desproporción se lee como un
+     encuadre torcido aunque el dibujo esté centrado al píxel. */
+  .ar-lightbox[data-fit="contain"] .ar-lightbox__frame {
+    background: var(--w-bone);
+    border-radius: var(--w-r-img);
+    aspect-ratio: var(--ar-lightbox-ratio, auto);
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+  .ar-lightbox[data-fit="contain"] .ar-lightbox__img {
+    object-fit: contain;
+    padding: 20px;
   }
   .ar-lightbox__cap {
     flex: none;
@@ -1591,8 +1732,10 @@
     gap: clamp(28px, 4vw, 50px);
     align-items: start;
     padding-block: clamp(28px, 3.5vw, 48px);
+    /* Solo filete de entrada. El de cierre caía a unos píxeles del navy del
+       bloque de captación, que ya separa por sí mismo con un cambio de
+       material: dos separaciones seguidas para la misma junta. */
     border-top: 1px solid var(--w-line);
-    border-bottom: 1px solid var(--w-line);
   }
   .ar-authority__title {
     margin-top: 20px;
@@ -1659,27 +1802,6 @@
   .ar-interest {
     position: relative;
     overflow: hidden;
-  }
-  /* Bajo la columna de texto, que es donde queda sitio libre. A la derecha la
-     tapaba el panel del formulario y solo asomaban tres trazos sueltos por el
-     canto, que se leían como un fallo de render y no como una marca. */
-  .ar-interest__mark {
-    position: absolute;
-    left: var(--w-gutter);
-    bottom: calc(var(--w-section-y) * -0.25);
-    width: min(30%, 300px);
-    aspect-ratio: 1204 / 1432;
-    background-color: var(--w-bone);
-    -webkit-mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
-    mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
-    opacity: 0.07;
-    pointer-events: none;
-  }
-  /* Apilado no hay columna libre: el símbolo caería detrás del formulario. */
-  @media (max-width: 900px) {
-    .ar-interest__mark {
-      display: none;
-    }
   }
   .ar-interest__grid {
     position: relative;

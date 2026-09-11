@@ -14,9 +14,10 @@
  *
  * Que un campo quepa en el contrato no significa que su valor esté verificado.
  * Hoy 720 Sherrybrook publica MENOS de lo que el tipo admite: la entrega
- * estimada, la disponibilidad por residencia y el distintivo de estado están
- * retirados a la espera de confirmación escrita de Ardeno. La capacidad sigue
- * en pie; lo que falta es el dato.
+ * estimada, la disponibilidad por residencia, el distintivo de estado y los
+ * capítulos editoriales están retirados. La capacidad sigue en pie; lo que
+ * falta es el dato —o, en el caso de los capítulos, la decisión de mapearlos
+ * desde Notion—.
  *
  * Toda sección es opcional salvo la identidad, el posicionamiento y el
  * snapshot. Un proyecto con menos datos aprobados recorre la misma plantilla
@@ -121,6 +122,43 @@ export type PublicEditorialSection = {
 };
 
 /**
+ * Un plano de planta publicable.
+ *
+ * Un proyecto puede tener varias tipologías, y cada una es una entrada de esta
+ * lista. Es deliberadamente plano —una imagen y dos textos— para que una fila
+ * de Notion pueda mapearse sin anidamiento: nombre, resumen y archivo.
+ *
+ * - `id` da clave estable y ancla; no se muestra.
+ * - `summary` es lo que distingue esta tipología de las demás, en una línea.
+ *   Ausente, solo se imprime el nombre.
+ * - `media` reutiliza `PublicMedia`, igual que el hero y la galería, así que
+ *   `width` y `height` reservan el hueco y no hay salto de composición.
+ *
+ * No lleva superficie propia a propósito: publicar los pies cuadrados por
+ * tipología exige una cifra verificada que hoy no existe en los planos. Cuando
+ * llegue, se añade aquí como campo propio y no mezclada dentro del nombre.
+ */
+export type PublicFloorPlan = {
+  readonly id: string;
+  readonly name: string;
+  readonly summary?: string;
+  readonly media: PublicMedia;
+};
+
+/**
+ * Sección de planos de planta.
+ *
+ * `note` es opcional y sirve para lo que el dibujo no dice: que las medidas son
+ * aproximadas, que el mobiliario es orientativo o lo que el cliente apruebe.
+ */
+export type PublicFloorPlans = {
+  readonly eyebrow?: string;
+  readonly headline: string;
+  readonly note?: string;
+  readonly plans: readonly PublicFloorPlan[];
+};
+
+/**
  * Estado comercial de una residencia.
  *
  * Tres valores cerrados y nada más: no hay "próximamente", ni "última
@@ -185,6 +223,16 @@ export type PublicProject = {
   readonly name: string;
   readonly city: string;
   readonly state: string;
+  /**
+   * Rótulo de colección que antecede a la tipología en el meta del hero:
+   * "Boutique Collection". Ausente, el meta arranca por la tipología.
+   *
+   * Va aparte de `typology` —y no concatenado dentro— porque el meta se compone
+   * de segmentos y el separador lo pinta la interfaz. Así un proyecto sin
+   * colección no arrastra un separador suelto, y la descripción de la metadata
+   * puede seguir usando solo la tipología, que es lo que la hace legible.
+   */
+  readonly collection?: string;
   readonly typology: string;
   readonly positioningLine: string;
   /**
@@ -208,6 +256,11 @@ export type PublicProject = {
   /** Ausente mientras no haya arquitectura aprobada. La sección no se renderiza. */
   readonly architecture?: PublicArchitecture;
   /**
+   * Planos de planta. Ausente o sin tipologías, la sección no se emite: la
+   * arquitectura enlaza directamente con la galería.
+   */
+  readonly floorPlans?: PublicFloorPlans;
+  /**
    * Renders del proyecto. El primero hace de cubierta. Vacía o ausente, la
    * sección entera desaparece: ni título, ni botón, ni marcador de posición.
    */
@@ -229,7 +282,8 @@ const PROJECTS = [
     name: "720 Sherrybrook",
     city: "Raleigh",
     state: "North Carolina",
-    typology: "Four attached residences",
+    collection: "Boutique Collection",
+    typology: "Four Single Family Residences",
     // La tesis del hero y el titular de la historia intercambian su sitio: el
     // hero abre con la promesa material, que es lo que engancha, y la historia
     // titula con el plan, que es lo que desarrolla. Mismo copy aprobado, sin
@@ -240,29 +294,37 @@ const PROJECTS = [
     // sostenga quedaría además huérfana. Retirada hasta confirmación escrita;
     // el campo es opcional y el hero deja de pintar el distintivo del CTA.
 
-    // La celda de entrega estimada ("Q2 2027") está RETIRADA hasta que Ardeno
-    // la confirme por escrito: es una afirmación comercial sobre un plazo de
-    // obra y nadie la ha verificado. El snapshot admite de 1 a 4 celdas y la
-    // retícula sale de `snapshot.length`, así que con tres se reequilibra sola.
+    // La fecha de entrega vuelve al snapshot con el plazo que dio Ardeno en su
+    // feedback —marzo de 2027—, no con el "Q2 2027" del brochure, que se retiró
+    // por no estar verificado y no debe reaparecer. El snapshot admite de 1 a 4
+    // celdas y la retícula sale de `snapshot.length`.
     snapshot: [
       { value: "4", label: "Residences" },
-      { value: "2,050–2,180 SF", label: "Per residence" },
+      // PROVISIONAL. 2,118 SF es la suma de las dos plantas que publicaba el
+      // brochure —982 + 1,136—, no una cifra medida sobre los planos: estos
+      // acotan estancias y no dan superficie construida, y sumar habitaciones
+      // dejaría fuera muros, pasillos y escalera. Cae dentro del rango
+      // 2,050–2,180 SF que se venía publicando, así que es coherente con él,
+      // pero corresponde a una sola configuración y hay dos tipologías.
+      // Sustituir en cuanto Ardeno confirme la superficie por tipología.
+      { value: "2,118 SF", label: "Per residence" },
       { value: "3 + office", label: "Bedrooms" },
+      { value: "March 2027", label: "Expected completion" },
     ],
     heroMedia: {
-      src: "/projects/720-sherrybrook/hero-front-exterior.jpg",
-      alt: "Front exterior rendering of the four residences at 720 Sherrybrook.",
-      width: 1672,
-      height: 941,
+      src: "/projects/720-sherrybrook/front-elevation.jpg",
+      alt: "Front elevation of the four residences at 720 Sherrybrook, seen from the street.",
+      width: 1920,
+      height: 1278,
     },
     // El primero es la cubierta. El hero no se repite aquí.
     gallery: [
       {
-        src: "/projects/720-sherrybrook/exterior-rear.jpg",
-        alt: "Rear exterior rendering of the four residences.",
-        width: 1672,
-        height: 941,
-        caption: "Rear exterior",
+        src: "/projects/720-sherrybrook/rear-elevation.jpg",
+        alt: "Rear elevation of the four residences, with the patios and upper balconies.",
+        width: 1920,
+        height: 1278,
+        caption: "Rear elevation",
       },
       {
         src: "/projects/720-sherrybrook/kitchen-island.jpg",
@@ -309,7 +371,7 @@ const PROJECTS = [
     ],
     story: {
       eyebrow: "The project",
-      headline: "Four homes, one considered plan.",
+      headline: "Four homes, two floor plans.",
       body: [
         "The Sherrybrook residences draw inspiration from Scandinavian design, pairing cleanly detailed interiors and exteriors with warm, natural materials.",
         "Light wood finishes and an open plan create welcoming living spaces that emphasize simplicity, comfort, and crafted functionality. Private gardens connect the living areas to outdoors, offering quiet retreats and a close connection to nature. Elevated front porches create a sense of community for this enclave.",
@@ -343,12 +405,55 @@ const PROJECTS = [
      * campo opcional, la sección desaparece entera —sin título, sin filete y
      * sin el hueco que ocupaba— y vuelve escribiendo otra vez esta clave.
      */
+    /*
+     * Planos de planta. Las dos tipologías reales del conjunto, tal como las
+     * dibuja Olive Architecture. Los nombres describen lo que las distingue
+     * —el despacho de la segunda planta— porque los archivos del arquitecto se
+     * identifican por número de lote y eso no dice nada a un comprador; si
+     * Ardeno confirma un nombre comercial, se sustituye aquí.
+     *
+     * Sin superficie por tipología: los planos acotan estancias, no totales, y
+     * no se deduce una cifra que nadie ha verificado.
+     */
+    floorPlans: {
+      eyebrow: "Floor plans",
+      headline: "Two plans, four residences",
+      note: "Room dimensions are taken from the architectural drawings. Furniture is shown for scale.",
+      plans: [
+        {
+          id: "three-bedroom",
+          name: "Three bedrooms",
+          summary:
+            "Primary suite with walk-in closet and balcony, two further bedrooms, and an open ground floor opening onto the patio.",
+          media: {
+            src: "/projects/720-sherrybrook/floor-plan-three-bedroom.png",
+            alt: "Floor plan with three bedrooms: second floor on the left, first floor on the right.",
+            width: 1277,
+            height: 1500,
+          },
+        },
+        {
+          id: "three-bedroom-office",
+          name: "Three bedrooms + office",
+          summary:
+            "Adds a dedicated office beside the balcony and a separate laundry room, with a wider kitchen and dining area below.",
+          media: {
+            src: "/projects/720-sherrybrook/floor-plan-three-bedroom-office.png",
+            alt: "Floor plan with three bedrooms and an office: second floor on the left, first floor on the right.",
+            width: 1277,
+            height: 1500,
+          },
+        },
+      ],
+    },
     architecture: {
       eyebrow: "Specifications",
       headline: "Architecture and living",
       facts: [
-        { label: "Ground floor", value: "982 SF" },
-        { label: "Upper floor", value: "1,136 SF" },
+        // La superficie por planta se retira: el cliente la considera una
+        // distracción. El total por residencia sigue en el snapshot, como
+        // rango, mientras Ardeno no confirme la cifra definitiva — los planos
+        // no la indican, así que no se deduce aquí.
         { label: "Bedrooms", value: "3 + office" },
         { label: "Bathrooms", value: "2 full" },
         { label: "Stories", value: "2" },
@@ -361,15 +466,11 @@ const PROJECTS = [
       details: [
         {
           title: "Exterior",
-          body: "White vertical siding, gabled rooflines, matte black frames, and natural wood accents create a contemporary and restrained material palette.",
+          body: "Gray vertical siding, shed rooflines, matte black frames, and natural wood accents create a contemporary and restrained material palette.",
         },
         {
           title: "Systems",
           body: "High-efficiency HVAC, tankless water heating, and an insulated envelope built to current North Carolina energy code with Habitech Builders.",
-        },
-        {
-          title: "Parking",
-          body: "One covered space and one driveway space per residence, with dedicated guest parking along the shared entry court.",
         },
       ],
     },
@@ -382,7 +483,6 @@ const PROJECTS = [
         { label: "North Carolina State University", value: "12 min" },
         { label: "Research Triangle Park", value: "24 min" },
         { label: "RDU International Airport", value: "21 min" },
-        { label: "Nearest elementary school", value: "6 min" },
       ],
     },
   },
@@ -513,6 +613,34 @@ function assertProjectsAreValid(projects: readonly PublicProject[]): void {
           }
         }
         assertMedia(section.media, `editorialSections (${section.id})`);
+      }
+    }
+
+    if (project.floorPlans) {
+      const { headline, note, plans } = project.floorPlans;
+      if (!filled(headline)) fail(where, "floorPlans: `headline` vacío");
+      if (note !== undefined && !filled(note))
+        fail(where, "floorPlans: `note` presente pero vacía; omítala");
+      if (plans.length === 0)
+        fail(where, "`floorPlans` presente sin tipologías; omítala");
+      // El `id` es la clave de React y el ancla del titular: dos iguales darían
+      // dos `id` de HTML repetidos.
+      const seenPlanIds = new Set<string>();
+      for (const plan of plans) {
+        if (!filled(plan.id)) fail(where, "floorPlans: `id` vacío");
+        if (seenPlanIds.has(plan.id))
+          fail(where, `floorPlans: \`id\` duplicado "${plan.id}"`);
+        seenPlanIds.add(plan.id);
+        if (!SLUG_PATTERN.test(plan.id))
+          fail(where, `floorPlans: \`id\` con formato inválido: "${plan.id}"`);
+        if (!filled(plan.name))
+          fail(where, `floorPlans (${plan.id}): \`name\` vacío`);
+        if (plan.summary !== undefined && !filled(plan.summary))
+          fail(
+            where,
+            `floorPlans (${plan.id}): \`summary\` presente pero vacío; omítalo`,
+          );
+        assertMedia(plan.media, `floorPlans (${plan.id})`);
       }
     }
 
