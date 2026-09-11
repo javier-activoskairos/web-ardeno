@@ -138,3 +138,2165 @@
     @apply font-sans;
   }
 }
+
+/* ====================================================================
+   ARDENO DESIGN DNA
+   Calibrado contra el CSS computado de https://ardenogroup.com medido por
+   CDP a 1440/1024/768/390. Los valores marcados [ok] proceden de esa
+   medición y son exactos; los marcados [~] siguen siendo aproximados
+   porque el sitio real no expone un equivalente legible.
+   ==================================================================== */
+
+:root {
+  /* ---------- Superficies ---------- */
+  --w-bg: #ffffff; /* [ok] fondo de página del sitio real */
+  --w-panel: #f0f0ee; /* [~] panel claro */
+  --w-panel-2: #e7e7e4; /* [~] panel hover */
+  --w-black: #0e1419; /* [~] barra de cabecera */
+  --w-hero-top: #080c10; /* [~] origen del degradado del hero */
+
+  /* ---------- Tinta ---------- */
+  --w-ink: #101014; /* [ok] tinta de texto sobre claro */
+  --w-navy: #0d2a3a; /* [ok] navy de marca: disco del CTA real */
+  --w-ink-2: #555d66; /* oscurecido desde el medido #6E7680 por AA */
+  --w-ink-3: #656d76; /* oscurecido desde el medido #A8AEB4 por AA */
+  --w-tint-lg: #7e868e; /* tinte claro, solo display >= 24px (AA 3:1) */
+  --w-on-dark: #ffffff;
+  --w-on-dark-2: rgba(255, 255, 255, 0.74);
+  --w-on-dark-3: rgba(255, 255, 255, 0.5);
+
+  /* ---------- Líneas ---------- */
+  --w-bone: #f7f4eb; /* hueso de marca: color del logotipo */
+  --w-line: #e2e2df; /* [~] hairline sobre claro */
+  --w-line-dark: rgba(255, 255, 255, 0.16);
+
+  /* ---------- Semántico ----------
+     El cian del sistema (#3FB6E8) queda reservado a estados verificados y
+     nunca se usa como foco. El sitio real no tiene anillo de foco propio:
+     cae en el azul por defecto del navegador. Aquí se sustituye por tinta
+     sobre claro y blanco sobre oscuro, que sí cumplen contraste. */
+  --w-error: #9a3b30;
+  --w-error-soft: #f6e9e7;
+  --w-focus: var(--w-ink);
+  --w-focus-on-dark: #ffffff;
+
+  /* ---------- Tipografía ----------
+     Hanken Grotesk en los dos roles: la cara del Ardeno Group Design System.
+     Sustituye al par medido sobre el CSS computado del sitio real —Manrope
+     para display y contenido, Geist para navegación, etiquetas y controles—,
+     que se conserva documentado aquí porque es lo que sigue publicado en
+     ardenogroup.com mientras la web corporativa no se rehaga.
+
+     Los dos roles se mantienen separados aunque hoy resuelvan a la misma
+     familia: el día que la interfaz quiera una segunda cara, basta con
+     apuntar `--font-ui` a otra y ni una regla cambia. */
+  --w-font: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --w-font-ui: var(--font-ui), var(--w-font);
+  --w-fw-light: 300;
+  --w-fw-regular: 400;
+  --w-fw-medium: 500;
+  --w-fw-bold: 700;
+
+  /* ---------- Escala ----------
+     [ok] Escala comprobada: 60 / 50 / 45 / 30 / 22 / 18 / 16 / 14.
+     El peldaño 50 es el acento en Lora del sitio real y no tiene rol en
+     esta pantalla, así que no se declara. Los tamaños fluidos interpolan
+     entre el suelo de 390px y el techo medido a 1440px. */
+  --w-s-60: clamp(2.125rem, 1.41rem + 2.92vw, 3.75rem); /* 34 → 60 */
+  --w-s-45: clamp(1.875rem, 1.527rem + 1.43vw, 2.8125rem); /* 30 → 45 */
+  --w-s-30: clamp(1.375rem, 1.19rem + 0.76vw, 1.875rem); /* 22 → 30 */
+  --w-s-22: 1.375rem;
+  --w-s-18: 1.125rem;
+  --w-s-16: 1rem;
+  --w-s-14: 0.875rem;
+
+  --w-hero: var(--w-s-60);
+  --w-display: var(--w-s-45);
+  --w-h3: var(--w-s-30);
+  --w-h4: var(--w-s-22);
+  --w-body: var(--w-s-18);
+  --w-body-sm: var(--w-s-16);
+  --w-nav: var(--w-s-16);
+  --w-label: var(--w-s-14);
+  --w-stat: var(--w-s-30);
+
+  /* [ok] Interlineados medidos: 72/60 en el h1, 49.5/45 y 33/30 en los
+     display, 27/18 en el cuerpo, 20.8/16 en los controles. */
+  --w-lh-hero: 1.2;
+  --w-lh-display: 1.1;
+  --w-lh-body: 1.5;
+  --w-lh-ui: 1.3;
+  /* [ok] -1px sobre 60px y -0.8px sobre 45px, expresados en em para que
+     el prensado acompañe al tamaño igual que en el sitio real. */
+  --w-ls-hero: -0.0167em;
+  --w-ls-display: -0.0178em;
+  --w-ls-body: -0.0056em;
+  --w-ls-label: 0.1em; /* [~] el sitio real no usa versales en ningún rol */
+
+  /* ---------- Layout ----------
+     [ok] Contenedor de sitio de 1360px con gutter de 40px a 1440. El token
+     editorial es independiente y más estrecho: el texto largo no se lee a
+     1360px. */
+  --w-container: 1360px;
+  --w-editorial: 760px;
+  --w-gutter: clamp(20px, 5vw, 40px);
+
+  /* ---------- Ritmo ----------
+     [ok] 50px es la separación dominante del sitio; 100px aparece solo en
+     una apertura principal. El suelo nunca baja de la dominante. */
+  --w-section-y: clamp(50px, 7vw, 100px);
+  --w-section-y-sm: 50px;
+  --w-header-h: 78px; /* [ok] altura de la cabecera real */
+  --w-measure: 62ch;
+
+  /* ---------- Forma ----------
+     [ok] 8px es el radio web base (30 apariciones frente a 3 del siguiente).
+     50px es el radio medido del CTA de marca. Sin sombras globales: las
+     únicas tres del sitio real están en tarjetas de dato del interior, que
+     no tienen equivalente en esta ficha. */
+  --w-r: 8px;
+  --w-r-img: var(--w-r);
+  --w-r-field: var(--w-r);
+  --w-r-pill: 999px;
+  --w-r-cta: 50px;
+  --w-btn-h: 44px;
+  --w-cta-h: 60px;
+
+  /* ---------- Movimiento ---------- */
+  --w-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --w-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --w-t-fast: 160ms;
+  --w-t: 260ms;
+}
+
+/* Puente con Tailwind 4: se referencian los tokens, no se duplican valores.
+   Habilita utilidades como `bg-w-bg`, `text-w-ink-2`, `border-w-line`. */
+@theme inline {
+  --color-w-bg: var(--w-bg);
+  --color-w-panel: var(--w-panel);
+  --color-w-black: var(--w-black);
+  --color-w-ink: var(--w-ink);
+  --color-w-ink-2: var(--w-ink-2);
+  --color-w-ink-3: var(--w-ink-3);
+  --color-w-line: var(--w-line);
+  --color-w-error: var(--w-error);
+  --color-w-navy: var(--w-navy);
+  --font-w: var(--w-font);
+  --font-w-ui: var(--w-font-ui);
+}
+
+@layer components {
+  /* ---------- Estructura ---------- */
+  .ar-wrap {
+    max-width: var(--w-container);
+    margin-inline: auto;
+    padding-inline: var(--w-gutter);
+  }
+  /* Columna estrecha para texto largo. No es el contenedor de sitio: la
+     medida de lectura no crece con él. */
+  .ar-wrap--editorial {
+    max-width: var(--w-editorial);
+  }
+  .ar-sec {
+    padding-block: var(--w-section-y);
+  }
+  .ar-sec--tight {
+    padding-block: var(--w-section-y-sm);
+  }
+  /* Ritmo entre bloques: dos secciones sobre el mismo fondo suman 100px de
+     aire entre ellas, y una sección que sigue a otra con color propio se apoya
+     en los 100px que ese color ya aporta por dentro. Sin esta regla, la banda
+     de cifras y la narrativa acumulaban 150. */
+  .ar-sec--tight + .ar-sec {
+    padding-top: var(--w-section-y-sm);
+  }
+  /* Superficie clara de contraste. Es el panel medido del sitio real; el
+     texto secundario sobre él llega a 5.85:1, por encima de AA. */
+  .ar-stone {
+    background: var(--w-panel);
+  }
+
+  /* ---------- Skip link ---------- */
+  /* La cabecera es fija: sin este margen, saltar a un ancla deja el titular
+     de destino por debajo de la barra. */
+  .ar-page [id] {
+    scroll-margin-top: calc(var(--w-header-h) + 24px);
+  }
+
+  .ar-skip {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 999;
+    background: var(--w-bg);
+    color: var(--w-ink);
+    padding: 12px 18px;
+    font-weight: var(--w-fw-medium);
+  }
+  .ar-skip:focus {
+    left: 12px;
+    top: 12px;
+  }
+
+  /* ---------- Tipografía ---------- */
+  .ar-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-label);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-ink-2);
+  }
+  .ar-eyebrow::before {
+    content: "";
+    flex: none;
+    width: 26px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.5;
+  }
+  .ar-on-dark .ar-eyebrow {
+    color: var(--w-on-dark-2);
+  }
+  .ar-label {
+    font-family: var(--w-font-ui);
+    font-size: var(--w-label);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-ink-2);
+  }
+  .ar-on-dark .ar-label {
+    color: var(--w-on-dark-2);
+  }
+  .ar-display {
+    margin: 0;
+    font-size: var(--w-display);
+    font-weight: var(--w-fw-regular);
+    line-height: var(--w-lh-display);
+    letter-spacing: var(--w-ls-display);
+    text-wrap: pretty;
+  }
+  .ar-tint {
+    color: var(--w-ink-3);
+  }
+  .ar-display .ar-tint,
+  .ar-hero__title .ar-tint {
+    color: var(--w-tint-lg);
+  }
+  .ar-on-dark .ar-tint {
+    color: var(--w-on-dark-3);
+  }
+  .ar-body {
+    margin: 0;
+    /* Lo que llegue antes: la medida en caracteres o el token editorial. */
+    max-width: min(var(--w-measure), var(--w-editorial));
+    font-size: var(--w-body);
+    line-height: var(--w-lh-body);
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink-2);
+    text-wrap: pretty;
+  }
+  .ar-on-dark .ar-body {
+    color: var(--w-on-dark-2);
+  }
+
+  /* Entradilla: un peldaño por encima del cuerpo, dentro de la escala
+     verificada. Abre la narrativa sin necesidad de un segundo titular. */
+  .ar-lede {
+    margin: 0;
+    max-width: min(52ch, var(--w-editorial));
+    font-size: var(--w-s-22);
+    line-height: 1.5;
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink);
+    text-wrap: pretty;
+  }
+
+  /* ---------- The project ----------
+     Titular a la izquierda, prosa a la derecha. En una sola columna ambos
+     competirían por los 1360px del contenedor y la línea se haría ilegible;
+     así el cuerpo queda acotado por su propia columna y por la medida. */
+  .ar-story {
+    display: grid;
+    gap: var(--w-section-y-sm);
+  }
+  .ar-story__title {
+    margin-top: 20px;
+    max-width: 18ch;
+  }
+  .ar-story__body {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  /* La narrativa se lee como un solo bloque, así que sus dos párrafos terminan
+     a la misma altura en lugar de escalonarse.
+
+     La medida la fija el contenedor y no cada párrafo. Con `52ch` en los dos,
+     el `ch` se calcula sobre el tamaño de cada uno: el lede, más grande, daba
+     641px y el cuerpo 524px, y el escalón de 117px se leía como un bloque roto.
+     Fijándola aquí, el cuerpo queda en unos 64 caracteres por línea, que es
+     mejor medida para prosa continua que los 52 que tenía. */
+  .ar-story__body {
+    max-width: min(40rem, var(--w-editorial));
+  }
+  .ar-story__body .ar-lede,
+  .ar-story__body .ar-body {
+    max-width: none;
+  }
+
+  @media (min-width: 900px) {
+    .ar-story {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(32px, 4vw, 50px);
+      align-items: start;
+    }
+  }
+
+  /* ---------- Capítulos editoriales ----------
+     Prosa y render lado a lado, alternando. Sin tarjeta, sin fondo propio, sin
+     caja y sin sombra: la única estructura es la retícula, y el cambio de
+     escala lo da la imagen. Es lo mismo que hace el resto de la ficha.
+
+     El render no se recorta: lleva su proporción nativa y su hueco queda
+     reservado desde el primer pintado. */
+  .ar-chapter {
+    /* Sin separación superior propia. Dos tramos de ritmo seguidos —el de la
+       sección anterior más el suyo— partían la narrativa en bloques sueltos
+       justo donde tiene que leerse de corrido. */
+    padding-top: 0;
+  }
+  .ar-chapter__grid {
+    display: grid;
+    gap: clamp(24px, 4vw, 36px);
+  }
+  .ar-chapter__title {
+    margin-top: 20px;
+    max-width: 18ch;
+  }
+  .ar-chapter__body {
+    margin-top: 20px;
+    max-width: 52ch;
+  }
+  /* Doble clase a propósito. `.ar-list` declara `margin: 0` y vive más abajo en
+     esta hoja, así que con un solo `.ar-chapter__list` ganaba por orden de
+     cascada y el margen superior no llegaba a aplicarse nunca: el filete de
+     arranque quedaba pegado al último renglón del párrafo y se leía como un
+     subrayado suyo en vez del borde de la lista que viene después. */
+  .ar-list.ar-chapter__list {
+    margin-top: 40px;
+    border-top: 1px solid var(--w-line);
+    border-bottom: 1px solid var(--w-line);
+  }
+  .ar-chapter__figure {
+    margin: 0;
+  }
+  /* Marco de proporción fija: los dos renders del capítulo llegan con
+     proporciones distintas (1.47 y 1.33) y apilados uno debajo del otro esa
+     diferencia se lee como descuadre. El 3:2 los iguala y recorta poco más que
+     un margen de cada uno; el archivo completo sigue estando en el visor. */
+  .ar-chapter__frame {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: var(--w-r-img);
+    background: var(--w-panel);
+  }
+  .ar-chapter__img {
+    object-fit: cover;
+    transition: transform var(--w-t) var(--w-ease-out);
+  }
+  .ar-chapter__figure:hover .ar-chapter__img {
+    transform: scale(1.03);
+  }
+
+  /* Dos columnas solo cuando la de texto da de sí. A 900px se quedaba en unos
+     38 caracteres por línea, que es justo lo que hay que evitar; a 1200px pasa
+     de 45 y a partir de ahí manda la medida de 52ch.
+
+     El texto va primero en el DOM, así que apilado ya se lee en el orden que
+     toca. El intercambio de lados solo existe cuando hay dos columnas de
+     verdad, y sale de la posición del capítulo, no del dato. */
+  @media (min-width: 1200px) {
+    .ar-chapter__grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(40px, 4.5vw, 64px);
+      /* Por arriba, no centradas: el rótulo y el borde superior del render
+         arrancan en la misma línea, y esa horizontal es la que da orden a los
+         dos capítulos aunque tengan alturas distintas. */
+      align-items: start;
+    }
+    .ar-chapter--mirror .ar-chapter__grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+    .ar-chapter--mirror .ar-chapter__text {
+      order: 2;
+    }
+  }
+
+  /* ---------- Floor plans ----------
+     En página son previsualización, no lectura: a tamaño legible cada plano se
+     comía media pantalla y empujaba el resto de la ficha fuera del scroll. Aquí
+     se reconoce la distribución y se decide si interesa; las cotas se leen en
+     el visor, que es el mismo de la galería.
+
+     El dibujo se ve entero sobre fondo claro —nunca recortado a sangre, que en
+     un plano equivale a perder habitaciones—, así que el marco tiene proporción
+     fija y la imagen se contiene dentro. */
+  .ar-plans {
+    display: grid;
+    gap: 36px;
+    margin-top: 44px;
+  }
+  @media (min-width: 900px) {
+    .ar-plans {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 40px;
+    }
+  }
+  .ar-plan {
+    display: flex;
+    flex-direction: column;
+  }
+  .ar-plan__button {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+  }
+  .ar-plan__frame {
+    display: block;
+    position: relative;
+    /* La proporción del propio dibujo, ya recortado a su contenido: así el
+       plano llena el marco en vez de flotar entre dos franjas de fondo. Los dos
+       archivos salen del mismo recorte, con la misma escala y cada uno centrado
+       en su lienzo, de modo que lado a lado se leen a la misma medida. */
+    aspect-ratio: 1277 / 1500;
+    overflow: hidden;
+    border: 1px solid var(--w-line);
+    border-radius: var(--w-r-img);
+    background: var(--w-panel);
+    padding: 22px;
+    transition: border-color var(--w-t) var(--w-ease-out);
+  }
+  .ar-plan__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+  }
+  .ar-plan__badge {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(16, 16, 20, 0.82);
+    color: var(--w-on-dark);
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity var(--w-t) var(--w-ease-out);
+  }
+  .ar-plan__button:hover .ar-plan__frame,
+  .ar-plan__button:focus-visible .ar-plan__frame {
+    border-color: var(--w-ink-3);
+  }
+  .ar-plan__button:hover .ar-plan__badge,
+  .ar-plan__button:focus-visible .ar-plan__badge {
+    opacity: 1;
+  }
+  /* Sin puntero fino no hay hover que revele el distintivo: se deja visible. */
+  @media (hover: none), (pointer: coarse) {
+    .ar-plan__badge {
+      opacity: 1;
+    }
+  }
+  .ar-plan__button:focus-visible {
+    outline: none;
+  }
+  .ar-plan__name {
+    margin: 18px 0 0;
+    font-size: var(--w-s-22);
+    font-weight: var(--w-fw-regular);
+    line-height: 1.2;
+    letter-spacing: var(--w-ls-display);
+    color: var(--w-ink);
+  }
+  .ar-plan__summary {
+    margin: 8px 0 0;
+    max-width: 46ch;
+    font-size: var(--w-body-sm);
+    line-height: var(--w-lh-body);
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink-2);
+  }
+
+  /* ---------- Architecture and living ----------
+     Desarrolla el snapshot en lugar de repetirlo: aquí la etiqueta va encima
+     de la cifra y todo se alinea a la izquierda sobre un filete, mientras que
+     el snapshot centra la cifra sobre la etiqueta. Sin tarjetas ni sombras. */
+  .ar-arch__title {
+    max-width: 20ch;
+  }
+  /* En una sola columna los hechos se leen como una lista continua y sus
+     filetes tienen que ir seguidos; el aire entre filas solo hace falta cuando
+     hay columnas de verdad, y se añade con ellas más abajo. */
+  .ar-facts {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 clamp(24px, 4vw, 50px);
+    margin: 50px 0 0;
+  }
+  .ar-fact {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-block: 20px;
+    border-top: 1px solid var(--w-line);
+  }
+  .ar-fact__val {
+    margin: 0;
+    font-size: var(--w-s-22);
+    line-height: 1.2;
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ar-details {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 clamp(24px, 4vw, 50px);
+    margin-top: 50px;
+  }
+  .ar-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-block: 24px;
+    border-top: 1px solid var(--w-line);
+  }
+  .ar-detail__title {
+    margin: 0;
+    font-size: var(--w-s-22);
+    font-weight: var(--w-fw-regular);
+    line-height: 1.2;
+    letter-spacing: var(--w-ls-display);
+    color: var(--w-ink);
+  }
+  .ar-detail__body {
+    margin: 0;
+    max-width: 46ch;
+    font-size: var(--w-body);
+    line-height: var(--w-lh-body);
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink-2);
+    text-wrap: pretty;
+  }
+
+  /* Seis hechos reparten en filas completas tanto a dos como a tres columnas.
+     Los tres detalles solo lo hacen a tres: a dos, el tercero quedaría solo en
+     una fila con el hueco al lado. */
+  @media (min-width: 600px) {
+    .ar-facts {
+      grid-template-columns: repeat(
+        min(var(--ar-facts-cols, 2), 2),
+        minmax(0, 1fr)
+      );
+      /* Con las filas pegadas, el filete de la segunda caía a 35px de la cifra
+         de la primera y las dos se leían como una sola tabla apretada. */
+      row-gap: 24px;
+    }
+  }
+  @media (min-width: 900px) {
+    /* Las columnas salen del recuento, no de un número fijo: con tres datos son
+       tres, con cuatro son cuatro y con seis vuelven a ser tres en dos filas
+       llenas. Así ninguna celda se queda sola al final de la retícula cuando un
+       proyecto publica menos datos que otro. */
+    .ar-facts {
+      grid-template-columns: repeat(var(--ar-facts-cols, 3), minmax(0, 1fr));
+    }
+  }
+  /* Los detalles son prosa, no cifras: necesitan más ancho que los hechos.
+     A tres columnas desde 900px la línea caía a ~31 caracteres, seis renglones
+     cortos y muy irregulares. Apilados, el `max-width: 46ch` del cuerpo manda y
+     la medida se queda donde se lee. Las tres columnas entran a 1200px, que es
+     cuando cada una da de sí lo suficiente.
+
+     Cuántas columnas lo dice el recuento, igual que en el snapshot: con un solo
+     detalle la retícula es de una, y ese detalle ocupa su fila entera en lugar
+     de dejar dos huecos a la derecha. El techo sigue siendo tres. */
+  @media (min-width: 1200px) {
+    .ar-details {
+      grid-template-columns: repeat(
+        min(var(--ar-details-cols, 3), 3),
+        minmax(0, 1fr)
+      );
+    }
+  }
+
+  /* ---------- Cubierta de galería ----------
+     Una sola imagen a tamaño editorial: es lo que interrumpe la sucesión de
+     texto entre la narrativa y la arquitectura. En pantallas estrechas pasa a
+     4:3 porque la vista trasera aguanta ese recorte con las cuatro residencias
+     dentro y gana mucha presencia. */
+  .ar-cover {
+    display: block;
+    width: 100%;
+    /* El titular de la sección va justo encima: sin este aire, el texto se
+       apoya en el borde de la imagen. Es la misma separación que hay entre la
+       cubierta y las parejas de renders. */
+    margin-top: clamp(28px, 4vw, 50px);
+    padding: 0;
+    border: none;
+    background: none;
+    /* La cabecera es fija: al llegar aquí con el tabulador, el navegador
+       dejaba el borde superior —y con él un lado del anillo de foco— tapado
+       por la barra. Solo afecta al desplazamiento automático; con scroll
+       manual la cubierta sigue en su sitio. */
+    scroll-margin-top: calc(var(--w-header-h) + 24px);
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+  }
+  .ar-cover__frame {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--w-r);
+    background: var(--w-panel);
+  }
+  .ar-cover__img {
+    object-fit: cover;
+    transition: transform var(--w-t) var(--w-ease-out);
+  }
+  .ar-cover:hover .ar-cover__img {
+    transform: scale(1.02);
+  }
+  .ar-cover__badge {
+    position: absolute;
+    left: clamp(12px, 2vw, 22px);
+    bottom: clamp(12px, 2vw, 22px);
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--w-btn-h);
+    padding-inline: 22px;
+    border-radius: var(--w-r-pill);
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--w-ink);
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-16);
+    font-weight: var(--w-fw-medium);
+    line-height: var(--w-lh-ui);
+    transition: background var(--w-t-fast) var(--w-ease);
+  }
+  .ar-cover:hover .ar-cover__badge {
+    background: #fff;
+  }
+  .ar-cover:focus-visible {
+    outline: none;
+  }
+  .ar-cover:focus-visible .ar-cover__frame {
+    outline: 2px solid var(--w-focus);
+    outline-offset: 3px;
+  }
+
+  /* Desde tablet la cubierta es apaisada; el 4:3 se reserva al móvil. */
+  @media (min-width: 768px) {
+    .ar-cover__frame {
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  /* ---------- Visor a pantalla completa ----------
+     Por debajo del modal de captación (500) para que, si ambos llegaran a
+     abrirse, el de conversión quede encima. */
+  .ar-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 480;
+    display: flex;
+    flex-direction: column;
+    /* Opaco. Al 96% el 4% restante bastaba para dejar entrever la cabecera y
+       una segunda silueta del render por detrás del visor. Es el mismo color
+       —el oscuro del hero—, ahora sin alfa. Nada de desenfoque. */
+    background: var(--w-hero-top);
+    overscroll-behavior: contain;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .ar-lightbox__bar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px clamp(12px, 2vw, 22px);
+    padding-left: max(clamp(12px, 2vw, 22px), env(safe-area-inset-left));
+    padding-right: max(clamp(12px, 2vw, 22px), env(safe-area-inset-right));
+  }
+  .ar-lightbox__count {
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-on-dark-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .ar-lightbox__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--w-on-dark-2);
+    font-size: 17px;
+    cursor: pointer;
+  }
+  .ar-lightbox__close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  .ar-lightbox__stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0 clamp(12px, 6vw, 84px) clamp(12px, 2vw, 20px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  /* El marco toma el alto que sobra y la imagen se contiene dentro: así
+     cualquier proporción entra completa sin recortarse. */
+  .ar-lightbox__frame {
+    position: relative;
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .ar-lightbox__img {
+    object-fit: contain;
+  }
+  /* Un plano no se mira como un render: se ve entero y sobre claro, o las
+     cotas se pierden en el negro del visor.
+
+     El fondo claro toma la proporción del propio dibujo en vez de estirarse a
+     todo el escenario. Si no, el plano quedaba como un bloque pequeño flotando
+     dentro de una plancha mucho más ancha, y esa desproporción se lee como un
+     encuadre torcido aunque el dibujo esté centrado al píxel. */
+  .ar-lightbox[data-fit="contain"] .ar-lightbox__frame {
+    background: var(--w-bone);
+    border-radius: var(--w-r-img);
+    aspect-ratio: var(--ar-lightbox-ratio, auto);
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+  .ar-lightbox[data-fit="contain"] .ar-lightbox__img {
+    object-fit: contain;
+    padding: 20px;
+  }
+
+  /* ---------- Lupa sobre el plano ----------
+     Un plano se mira dos veces: primero entero, para leer la distribución, y
+     luego de cerca, para las cotas de cada estancia. La lupa resuelve lo
+     segundo sin sacar al visitante del visor.
+
+     El recorte vive en el marco y el origen de la escala lo pone el cursor, así
+     que la imagen se desplaza bajo el puntero en lugar de crecer desde el
+     centro. Sin transición mientras la lupa está activa —el seguimiento tiene
+     que ser inmediato o se siente pegajoso— y con una salida corta al soltar. */
+  .ar-lightbox[data-fit="contain"] .ar-lightbox__frame {
+    overflow: hidden;
+    cursor: zoom-in;
+  }
+  .ar-lightbox[data-fit="contain"] .ar-lightbox__frame[data-zoomed] {
+    cursor: zoom-out;
+  }
+  .ar-lightbox[data-fit="contain"] .ar-lightbox__img {
+    transition: transform 0.18s var(--w-ease-out);
+    will-change: transform;
+  }
+  .ar-lightbox[data-fit="contain"]
+    .ar-lightbox__frame[data-zoomed]
+    .ar-lightbox__img {
+    transition: none;
+  }
+  /* Sin puntero fino la lupa no se activa: el cursor sobra y el gesto de
+     pellizcar del navegador hace el mismo trabajo. */
+  @media (hover: none), (pointer: coarse) {
+    .ar-lightbox[data-fit="contain"] .ar-lightbox__frame {
+      cursor: default;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ar-lightbox[data-fit="contain"] .ar-lightbox__img {
+      transition: none;
+    }
+  }
+  .ar-lightbox__cap {
+    flex: none;
+    text-align: center;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-on-dark-2);
+  }
+  .ar-lightbox__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--w-line-dark);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .ar-lightbox__nav:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+  .ar-lightbox__nav--prev {
+    left: max(clamp(8px, 1.5vw, 20px), env(safe-area-inset-left));
+  }
+  .ar-lightbox__nav--next {
+    right: max(clamp(8px, 1.5vw, 20px), env(safe-area-inset-right));
+  }
+  .ar-lightbox :focus-visible {
+    outline: 2px solid var(--w-focus-on-dark);
+    outline-offset: 3px;
+  }
+
+  /* ---------- Footer ----------
+     Tres zonas: aviso legal, símbolo y contacto. Sin navegación, porque
+     todavía no hay ninguna otra ruta publicada a la que enlazar. */
+  .ar-footer {
+    background: var(--w-bg);
+    color: var(--w-ink);
+    border-top: 1px solid var(--w-line);
+    padding-block: 50px;
+  }
+  .ar-footer__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 20px;
+  }
+  .ar-footer small {
+    display: block;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    line-height: 1.55;
+    color: var(--w-ink);
+  }
+  .ar-footer__contact {
+    text-align: right;
+  }
+  .ar-footer a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .ar-footer a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* El símbolo se pinta desde el token: el PNG solo aporta la silueta, así el
+     navy sale de la marca y no del archivo. */
+  .ar-footer__mark {
+    justify-self: center;
+    width: 34px;
+    aspect-ratio: 1204 / 1432;
+    background-color: var(--w-navy);
+    -webkit-mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
+    mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
+  }
+
+  /* ---------- Botón ---------- */
+  .ar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: var(--w-btn-h);
+    padding-inline: 22px;
+    border: 1px solid transparent;
+    border-radius: var(--w-r-pill);
+    /* [ok] Los controles del sitio real son Geist 500; la etiqueta del CTA
+       mide 16px con interlínea 20.8px. */
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-16);
+    font-weight: var(--w-fw-medium);
+    line-height: var(--w-lh-ui);
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background var(--w-t-fast) var(--w-ease),
+      color var(--w-t-fast) var(--w-ease),
+      border-color var(--w-t-fast) var(--w-ease),
+      transform var(--w-t-fast) var(--w-ease);
+  }
+  .ar-btn:active {
+    transform: translateY(1px);
+  }
+  .ar-btn[disabled] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .ar-btn--primary {
+    background: var(--w-ink);
+    color: #fff;
+  }
+  .ar-btn--primary:hover {
+    background: #000;
+  }
+  .ar-btn--secondary {
+    background: var(--w-panel);
+    color: var(--w-ink);
+  }
+  .ar-btn--secondary:hover {
+    background: var(--w-panel-2);
+  }
+  .ar-btn--light {
+    background: #fff;
+    color: var(--w-ink);
+  }
+  .ar-btn--light:hover {
+    background: var(--w-panel);
+  }
+  .ar-btn--ghost {
+    background: transparent;
+    color: #fff;
+    border-color: var(--w-line-dark);
+  }
+  .ar-btn--ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* ---------- CTA de marca ----------
+     Reproducción del CTA real de ardenogroup.com medida sobre su CSS
+     computado, no deducida: caja de 189.5 x 60, radio 50px, relleno
+     9/12/11/26, gap 30px, sin borde y sin sombra; etiqueta Geist 16/500 con
+     interlínea 20.8px en #101014; disco de 40px en #0D2A3A con la flecha
+     blanca de 20px girada -45º. Al pasar el puntero, el disco escala x10
+     hasta inundar la píldora, la etiqueta pasa a blanco y la flecha vuelve a
+     la horizontal; el estado activo no añade nada más.
+     La duración exacta no es legible: Framer anima por JS y
+     transition-duration computa 0s. Se usa el token de movimiento propio. */
+  .ar-btn--brand,
+  .ar-btn--brand-on-dark {
+    position: relative;
+    overflow: hidden;
+    min-height: var(--w-cta-h);
+    padding: 9px 12px 11px 26px;
+    gap: 30px;
+    border: none;
+    border-radius: var(--w-r-cta);
+    line-height: 1.3;
+    letter-spacing: normal;
+    color: var(--w-ink);
+  }
+  .ar-btn--brand {
+    background: linear-gradient(
+      rgba(13, 42, 58, 0.2) 0%,
+      rgba(138, 151, 158, 0.2) 100%
+    );
+  }
+  /* El sitio real solo coloca este CTA sobre fondo claro. Sobre el hero
+     oscuro el degradado medido sería invisible y la etiqueta en tinta
+     incumpliría contraste, así que se sustituye el relleno por blanco —la
+     superficie clara del propio manual— y se conserva toda la geometría. */
+  .ar-btn--brand-on-dark {
+    background: #fff;
+  }
+  .ar-btn--brand:active,
+  .ar-btn--brand-on-dark:active {
+    transform: none;
+  }
+  .ar-btn__label {
+    position: relative;
+    z-index: 1;
+    transition: color var(--w-t) var(--w-ease);
+  }
+  /* El disco y la flecha son hermanos, igual que en el original: así el
+     disco puede escalar sin arrastrar el icono. */
+  .ar-btn__mark {
+    position: relative;
+    z-index: 0;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+  }
+  .ar-btn__disc {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--w-r-pill);
+    background: var(--w-navy);
+    transition: transform var(--w-t) var(--w-ease-out);
+  }
+  .ar-btn__arrow {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    color: #fff;
+    transform: rotate(-45deg);
+    transition: transform var(--w-t) var(--w-ease-out);
+  }
+  .ar-btn--brand:hover .ar-btn__disc,
+  .ar-btn--brand-on-dark:hover .ar-btn__disc {
+    transform: scale(10);
+  }
+  .ar-btn--brand:hover .ar-btn__arrow,
+  .ar-btn--brand-on-dark:hover .ar-btn__arrow {
+    transform: none;
+  }
+  .ar-btn--brand:hover .ar-btn__label,
+  .ar-btn--brand-on-dark:hover .ar-btn__label {
+    color: #fff;
+  }
+  /* El disco crece hasta cubrir el botón, pero el recorte redondeado deja
+     asomar una hebra del relleno claro en todo el contorno. El fondo pasa a
+     navy cuando el círculo ya lo ha tapado —de ahí el retardo—, así el borde
+     queda macizo sin que se vea el cambio. */
+  .ar-btn--brand:hover,
+  .ar-btn--brand-on-dark:hover {
+    background: var(--w-navy);
+    transition-delay: 170ms;
+  }
+
+  /* ---------- Cabecera de proyecto ----------
+     Cabecera latente. La ficha no tiene navegación y sí una sola imagen que
+     abre a pantalla completa: una barra opaca permanente le come 78px y le
+     quita el efecto. Así que la barra se retira y vuelve cuando se la busca —
+     el puntero entra en la franja superior o algo suyo recibe el foco.
+
+     En dispositivos sin puntero fino no hay «entrar en la franja»: allí la
+     barra es permanente, que es lo que espera quien navega con el pulgar. Esa
+     condición vive en el CSS, no en JavaScript, así que el primer pintado ya
+     es el correcto.
+
+     Se calibra contra el sitio real lo que sí es medible: 78px de altura y el
+     contenedor de 1360px con gutter de 40px. */
+  .ar-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(14, 20, 25, 0.92);
+    backdrop-filter: saturate(150%) blur(12px);
+    border-bottom: 1px solid var(--w-line-dark);
+    transform: translateY(-101%);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      transform var(--w-t) var(--w-ease),
+      opacity var(--w-t) var(--w-ease);
+  }
+  .ar-header[data-revealed="true"],
+  .ar-header:focus-within {
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  /* Sin puntero fino la barra no se puede «buscar»: se queda quieta y visible. */
+  @media (hover: none), (pointer: coarse) {
+    .ar-header {
+      transform: none;
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+  .ar-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: var(--w-header-h);
+  }
+  .ar-header__mark {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    flex: none;
+  }
+
+  /* ---------- Hero ----------
+     Base común a las dos composiciones. Con render aprobado el hero es
+     cinematográfico —imagen a sangre, información abajo— y sin él pasa a la
+     composición editorial de dos columnas que hay más abajo. Lo decide el
+     dato, no el slug. */
+  .ar-hero {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    background: var(--w-hero-top);
+    color: var(--w-on-dark);
+  }
+  .ar-hero__plate {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    padding: var(--w-section-y) var(--w-gutter) 0;
+  }
+  .ar-hero__body {
+    flex: none;
+    padding-block: var(--w-section-y-sm);
+  }
+  .ar-hero__title {
+    margin: 0;
+    font-size: var(--w-hero);
+    font-weight: var(--w-fw-light);
+    line-height: var(--w-lh-hero);
+    letter-spacing: var(--w-ls-hero);
+    text-wrap: balance;
+  }
+  .ar-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    margin: 16px 0 0;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-label);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-on-dark-2);
+  }
+  .ar-hero__sep {
+    flex: none;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--w-on-dark-3);
+  }
+  .ar-hero__thesis {
+    margin: 24px 0 0;
+    max-width: min(42ch, var(--w-editorial));
+    font-size: var(--w-s-18);
+    line-height: var(--w-lh-body);
+    letter-spacing: var(--w-ls-body);
+    color: rgba(255, 255, 255, 0.92);
+  }
+  .ar-hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  /* ---------- Hero cinematográfico ----------
+     El render ocupa la pantalla entera y la información se apoya sobre él por
+     el borde inferior. Es la única sección de la ficha con imagen a sangre: el
+     resto del scroll es contenedor de sitio y filete.
+
+     El texto no se pone encima de una fotografía sin más. El velo es un
+     degradado de cuatro paradas: oscurece arriba —donde vuelve la cabecera—,
+     abre en el tercio superior para que se vea el edificio, y vuelve a cerrar
+     abajo hasta un 94% de opacidad, que es lo que hace falta para que un
+     cuerpo de 18px sobre blanco supere AA sin recortar la imagen.
+
+     El recorte es vertical y centrado un poco por debajo del medio: comprobado
+     sobre el archivo, conserva las cuatro residencias completas y se come solo
+     cielo y césped. */
+  .ar-hero--media {
+    position: relative;
+    justify-content: flex-end;
+    overflow: hidden;
+  }
+  .ar-hero--media .ar-hero__plate {
+    position: absolute;
+    inset: 0;
+    flex: none;
+    display: block;
+    place-items: normal;
+    padding: 0;
+  }
+  .ar-hero__media {
+    object-fit: cover;
+    object-position: 50% 55%;
+  }
+  /* Entrada larga y muy corta en recorrido: el render se asienta en lugar de
+     aparecer. No hay movimiento en el eje, así que no arrastra la mirada. */
+  @media (prefers-reduced-motion: no-preference) {
+    .ar-hero__media {
+      animation: ar-hero-settle 1400ms var(--w-ease-out) both;
+    }
+  }
+  @keyframes ar-hero-settle {
+    from {
+      transform: scale(1.06);
+    }
+    to {
+      transform: none;
+    }
+  }
+  .ar-hero__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(8, 12, 16, 0.62) 0%,
+      rgba(8, 12, 16, 0.14) 34%,
+      rgba(8, 12, 16, 0.66) 74%,
+      rgba(8, 12, 16, 0.94) 100%
+    );
+    pointer-events: none;
+  }
+  .ar-hero--media .ar-hero__body {
+    position: relative;
+    z-index: 1;
+    padding-block: var(--w-section-y-sm);
+  }
+
+  /* ---------- Hero sin media ----------
+     Sin fotografía aprobada no tiene sentido reservar el viewport completo:
+     el marco vacío quedaba flotando en un lienzo negro y el snapshot caía
+     fuera del primer visionado. Aquí el hero se dimensiona por su contenido y,
+     desde 1024px, reparte marco e información en dos columnas de igual peso.
+     En móvil se apila y mantiene el orden marco → información → CTA. */
+  .ar-hero--nomedia {
+    display: block;
+    min-height: 0;
+  }
+  .ar-hero--nomedia .ar-hero__split {
+    display: grid;
+    gap: var(--w-section-y-sm);
+    padding-block: var(--w-section-y);
+  }
+  .ar-hero--nomedia .ar-hero__plate {
+    flex: none;
+    display: block;
+    min-height: 0;
+    padding: 0;
+  }
+  .ar-hero--nomedia .ar-hero__body {
+    padding-block: 0;
+  }
+  /* El marco ocupa su columna entera: es un lugar reservado a la imagen del
+     proyecto, no una tarjeta pequeña centrada en el vacío. */
+  .ar-hero--nomedia .ar-pending {
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 16 / 10;
+  }
+
+  @media (min-width: 1024px) {
+    .ar-hero--nomedia .ar-hero__split {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: center;
+    }
+    .ar-hero--nomedia .ar-pending {
+      aspect-ratio: 1 / 1;
+    }
+  }
+
+  /* ---------- Imagen pendiente ----------
+     No hay fotografía del proyecto. En lugar de una imagen genérica o de
+     archivo —que induciría a error sobre cómo será el desarrollo— se muestra
+     un marco vacío con el símbolo de la marca en blanco sobre el hero oscuro,
+     que es la expresión "sobre navy" del propio manual. Se lee como un lugar
+     reservado a la imagen, nunca como una fotografía. */
+  .ar-pending {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(16px, 3vh, 26px);
+    width: min(460px, 100%);
+    aspect-ratio: 16 / 10;
+    margin: 0;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--w-line-dark);
+    border-radius: var(--w-r-img);
+  }
+  /* El símbolo se pinta desde los tokens: el PNG solo aporta la silueta
+     (alfa), así el color lo manda la marca y no el archivo. Hueso sobre
+     oscuro, que es el color del logotipo. Los trazos son muy finos
+     (ocupan ~9% de su caja), de ahí el tamaño. */
+  .ar-pending__mark {
+    width: clamp(104px, 15vw, 156px);
+    aspect-ratio: 1204 / 1432;
+    background-color: var(--w-bone);
+    -webkit-mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
+    mask: url("/logos/ardeno-symbol.png") center / contain no-repeat;
+    opacity: 0.55;
+  }
+  .ar-pending__note {
+    margin: 0;
+    font-size: var(--w-label);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-on-dark-2);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  /* ---------- Snapshot ---------- */
+  .ar-snap {
+    display: grid;
+    grid-template-columns: repeat(var(--ar-snap-cols, 3), minmax(0, 1fr));
+    border-top: 1px solid var(--w-line);
+    border-bottom: 1px solid var(--w-line);
+  }
+  .ar-snap__cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 32px 24px;
+    border-right: 1px solid var(--w-line);
+    text-align: center;
+  }
+  .ar-snap__cell:last-child {
+    border-right: none;
+  }
+  .ar-snap__val {
+    font-size: var(--w-stat);
+    font-weight: var(--w-fw-light);
+    line-height: 1.05;
+    color: var(--w-ink);
+    font-variant-numeric: tabular-nums;
+    text-wrap: balance;
+  }
+  .ar-snap__cell .ar-label {
+    line-height: 1.35;
+  }
+
+  /* ---------- Superficie oscura ----------
+     Una sola, y es el navy de marca: el mismo azul del disco del CTA medido en
+     ardenogroup.com. Sostiene los dos bloques de peso de la ficha —la
+     disponibilidad y el cierre con el formulario—, así que las dos paradas
+     oscuras del scroll son reconociblemente el mismo material.
+
+     El hero se queda con su propio negro (`--w-hero-top`): ahí el color no es
+     una superficie, es el velo sobre una fotografía. */
+  .ar-navy {
+    background: var(--w-navy);
+    color: var(--w-on-dark);
+  }
+
+  /* ---------- Cabecera de sección ----------
+     Rótulo y titular. Es lo único que se repite entre secciones, así que se
+     declara una vez en lugar de arrastrar márgenes sueltos por cada bloque. */
+  .ar-sechead__title {
+    margin-top: 20px;
+    max-width: 22ch;
+  }
+
+  /* ---------- Distintivo de estado ----------
+     Píldora de contorno con punto. Dice en qué punto de venta está el conjunto
+     o cada residencia. Toma el color de su contexto: no hay verde de
+     «disponible» ni rojo de «vendido», porque el estado es información, no
+     alarma. Lo vendido se distingue por peso, no por color. */
+  .ar-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px;
+    border: 1px solid currentColor;
+    border-radius: var(--w-r-pill);
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    line-height: var(--w-lh-ui);
+    white-space: nowrap;
+  }
+  .ar-chip__dot {
+    flex: none;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  /* Sobre oscuro el contorno a plena opacidad compite con el CTA. */
+  .ar-on-dark .ar-chip,
+  .ar-navy .ar-chip {
+    color: var(--w-on-dark-2);
+  }
+
+  /* ---------- Lista de filete ----------
+     Materiales, acabados y distancias. Un guion corto por renglón y un filete
+     entre uno y el siguiente: la misma estructura que el resto de la ficha,
+     sin viñetas ni iconos. Con `data-split` la etiqueta y su valor se separan
+     a los extremos, que es como se leen los tiempos de trayecto. */
+  .ar-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  /* El filete separa un renglón del siguiente, así que va ENTRE elementos y no
+     encima de cada uno. Puesto en todos, el primero se lee como subrayado del
+     párrafo que hay arriba, y dentro de un bloque ya enmarcado —el de
+     emplazamiento— duplicaba la línea del contenedor a pocos píxeles. Quien
+     necesite abrir y cerrar la lista lo dice en su propia clase. */
+  .ar-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    /* El renglón respira por igual arriba y abajo. Con menos aire el texto se
+       leía pegado al filete que lo separa del anterior. */
+    padding-block: 18px;
+    font-size: var(--w-body-sm);
+    line-height: var(--w-lh-body);
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink-2);
+  }
+  .ar-list li + li {
+    border-top: 1px solid var(--w-line);
+  }
+  .ar-list li::before {
+    content: "";
+    flex: none;
+    width: 10px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.45;
+    transform: translateY(-4px);
+  }
+  .ar-navy .ar-list li,
+  .ar-on-dark .ar-list li {
+    border-color: var(--w-line-dark);
+    color: var(--w-on-dark-2);
+  }
+  .ar-list[data-split="true"] li > span:first-of-type {
+    flex: 1 1 auto;
+  }
+  .ar-list__val {
+    flex: none;
+    color: var(--w-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .ar-navy .ar-list__val,
+  .ar-on-dark .ar-list__val {
+    color: var(--w-on-dark);
+  }
+
+  /* ---------- Nota al pie y cierre legal ----------
+     Letra pequeña de verdad: una salvedad legal tiene que constar, no vender.
+     Se apoya en el tono más apagado de la escala para que el ojo la salte al
+     recorrer la página y solo la encuentre quien la busca. */
+  .ar-note {
+    margin: 24px 0 0;
+    max-width: 78ch;
+    font-size: var(--w-s-14);
+    line-height: 1.5;
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink-3);
+  }
+  .ar-legal {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: clamp(24px, 3vw, 40px);
+    border-top: 1px solid var(--w-line);
+  }
+  .ar-legal__credits {
+    margin: 0;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-ink-2);
+  }
+  .ar-legal__disclaimer {
+    margin: 0;
+  }
+
+  /* ---------- Pie de imagen ---------- */
+  .ar-cap {
+    margin: 10px 0 0;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-ink-3);
+  }
+
+  /* ---------- Disponibilidad ----------
+     Una fila por residencia sobre el navy de marca. No es una tabla de datos
+     tabulares cualquiera: es la única parte de la ficha donde el visitante
+     compara, así que va en `<table>` de verdad —cabecera, celdas y ámbito— y no
+     en una retícula de `<div>`.
+
+     Sin precios. La nota que acompaña al titular dice quién los comparte y
+     cuándo, que es la pregunta que deja abierta cualquier lista de estados. */
+  .ar-avail__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: var(--w-section-y-sm);
+  }
+  /* La nota arranca a la altura del titular, no del último renglón: con un
+     titular de dos líneas quedaba flotando a media altura. */
+  .ar-avail__note {
+    max-width: 34ch;
+    margin-top: 20px;
+  }
+  /* Cuatro columnas no caben en 390px sin partir palabras ni encoger la
+     tipografía por debajo de lo legible. En vez de deformar la tabla, la
+     tabla se desplaza dentro de su propia caja: la página nunca scrollea en
+     horizontal. La región es enfocable y lleva etiqueta, que es lo que exige
+     un contenedor con scroll para quien navega con teclado. */
+  .ar-scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .ar-scroll:focus-visible {
+    outline: 2px solid var(--w-focus-on-dark);
+    outline-offset: 4px;
+  }
+  .ar-units {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    font-size: var(--w-body-sm);
+    letter-spacing: var(--w-ls-body);
+  }
+  .ar-units thead th {
+    padding: 0 12px 14px 0;
+    border-bottom: 1px solid var(--w-line-dark);
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--w-on-dark-2);
+  }
+  /* La celda de nombre es cabecera de su fila —de ahí el `<th scope="row">`—,
+     pero se lee como una celda más: el filete y las versales son de la
+     cabecera de la tabla, no suyos. */
+  .ar-units tbody th,
+  .ar-units td {
+    padding: 14px 12px 14px 0;
+    border-top: 1px solid var(--w-line-dark);
+    color: var(--w-on-dark);
+    text-align: left;
+    vertical-align: middle;
+  }
+  .ar-units tbody th {
+    font-weight: var(--w-fw-medium);
+  }
+  .ar-units tbody tr:first-child th,
+  .ar-units tbody tr:first-child td {
+    border-top: none;
+  }
+  .ar-units td:last-child,
+  .ar-units th:last-child {
+    padding-right: 0;
+  }
+  /* Lo vendido ya no está a la venta: se retira sin sacarlo de la lista, que
+     es información legítima sobre cómo va el conjunto. */
+  .ar-units tr[data-status="sold"] th,
+  .ar-units tr[data-status="sold"] td {
+    color: var(--w-on-dark-2);
+  }
+
+  /* En móvil ni cuatro columnas ni scroll lateral: el estado, que es el dato
+     que se busca, quedaría fuera de pantalla. Cada residencia pasa a ser un
+     bloque con su nombre, su estado y sus dos cifras etiquetadas.
+
+     Al romper la retícula de tabla se pierde su semántica, así que el marcado
+     declara los roles a mano y cada celda lleva su etiqueta impresa: nadie
+     depende ya de la cabecera, que aquí no se muestra. */
+  @media (max-width: 600px) {
+    .ar-scroll {
+      overflow-x: visible;
+    }
+    .ar-units {
+      min-width: 0;
+      display: block;
+    }
+    .ar-units thead {
+      display: none;
+    }
+    .ar-units tbody,
+    .ar-units tr,
+    .ar-units tbody th,
+    .ar-units td {
+      display: block;
+    }
+    .ar-units tbody tr {
+      padding-block: 18px;
+      border-top: 1px solid var(--w-line-dark);
+    }
+    .ar-units tbody tr:first-child {
+      border-top: none;
+    }
+    .ar-units tbody th,
+    .ar-units td {
+      padding: 0;
+      border-top: none;
+    }
+    .ar-units tbody th {
+      font-size: var(--w-s-18);
+    }
+    .ar-units td {
+      margin-top: 8px;
+    }
+    /* La etiqueta que estaba en la cabecera, ahora delante de su valor. */
+    .ar-units td[data-label]::before {
+      content: attr(data-label);
+      display: inline-block;
+      min-width: 9ch;
+      margin-right: 12px;
+      font-family: var(--w-font-ui);
+      font-size: var(--w-s-14);
+      letter-spacing: var(--w-ls-label);
+      text-transform: uppercase;
+      color: var(--w-on-dark-2);
+    }
+    .ar-units td[data-label="Status"]::before {
+      display: none;
+    }
+    .ar-units td[data-label="Status"] {
+      margin-top: 14px;
+    }
+  }
+
+  /* ---------- Emplazamiento ----------
+     Texto y distancias, uno al lado del otro entre dos filetes. No hay mapa:
+     un mapa embebido es un tercero cargando dentro de la ficha, y las
+     distancias son el dato que de verdad se consulta. */
+  .ar-authority {
+    display: grid;
+    gap: clamp(28px, 4vw, 50px);
+    align-items: start;
+    padding-block: clamp(28px, 3.5vw, 48px);
+    /* Solo filete de entrada. El de cierre caía a unos píxeles del navy del
+       bloque de captación, que ya separa por sí mismo con un cambio de
+       material: dos separaciones seguidas para la misma junta. */
+    border-top: 1px solid var(--w-line);
+  }
+  .ar-authority__title {
+    margin-top: 20px;
+    max-width: 20ch;
+  }
+  .ar-authority__body {
+    margin-top: 20px;
+    max-width: 46ch;
+  }
+  @media (min-width: 900px) {
+    .ar-authority {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+  }
+
+  /* ---------- Pareja de renders ----------
+     Debajo de la cubierta, dos renders por fila que abren el visor en su
+     propia posición. Es el único sitio de la ficha donde la imagen es un
+     control, así que llevan el mismo foco visible que el resto. */
+  .ar-pair {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(16px, 2vw, 28px);
+    margin-top: clamp(16px, 2vw, 28px);
+  }
+  @media (min-width: 768px) {
+    .ar-pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .ar-tile {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: none;
+    border-radius: var(--w-r-img);
+    overflow: hidden;
+    background: var(--w-panel);
+    aspect-ratio: 3 / 2;
+    cursor: pointer;
+  }
+  .ar-tile__img {
+    object-fit: cover;
+    transition: transform var(--w-t) var(--w-ease-out);
+  }
+  .ar-tile:hover .ar-tile__img {
+    transform: scale(1.03);
+  }
+  .ar-tile:focus-visible {
+    outline: 2px solid var(--w-focus);
+    outline-offset: 3px;
+  }
+
+  /* ---------- Cierre y captación ----------
+     Última parada antes del pie, sobre el navy de marca. A la izquierda la
+     pregunta y las vías de contacto directo; a la derecha el formulario, en un
+     panel claro. El formulario va en la página y no solo en el modal: quien
+     llega hasta abajo ya ha decidido, y pedirle un clic más para ver los
+     campos es fricción sin contrapartida.
+
+     El símbolo de marca es marca de agua al 6%: decoración, no contenido, y
+     por eso se pinta desde el token en lugar de cargar un `<img>`. */
+  .ar-interest {
+    position: relative;
+    overflow: hidden;
+  }
+  .ar-interest__grid {
+    position: relative;
+    display: grid;
+    gap: clamp(32px, 4vw, 56px);
+    align-items: start;
+  }
+  .ar-interest__title {
+    margin-top: 20px;
+    max-width: 16ch;
+  }
+  .ar-interest__lede {
+    margin-top: 24px;
+    color: var(--w-on-dark);
+  }
+  .ar-interest__contact {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 28px;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-body-sm);
+    line-height: var(--w-lh-ui);
+  }
+  .ar-interest__contact a {
+    color: var(--w-on-dark);
+    text-decoration: none;
+  }
+  .ar-interest__contact a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* Isla clara dentro del cierre oscuro: dentro de ella mandan los tokens de
+     superficie clara, así que los campos y el CTA son los mismos de siempre. */
+  .ar-panel {
+    background: var(--w-bg);
+    color: var(--w-ink);
+    border-radius: var(--w-r);
+    padding: clamp(20px, 3vw, 34px);
+  }
+  @media (min-width: 900px) {
+    .ar-interest__grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+  }
+
+  /* ---------- Aparición al entrar ----------
+     Sin JavaScript: la línea de tiempo es el propio scroll. Donde el navegador
+     no soporta `view()` —Firefox, hoy— no hay animación y el contenido está
+     visible desde el primer pintado, que es el comportamiento correcto de un
+     efecto puramente decorativo. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .ar-reveal {
+        animation: ar-fade-up linear both;
+        animation-timeline: view();
+        /* `cover` y no `entry`: el rango de entrada solo se completa cuando el
+           elemento cabe entero en la pantalla, así que un bloque más alto que
+           el viewport —la cubierta de la galería en un portátil— se quedaba a
+           medio camino, translúcido y desplazado, para siempre. El recorrido
+           completo siempre avanza. */
+        animation-range: cover 0% cover 14%;
+      }
+    }
+  }
+  @keyframes ar-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---------- Formulario ---------- */
+  .ar-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .ar-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ar-field > label {
+    font-family: var(--w-font-ui);
+    font-size: var(--w-label);
+    font-weight: var(--w-fw-medium);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--w-ink-2);
+  }
+  .ar-input {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 14px;
+    border: 1px solid var(--w-line);
+    border-radius: var(--w-r-field);
+    background: #fff;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-16);
+    color: var(--w-ink);
+    outline: none;
+    transition:
+      border-color var(--w-t-fast),
+      box-shadow var(--w-t-fast);
+  }
+  .ar-input::placeholder {
+    color: var(--w-ink-3);
+  }
+  .ar-input:focus {
+    border-color: var(--w-ink-2);
+    box-shadow: 0 0 0 3px rgba(26, 31, 36, 0.12);
+  }
+  .ar-input[aria-invalid="true"] {
+    border-color: var(--w-error);
+  }
+  textarea.ar-input {
+    min-height: 96px;
+    resize: vertical;
+  }
+  .ar-err {
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    line-height: 1.4;
+    color: var(--w-error);
+  }
+  .ar-alert {
+    padding: 12px 14px;
+    border: 1px solid rgba(154, 59, 48, 0.22);
+    border-radius: var(--w-r-field);
+    background: var(--w-error-soft);
+    color: var(--w-error);
+    font-size: var(--w-s-16);
+    line-height: 1.5;
+  }
+  .ar-row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  /* Ritmo interno del diálogo, en clases y no en estilos en línea, para poder
+     apretarlo en pantallas pequeñas sin tocar el componente. */
+  .ar-modal__title {
+    margin-top: 1rem;
+  }
+  .ar-modal__intro {
+    margin-top: 12px;
+    max-width: 42ch;
+  }
+  .ar-modal__form {
+    margin-top: 1.75rem;
+  }
+
+  /* Trampa para bots. Fuera de pantalla, nunca `display: none`: los bots
+     saltan lo que está oculto de forma obvia, y quien navega con lector de
+     pantalla tampoco la encuentra porque el contenedor va `aria-hidden`. */
+  .ar-hp {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  /* Confirmación de envío. Sustituye al formulario, así que hereda su ritmo:
+     ni recuadro, ni icono, ni color de estado. El mensaje ya lo dice todo. */
+  .ar-success {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+    margin-top: 12px;
+  }
+  /* El foco llega aquí por programa, no por tabulación: sin anillo. */
+  .ar-success > p:focus {
+    outline: none;
+  }
+
+  /* ---------- Modal ----------
+     El scroll vive dentro del diálogo, nunca en la capa ni en el body: con la
+     capa scrollable, en móvil el gesto se propagaba a la página de detrás y el
+     panel se movía bajo el teclado virtual. La capa queda fija, el panel se
+     limita a la altura visible real —`dvh`, que descuenta la barra del
+     navegador— y su cuerpo scrollea con `overscroll-behavior: contain`. */
+  .ar-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    background: rgba(8, 12, 16, 0.72);
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
+  .ar-modal__panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(560px, 100%);
+    /* 12px de margen arriba y abajo mientras el viewport lo permita. */
+    max-height: calc(100dvh - 24px);
+    border-radius: var(--w-r);
+    background: var(--w-bg);
+    color: var(--w-ink);
+    animation: ar-rise 220ms var(--w-ease-out) both;
+  }
+  /* Cabecera fija: el control de cierre nunca se va con el scroll. */
+  .ar-modal__head {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 12px 12px clamp(1.5rem, 3.5vw, 2.75rem);
+    border-bottom: 1px solid transparent;
+  }
+  .ar-modal__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 clamp(1.5rem, 3.5vw, 2.75rem);
+    padding-bottom: max(
+      clamp(1.5rem, 3.5vw, 2.75rem),
+      env(safe-area-inset-bottom)
+    );
+  }
+  .ar-modal__close {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--w-ink-2);
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .ar-modal__close:hover {
+    background: var(--w-panel);
+    color: var(--w-ink);
+  }
+  .ar-modal__note {
+    margin: 16px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--w-line);
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    line-height: 1.6;
+    color: var(--w-ink-2);
+  }
+
+  @keyframes ar-rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@layer base {
+  .ar-page {
+    background: var(--w-bg);
+    color: var(--w-ink);
+    font-family: var(--w-font);
+    font-size: var(--w-body);
+    line-height: var(--w-lh-body);
+  }
+  .ar-page :focus-visible {
+    outline: 2px solid var(--w-focus);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  .ar-on-dark :focus-visible {
+    outline-color: var(--w-focus-on-dark);
+  }
+}
+
+@media (max-width: 600px) {
+  /* En una sola columna el separador quedaría colgando al final de línea:
+     se apila la meta y se retira el punto. */
+  .ar-hero__meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+  }
+  .ar-hero__sep {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .ar-snap {
+    grid-template-columns: repeat(
+      min(var(--ar-snap-cols, 3), 2),
+      minmax(0, 1fr)
+    );
+  }
+  .ar-snap__cell {
+    padding: 24px 12px;
+  }
+  .ar-snap__cell:nth-child(2n) {
+    border-right: none;
+  }
+  .ar-snap__cell:nth-child(2n + 1) {
+    border-right: 1px solid var(--w-line);
+  }
+  .ar-snap__cell:nth-child(n + 3) {
+    border-top: 1px solid var(--w-line);
+  }
+  .ar-snap__cell:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    border-right: none;
+  }
+  .ar-row2 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Cubierta a sangre. En móvil, encajada en los gutters, se leía como una
+     fotografía pequeña entre dos bloques de texto en vez de como la pausa que
+     tiene que ser. Llega a los bordes con un margen negativo del propio gutter,
+     así que sigue siendo el contenedor quien manda la medida.
+
+     La proporción 4:3 y el recorte no se tocan: cualquier encuadre más alto
+     perdería la cuarta residencia. El badge se posiciona contra el botón, que
+     conserva su ancho, de modo que mantiene su separación del borde. */
+  .ar-cover__frame {
+    margin-inline: calc(var(--w-gutter) * -1);
+    border-radius: 0;
+  }
+  /* Pegado a los bordes, un anillo por fuera se saldría de la pantalla, así que
+     hay que dibujarlo hacia dentro. Pero `outline-offset` negativo no vale: la
+     imagen va posicionada dentro del marco y se pinta por encima, de modo que
+     el anillo desaparecía por completo. Medido: cero píxeles cambiaban al
+     enfocar. Se pinta como pseudo-elemento, que sí queda por delante.
+
+     Doble aro, blanco por dentro y tinta por fuera: sobre una fotografía
+     ninguno de los dos colores contrasta en todas partes —el cielo es claro y
+     el césped oscuro—, pero juntos siempre se ve uno. Son los dos tokens de
+     foco que ya existen. */
+  .ar-cover:focus-visible .ar-cover__frame {
+    outline: none;
+  }
+  .ar-cover:focus-visible .ar-cover__frame::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    z-index: 1;
+    border: 2px solid var(--w-focus-on-dark);
+    outline: 2px solid var(--w-focus);
+    pointer-events: none;
+  }
+
+  /* Footer apilado: el símbolo abre y todo se centra. */
+  .ar-footer__inner {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+    gap: 24px;
+  }
+  .ar-footer__mark {
+    order: -1;
+  }
+  .ar-footer__contact {
+    text-align: center;
+  }
+
+  /* En pantallas pequeñas el diálogo se aprieta solo donde la separación no
+     aporta lectura. No se tocan ni el cuerpo de campo (16px), ni la altura de
+     los controles, ni las etiquetas, ni el textarea. */
+  .ar-modal__head {
+    padding-left: 20px;
+    padding-right: 8px;
+  }
+  .ar-modal__body {
+    padding-inline: 20px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+  .ar-modal__title {
+    margin-top: 8px;
+  }
+  .ar-modal__intro {
+    margin-top: 8px;
+  }
+  .ar-modal__form {
+    margin-top: 20px;
+    gap: 14px;
+  }
+  .ar-modal__note {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ar-modal__panel {
+    animation: none;
+  }
+  .ar-btn,
+  .ar-input,
+  .ar-btn__label,
+  .ar-btn__disc,
+  .ar-btn__arrow,
+  .ar-cover__img,
+  .ar-cover__badge {
+    transition: none;
+  }
+  .ar-cover:hover .ar-cover__img {
+    transform: none;
+  }
+}

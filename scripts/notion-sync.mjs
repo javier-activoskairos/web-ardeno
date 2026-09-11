@@ -34,7 +34,7 @@ if (!NOTION_TOKEN || !NOTION_WEBS_DB || !NOTION_DEPLOYS_DB) {
   process.exit(0);
 }
 
-// Stack por defecto del boilerplate; ajustar por repo si cambia.
+// Stack del repositorio; ajustar si cambia.
 const STACK = ["Next.js", "TypeScript", "Tailwind", "shadcn/ui"];
 
 const headers = {
@@ -100,7 +100,9 @@ async function createDeploy(webId) {
   const properties = {
     Nombre: { title: [{ text: { content: title } }] },
     "Rama / commit": {
-      rich_text: [{ text: { content: `${BRANCH ?? ""} @ ${shortSha}`.trim() } }],
+      rich_text: [
+        { text: { content: `${BRANCH ?? ""} @ ${shortSha}`.trim() } },
+      ],
     },
     Resultado: { select: { name: "OK" } },
     Web: { relation: [{ id: webId }] },
