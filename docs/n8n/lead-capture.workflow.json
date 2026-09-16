@@ -1,0 +1,283 @@
+{
+  "name": "Ardeno - Captacion de leads (web)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ardeno-lead",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-200, 300],
+      "webhookId": "ardeno-lead"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "leads-db",
+              "name": "leadsDatabaseId",
+              "value": "PEGA_AQUI_EL_ID_DE_LA_BBDD",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "configuracion",
+      "name": "Configuracion",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [20, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Normaliza el lead que llega del endpoint de la web.\n *\n * El email es la clave de deduplicacion, asi que se normaliza aqui y no en\n * cada sitio que lo use: minusculas y sin espacios. Dos personas que escriban\n * \"Ana@Example.com \" y \"ana@example.com\" son la misma.\n *\n * Nada de lo que llega se da por bueno sin mirar: si falta el consentimiento\n * o el email, se corta aqui. El endpoint ya lo valida, pero este webhook es\n * alcanzable por su cuenta y no puede fiarse de quien le llame.\n */\nconst body = $json.body ?? $json;\n\nconst email = String(body?.contact?.email ?? \"\").trim().toLowerCase();\nif (!email) {\n  throw new Error(\"Lead sin email: no hay clave de deduplicacion.\");\n}\nif (body?.consent?.accepted !== true) {\n  throw new Error(\"Lead sin consentimiento aceptado: no se guarda.\");\n}\n\nconst txt = (value, max = 2000) => String(value ?? \"\").slice(0, max);\n\nreturn [{\n  json: {\n    databaseId: $('Configuracion').first().json.leadsDatabaseId,\n    email,\n    name: txt(body?.contact?.name, 200) || email,\n    phone: txt(body?.contact?.phone, 50),\n    reason: txt(body?.reason),\n    projectName: txt(body?.project?.name, 200),\n    consentVersion: txt(body?.consent?.version, 40),\n    consentAt: txt(body?.consent?.acceptedAt, 40),\n    pageUrl: txt(body?.attribution?.pageUrl, 2000),\n    locale: txt(body?.attribution?.locale, 10),\n    utmSource: txt(body?.attribution?.utm_source, 200),\n    utmMedium: txt(body?.attribution?.utm_medium, 200),\n    utmCampaign: txt(body?.attribution?.utm_campaign, 200),\n    utmTerm: txt(body?.attribution?.utm_term, 200),\n    utmContent: txt(body?.attribution?.utm_content, 200),\n    correlationId: txt(body?.correlationId, 60),\n    receivedAt: new Date().toISOString(),\n  },\n}];"
+      },
+      "id": "normalizar",
+      "name": "Normalizar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.notion.com/v1/databases/{{ $json.databaseId }}/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ filter: { property: 'Email', email: { equals: $json.email } }, page_size: 1 }) }}",
+        "options": {}
+      },
+      "id": "buscar-por-email",
+      "name": "Buscar por email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Decide si crear o actualizar, y prepara las propiedades de Notion.\n *\n * La busqueda anterior devuelve como mucho una pagina. Si la hay, este email\n * ya escribio antes: se conserva lo que ya constaba y se suma el envio nuevo.\n *\n * El motivo NO se pisa: se apila debajo del anterior con su fecha. Perder por\n * que escribio alguien la primera vez, para quedarse solo con la ultima frase,\n * seria tirar justo el contexto que hace util un lead repetido.\n */\nconst lead = $('Normalizar').first().json;\nconst found = $json.results ?? [];\nconst existing = found.length > 0 ? found[0] : null;\n\nconst rich = (value) => (value ? [{ text: { content: String(value).slice(0, 2000) } }] : []);\n\nlet reason = lead.reason;\nlet sends = 1;\n\nif (existing) {\n  const previous = (existing.properties?.Motivo?.rich_text ?? [])\n    .map((r) => r.plain_text ?? \"\")\n    .join(\"\");\n  sends = (existing.properties?.[\"Envios\"]?.number ?? existing.properties?.[\"Envíos\"]?.number ?? 1) + 1;\n  if (previous && reason) {\n    reason = `${previous}\\n\\n--- ${lead.receivedAt} ---\\n${reason}`.slice(-2000);\n  } else if (previous) {\n    reason = previous;\n  }\n}\n\nconst properties = {\n  \"Nombre\": { title: [{ text: { content: lead.name.slice(0, 200) } }] },\n  \"Email\": { email: lead.email },\n  \"Teléfono\": lead.phone ? { phone_number: lead.phone } : { phone_number: null },\n  \"Motivo\": { rich_text: rich(reason) },\n  \"Proyecto\": { rich_text: rich(lead.projectName) },\n  \"Consentimiento\": { checkbox: true },\n  \"Fecha de consentimiento\": { date: lead.consentAt ? { start: lead.consentAt } : null },\n  \"Versión del texto aceptado\": { rich_text: rich(lead.consentVersion) },\n  \"Página\": { url: lead.pageUrl || null },\n  \"Idioma\": { rich_text: rich(lead.locale) },\n  \"UTM Source\": { rich_text: rich(lead.utmSource) },\n  \"UTM Medium\": { rich_text: rich(lead.utmMedium) },\n  \"UTM Campaign\": { rich_text: rich(lead.utmCampaign) },\n  \"UTM Term\": { rich_text: rich(lead.utmTerm) },\n  \"UTM Content\": { rich_text: rich(lead.utmContent) },\n  \"Correlation ID\": { rich_text: rich(lead.correlationId) },\n  \"Envíos\": { number: sends },\n  \"Recibido\": { date: { start: lead.receivedAt } },\n};\n\n// El estado solo se pone al crear: si alguien ya lo movio a \"Contactado\",\n// un segundo envio no puede devolverlo a \"Nuevo\".\nif (!existing) {\n  properties[\"Estado\"] = { select: { name: \"Nuevo\" } };\n}\n\nreturn [{\n  json: {\n    exists: Boolean(existing),\n    pageId: existing?.id ?? null,\n    databaseId: lead.databaseId,\n    correlationId: lead.correlationId,\n    properties,\n  },\n}];"
+      },
+      "id": "crear-o-actualizar",
+      "name": "Crear o actualizar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "exists",
+              "leftValue": "={{ $json.exists }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ya-existe?",
+      "name": "Ya existe?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/pages/{{ $json.pageId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ properties: $json.properties }) }}",
+        "options": {}
+      },
+      "id": "actualizar-lead",
+      "name": "Actualizar lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1140, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ parent: { database_id: $json.databaseId }, properties: $json.properties }) }}",
+        "options": {}
+      },
+      "id": "crear-lead",
+      "name": "Crear lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1140, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true }) }}",
+        "options": {}
+      },
+      "id": "responder-200",
+      "name": "Responder 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1400, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Configuracion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuracion": {
+      "main": [
+        [
+          {
+            "node": "Normalizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar": {
+      "main": [
+        [
+          {
+            "node": "Buscar por email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar por email": {
+      "main": [
+        [
+          {
+            "node": "Crear o actualizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear o actualizar": {
+      "main": [
+        [
+          {
+            "node": "Ya existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ya existe?": {
+      "main": [
+        [
+          {
+            "node": "Actualizar lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Crear lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar lead": {
+      "main": [
+        [
+          {
+            "node": "Responder 200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear lead": {
+      "main": [
+        [
+          {
+            "node": "Responder 200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
