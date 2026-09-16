@@ -290,7 +290,11 @@ const PROJECTS = [
   {
     id: "ardeno-720-sherrybrook",
     published: true,
-    slug: "720-sherrybrook",
+    // El slug ES la URL pública: /portfolio/sherrybrook. Corto y sin número de
+    // portal, porque es lo que se lee en un cartel y lo que se teclea. El slug
+    // anterior —`720-sherrybrook`— sigue llegando aquí por la redirección de
+    // `proxy.ts`. Cambiarlo otra vez obliga a añadir otra entrada allí.
+    slug: "sherrybrook",
     name: "720 Sherrybrook",
     city: "Raleigh",
     state: "North Carolina",

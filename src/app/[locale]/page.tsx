@@ -20,7 +20,7 @@ import { routing } from "@/i18n/routing";
  */
 
 const PUBLISHED_LOCALE = "en";
-const TEMPORARY_HOME_TARGET = "/en/portfolio/720-sherrybrook";
+const TEMPORARY_HOME_TARGET = "/portfolio/sherrybrook";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

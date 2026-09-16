@@ -75,7 +75,9 @@ export async function generateMetadata({
     title: project.name,
     description,
     alternates: {
-      canonical: siteUrl(`/${PUBLISHED_LOCALE}/portfolio/${project.slug}`),
+      // Sin prefijo de idioma: el inglés se publica en la raíz (`as-needed` en
+      // `routing.ts`) y `/en/...` redirige aquí.
+      canonical: siteUrl(`/portfolio/${project.slug}`),
     },
     openGraph: {
       siteName: "Ardeno Group",

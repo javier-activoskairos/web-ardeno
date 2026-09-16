@@ -13,14 +13,14 @@ import { siteUrl } from "@/lib/site";
  * Las URL se componen con `siteUrl()` para que salgan del mismo origen
  * normalizado que el canonical y la validación de origen del endpoint.
  */
-const PUBLISHED_LOCALE = "en";
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
   const slugs = await getPublishedProjectSlugs();
 
+  // Sin prefijo de idioma, igual que el canonical: el inglés se publica en la
+  // raíz. El día que se publique el español, sus URL entran aquí prefijadas.
   return slugs.map((slug) => ({
-    url: siteUrl(`/${PUBLISHED_LOCALE}/portfolio/${slug}`),
+    url: siteUrl(`/portfolio/${slug}`),
     lastModified,
   }));
 }

@@ -99,16 +99,22 @@ llegará en su propio bloque.
 
 ## Rutas
 
-| Ruta                            | Estado                                          |
-| ------------------------------- | ----------------------------------------------- |
-| `/`                             | Redirección temporal (307) a la ficha publicada |
-| `/en`                           | Redirección temporal (307) a la ficha publicada |
-| `/en/portfolio/720-sherrybrook` | Publicada                                       |
-| `/es` y todo `/es/*`            | 404 — sin traducción aprobada                   |
+| Ruta                            | Estado                                            |
+| ------------------------------- | ------------------------------------------------- |
+| `/`                             | Redirección temporal (307) a la ficha publicada   |
+| `/portfolio/sherrybrook`        | Publicada                                         |
+| `/en` y `/en/*`                 | Redirección (307) a su forma sin prefijo          |
+| `/en/portfolio/720-sherrybrook` | Redirección (307) a `/portfolio/sherrybrook`      |
+| `/es` y todo `/es/*`            | 404 — sin traducción aprobada                     |
 
 Todavía no existe home. `src/app/[locale]/page.tsx` es donde vivirá; mientras
 tanto, [`src/proxy.ts`](src/proxy.ts) manda `/` directamente a la ficha, de un
 solo salto, en vez de encadenar `/` → `/en` → ficha.
+
+El inglés se sirve sin prefijo de idioma (`localePrefix: "as-needed"`): la URL
+publicada es la que se imprime en carteles y códigos QR, y un `/en/` que no
+distingue nada solo la alarga. Los slugs retirados —hoy `720-sherrybrook`— se
+redirigen en `proxy.ts`, así que ningún enlace ya compartido se rompe.
 
 ## Idiomas
 

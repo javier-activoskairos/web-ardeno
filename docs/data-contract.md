@@ -85,7 +85,12 @@ respaldo.
 | Para qué     | relacionar sistemas      | ser la URL                     |
 | ¿Se muestra? | nunca                    | sí, en la barra de direcciones |
 | ¿Cambia?     | no, jamás                | sí, es de marketing            |
-| Ejemplo      | `ardeno-720-sherrybrook` | `720-sherrybrook`              |
+| Ejemplo      | `ardeno-720-sherrybrook` | `sherrybrook`                  |
+
+El slug es además la URL completa de la ficha —`/portfolio/<slug>`, sin prefijo
+de idioma—. Al cambiarlo, el anterior se añade a `RETIRED_SLUGS` en
+[`src/proxy.ts`](../src/proxy.ts) para que los enlaces ya repartidos sigan
+llegando.
 
 El `id` es la clave estable. El formulario ya lo envía —junto al slug— en cada
 lead: así una landing puede cambiar de URL sin romper los leads ya capturados ni
