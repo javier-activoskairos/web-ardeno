@@ -1,0 +1,410 @@
+{
+  "name": "Ardeno - Captacion de leads (web)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ardeno-lead",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-320, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c",
+              "name": "contactsDb",
+              "value": "4727d008-d0b2-826d-a141-01d175f7b55d",
+              "type": "string"
+            },
+            {
+              "id": "f",
+              "name": "followUpsDb",
+              "value": "a627d008-d0b2-8270-aab4-0107e065f6d2",
+              "type": "string"
+            },
+            {
+              "id": "p",
+              "name": "projectsDb",
+              "value": "3cb7d008-d0b2-8091-9513-c336bdb5a155",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "configuracion",
+      "name": "Configuracion",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-100, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Normaliza el lead que llega de /api/interest.\n *\n * El email es la clave de deduplicacion a nivel de CONTACTO, asi que se\n * normaliza aqui y no en cada sitio que lo use: minusculas y sin espacios.\n *\n * Este webhook es alcanzable por su cuenta, asi que no se fia de quien le\n * llame aunque el endpoint web ya valide lo mismo.\n */\nconst body = $json.body ?? $json;\n\nconst email = String(body?.contact?.email ?? '').trim().toLowerCase();\nif (!email) throw new Error('Lead sin email: no hay clave de deduplicacion.');\nif (body?.consent?.accepted !== true) throw new Error('Lead sin consentimiento: no se guarda.');\n\nconst txt = (v, max = 2000) => String(v ?? '').slice(0, max);\n\nconst fullName = txt(body?.contact?.name, 200) || email;\n// El CRM separa nombre y apellidos; el formulario pide un solo campo.\n// Se parte por el primer espacio, que acierta en la mayoria y no inventa nada:\n// lo que llego entero sigue estando en \"Full Name\".\nconst parts = fullName.split(/\\s+/);\nconst firstName = parts[0] ?? '';\nconst lastName = parts.slice(1).join(' ');\n\nreturn [{\n  json: {\n    email,\n    fullName,\n    firstName,\n    lastName,\n    phone: txt(body?.contact?.phone, 50),\n    reason: txt(body?.reason),\n    projectName: txt(body?.project?.name, 200),\n    projectSlug: txt(body?.project?.slug, 200),\n    consentVersion: txt(body?.consent?.version, 40),\n    consentAt: txt(body?.consent?.acceptedAt, 40),\n    pageUrl: txt(body?.attribution?.pageUrl, 2000),\n    locale: txt(body?.attribution?.locale, 10),\n    utmSource: txt(body?.attribution?.utm_source, 200),\n    utmMedium: txt(body?.attribution?.utm_medium, 200),\n    utmCampaign: txt(body?.attribution?.utm_campaign, 200),\n    utmTerm: txt(body?.attribution?.utm_term, 200),\n    utmContent: txt(body?.attribution?.utm_content, 200),\n    correlationId: txt(body?.correlationId, 60),\n    receivedAt: new Date().toISOString(),\n    contactsDb: $('Configuracion').first().json.contactsDb,\n    followUpsDb: $('Configuracion').first().json.followUpsDb,\n    projectsDb: $('Configuracion').first().json.projectsDb,\n  },\n}];"
+      },
+      "id": "normalizar",
+      "name": "Normalizar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [120, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.notion.com/v1/databases/{{ $json.contactsDb }}/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ filter: { property: 'Email', email: { equals: $json.email } }, page_size: 1 }) }}",
+        "options": {}
+      },
+      "id": "buscar-contacto",
+      "name": "Buscar contacto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [340, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Decide si el contacto es nuevo y arma sus propiedades.\n *\n * Status y Source SOLO se escriben al crear. Si alguien del equipo ya movio el\n * contacto a \"Customer\", un formulario posterior no puede devolverlo a\n * \"Interested\"; y si entro por referido, la web no puede reescribir su origen.\n *\n * Telefono y nombre si se refrescan: es el dato mas reciente que ha dado la\n * propia persona. Un valor vacio nunca pisa uno que ya existe.\n */\nconst lead = $('Normalizar').first().json;\nconst found = $json.results ?? [];\nconst existing = found.length > 0 ? found[0] : null;\n\nconst rich = (v) => (v ? [{ text: { content: String(v).slice(0, 2000) } }] : []);\n\nconst properties = {\n  'Full Name': { title: [{ text: { content: lead.fullName.slice(0, 200) } }] },\n  'Email': { email: lead.email },\n};\n\nif (lead.firstName) properties['Name'] = { rich_text: rich(lead.firstName) };\nif (lead.lastName) properties['Last Name'] = { rich_text: rich(lead.lastName) };\nif (lead.phone) properties['Phone'] = { phone_number: lead.phone };\n\nif (!existing) {\n  properties['Status'] = { status: { name: 'Interested' } };\n  properties['Source'] = { select: { name: 'Web' } };\n}\n\nreturn [{\n  json: {\n    exists: Boolean(existing),\n    contactPageId: existing?.id ?? null,\n    contactsDb: lead.contactsDb,\n    properties,\n  },\n}];"
+      },
+      "id": "preparar-contacto",
+      "name": "Preparar contacto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [560, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e",
+              "leftValue": "={{ $json.exists }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "contacto-existe",
+      "name": "Contacto existe?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/pages/{{ $json.contactPageId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ properties: $json.properties }) }}",
+        "options": {}
+      },
+      "id": "actualizar-contacto",
+      "name": "Actualizar contacto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, 180]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ parent: { database_id: $json.contactsDb }, properties: $json.properties }) }}",
+        "options": {}
+      },
+      "id": "crear-contacto",
+      "name": "Crear contacto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Unifica las dos ramas: lo unico que hace falta despues es el id.\nreturn [{ json: { contactId: $json.id } }];"
+      },
+      "id": "contacto-listo",
+      "name": "Contacto listo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.notion.com/v1/databases/{{ $('Normalizar').first().json.projectsDb }}/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ filter: { property: 'Slug', rich_text: { equals: $('Normalizar').first().json.projectSlug } }, page_size: 1 }) }}",
+        "options": {}
+      },
+      "id": "buscar-proyecto",
+      "name": "Buscar proyecto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Arma el Follow-up del envio.\n *\n * Un registro por envio, no uno por persona: cinco consultas de la misma\n * direccion son cinco Follow-ups bajo el mismo contacto. Asi el historial sale\n * solo y no hay que apilar texto dentro de un campo.\n *\n * El proyecto se enlaza por slug. Si no aparece en el CRM se deja la relacion\n * vacia y su nombre queda en el titulo: mejor un lead sin relacion que un lead\n * colgado del proyecto equivocado.\n */\nconst lead = $('Normalizar').first().json;\nconst contactId = $('Contacto listo').first().json.contactId;\nconst projectMatches = $json.results ?? [];\nconst projectId = projectMatches.length > 0 ? projectMatches[0].id : null;\n\nconst rich = (v) => (v ? [{ text: { content: String(v).slice(0, 2000) } }] : []);\nconst title = `Web enquiry — ${lead.projectName || 'Ardeno'} — ${lead.fullName}`;\n\nconst properties = {\n  'Follow-up': { title: [{ text: { content: title.slice(0, 200) } }] },\n  'Type': { select: { name: 'Web enquiry' } },\n  'Client': { relation: [{ id: contactId }] },\n  'Notes': { rich_text: rich(lead.reason) },\n  'Scheduled': { date: { start: lead.receivedAt } },\n  'Page URL': { url: lead.pageUrl || null },\n  'Language': { rich_text: rich(lead.locale) },\n  'UTM Source': { rich_text: rich(lead.utmSource) },\n  'UTM Medium': { rich_text: rich(lead.utmMedium) },\n  'UTM Campaign': { rich_text: rich(lead.utmCampaign) },\n  'UTM Term': { rich_text: rich(lead.utmTerm) },\n  'UTM Content': { rich_text: rich(lead.utmContent) },\n  'Consent': { checkbox: true },\n  'Consent date': { date: lead.consentAt ? { start: lead.consentAt } : null },\n  'Consent version': { rich_text: rich(lead.consentVersion) },\n  'Correlation ID': { rich_text: rich(lead.correlationId) },\n};\n\nif (projectId) properties['Project'] = { relation: [{ id: projectId }] };\n\nreturn [{ json: { followUpsDb: lead.followUpsDb, properties } }];"
+      },
+      "id": "preparar-follow-up",
+      "name": "Preparar follow-up",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ parent: { database_id: $json.followUpsDb }, properties: $json.properties }) }}",
+        "options": {}
+      },
+      "id": "crear-follow-up",
+      "name": "Crear follow-up",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true }) }}",
+        "options": {}
+      },
+      "id": "responder-200",
+      "name": "Responder 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2120, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Configuracion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuracion": {
+      "main": [
+        [
+          {
+            "node": "Normalizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar": {
+      "main": [
+        [
+          {
+            "node": "Buscar contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar contacto": {
+      "main": [
+        [
+          {
+            "node": "Preparar contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar contacto": {
+      "main": [
+        [
+          {
+            "node": "Contacto existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contacto existe?": {
+      "main": [
+        [
+          {
+            "node": "Actualizar contacto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Crear contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar contacto": {
+      "main": [
+        [
+          {
+            "node": "Contacto listo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear contacto": {
+      "main": [
+        [
+          {
+            "node": "Contacto listo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contacto listo": {
+      "main": [
+        [
+          {
+            "node": "Buscar proyecto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar proyecto": {
+      "main": [
+        [
+          {
+            "node": "Preparar follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar follow-up": {
+      "main": [
+        [
+          {
+            "node": "Crear follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear follow-up": {
+      "main": [
+        [
+          {
+            "node": "Responder 200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

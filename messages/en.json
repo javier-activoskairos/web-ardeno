@@ -1,20 +1,11 @@
 {
   "Metadata": {
-    "title": "Kairos Boilerplate",
-    "description": "Base template of the Activos Kairos Web Factory."
+    "title": "Ardeno Group",
+    "description": "Ardeno Group is a real estate developer in North Carolina."
   },
-  "Home": {
-    "badge": "Kairos Web Factory",
-    "title": "Base template ready to ship",
-    "subtitle": "Next.js + TypeScript + Tailwind + shadcn/ui, multilingual and deployable on Render. Clone it, swap the brand tokens and publish.",
-    "ctaPrimary": "Get started",
-    "ctaSecondary": "Documentation",
-    "featuresTitle": "Included out of the box",
-    "feature1Title": "Multilingual",
-    "feature1Body": "i18n routing with next-intl in the same repo.",
-    "feature2Title": "Design system",
-    "feature2Body": "Brand tokens and shadcn/ui components.",
-    "feature3Title": "Deploy + previews",
-    "feature3Body": "Render with per-branch previews and production on main."
+  "NotFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for is not available.",
+    "action": "Go to Ardeno Group"
   }
 }
