@@ -345,15 +345,15 @@ const PROJECTS = [
       {
         src: "/projects/720-sherrybrook/kitchen-island.jpg",
         alt: "Kitchen with a white quartz island and light oak cabinetry.",
-        width: 1602,
-        height: 942,
+        width: 1920,
+        height: 1415,
         caption: "Kitchen",
       },
       {
         src: "/projects/720-sherrybrook/dining-living.jpg",
-        alt: "Open dining and living area on the ground floor.",
-        width: 1912,
-        height: 1118,
+        alt: "Open dining and living area on the ground floor, beside the slatted stair screen.",
+        width: 1920,
+        height: 1470,
         caption: "Dining and living",
       },
       {
@@ -364,11 +364,25 @@ const PROJECTS = [
         caption: "Primary suite",
       },
       {
+        src: "/projects/720-sherrybrook/kitchen-pantry.jpg",
+        alt: "Kitchen seen towards the glazed pantry wall and the doors onto the patio.",
+        width: 1920,
+        height: 1413,
+        caption: "Kitchen and pantry",
+      },
+      {
         src: "/projects/720-sherrybrook/primary-bathroom.jpg",
         alt: "Secondary bathroom with double vanity and walk-in shower.",
         width: 1448,
         height: 1086,
         caption: "Secondary bathroom",
+      },
+      {
+        src: "/projects/720-sherrybrook/upper-balcony.jpg",
+        alt: "Upper balcony at dusk, with the office behind the glazed doors.",
+        width: 1447,
+        height: 1087,
+        caption: "Upper balcony",
       },
     ],
     story: {

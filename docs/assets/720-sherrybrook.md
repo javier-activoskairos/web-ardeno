@@ -58,18 +58,31 @@ Todos en `public/projects/720-sherrybrook/`.
 | ---------------------- | -------- | ----------: | -----: |
 | `front-elevation.jpg`  | Hero     |   1920×1278 | 646 KB |
 | `rear-elevation.jpg`   | Cubierta |   1920×1278 | 499 KB |
-| `kitchen-island.jpg`   | Galería  |    1602×942 | 253 KB |
-| `dining-living.jpg`    | Galería  |   1912×1118 | 390 KB |
+| `kitchen-island.jpg`   | Galería  |   1920×1415 | 570 KB |
+| `kitchen-pantry.jpg`   | Galería  |   1920×1413 | 533 KB |
+| `dining-living.jpg`    | Galería  |   1920×1470 | 703 KB |
 | `primary-suite.jpg`    | Galería  |   1448×1086 | 264 KB |
 | `primary-bathroom.jpg` | Galería  |   1448×1086 | 206 KB |
-| `private-balcony.jpg`  | Galería  |   1448×1086 | 306 KB |
-| `home-office.jpg`      | Galería  |   1419×1064 | 215 KB |
+| `upper-balcony.jpg`    | Galería  |   1447×1087 | 561 KB |
+| `private-balcony.jpg`  | Sin usar |   1448×1086 | 306 KB |
+| `home-office.jpg`      | Sin usar |   1419×1064 | 215 KB |
 
-Total: 2,2 MB. JPEG sRGB sin canal alfa.
+Total: 4,1 MB. JPEG sRGB sin canal alfa.
 
 Cocina y comedor se sustituyeron el 9 de septiembre de 2026 por una segunda
 extracción del brochure, sin la franja de mobiliario suelto que arrastraba el
 borde inferior de las primeras.
+
+El 16 de septiembre de 2026 llegaron renders propios de Ardeno, ya no
+extraídos del brochure: `kitchen-island.jpg` y `dining-living.jpg` se
+sustituyeron por ellos, y entraron `kitchen-pantry.jpg` y `upper-balcony.jpg`.
+Vienen como PNG de 2.200–2.400 px y se convierten a JPEG con
+`sips -s format jpeg -s formatOptions 88`, limitando el ancho a 1920 px
+(`--resampleWidth 1920`) para no pasar de los pesos de la tabla.
+
+`upper-balcony.jpg` es una revisión del encuadre de `private-balcony.jpg`
+—misma resolución, barandilla y fachada distintas, y el despacho visible al
+fondo—, pero se guarda aparte: el antiguo no se toca.
 
 ## Sustitución
 
