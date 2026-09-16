@@ -1,7 +1,8 @@
 # Captación de interés
 
-> **La captación nace apagada y debe seguir apagada en producción.**
-> No es una cuestión técnica: falta la política de privacidad. Lee
+> **La captación sigue apagada.** Ya no por falta de política ni de
+> consentimiento —los dos están hechos—, sino porque todavía no hay webhook de
+> n8n ni base de leads al otro lado. Lee
 > [Antes de encenderla](#antes-de-encenderla) antes de tocar el interruptor.
 
 ## Arquitectura
@@ -81,6 +82,43 @@ confirmación recibe el foco y el control de cierre queda a un tabulador.
 
 El cuerpo lleva solo `status` y `correlationId`. Nada personal.
 
+## Consentimiento
+
+La casilla es obligatoria y nace desmarcada. No hay envío sin ella: el
+formulario no deja continuar y el endpoint **rechaza con 400** cualquier
+petición sin `consentAccepted: true`, venga o no de la página. Sin
+consentimiento no hay base sobre la que tratar el dato, así que el lead no se
+reenvía a ningún sitio.
+
+El texto vive en [`src/lib/consent.ts`](../src/lib/consent.ts), partido en los
+tres trozos que lo componen —lo de antes del enlace, el enlace y lo de
+después—. Formulario y servidor se sirven de la misma fuente, así que no
+pueden acabar diciendo cosas distintas.
+
+**El navegador nunca envía el texto, solo la versión.** El servidor resuelve
+qué decía esa versión y la sella con su propia hora. Así ningún cliente puede
+declarar que se aceptó algo que no se llegó a enseñar. Al webhook viaja:
+
+```json
+"consent": {
+  "accepted": true,
+  "version": "2026-09-16",
+  "text": "By submitting this form, you agree that…",
+  "acceptedAt": "2026-09-16T15:59:56.022Z"
+}
+```
+
+Si la versión que llega no es la vigente, el envío se rechaza. Ocurre cuando
+alguien tenía la página abierta mientras se aprobaba un texto nuevo: al
+recargar acepta el actual. Es preferible perder un envío a guardar un
+consentimiento contra un texto que esa persona no leyó.
+
+### Al cambiar el texto
+
+Subir `CONSENT_VERSION` a la fecha del nuevo texto aprobado. **Nunca reescribir
+una versión existente:** los consentimientos ya guardados conservan la suya, y
+eso es justo lo que hay que poder demostrar más adelante.
+
 ## Datos tratados
 
 Del formulario: nombre, correo, teléfono y un motivo opcional.
@@ -156,17 +194,17 @@ Sin CAPTCHA. Si el correo basura pasa estas capas, entonces se plantea uno.
 
 Encender el interruptor **no basta**. Falta, y es bloqueante:
 
-1. **Política de privacidad publicada.** Hoy no existe ni la página ni el
-   texto. Un formulario que recoge nombre, correo y teléfono la necesita.
-2. **Texto de consentimiento o casilla aprobados**, y enlazados a esa política.
-   No se ha añadido nada todavía porque no hay texto que enlazar, y una casilla
-   que apunte a una página inexistente sería peor que ninguna.
+1. ~~**Política de privacidad publicada.**~~ **Hecho.** Vive en
+   `/privacy-policy` (ver [privacy-policy.md](privacy-policy.md)).
+2. ~~**Texto de consentimiento o casilla aprobados.**~~ **Hecho.** Casilla
+   obligatoria enlazada a la política; ver [Consentimiento](#consentimiento).
 3. **Webhook de n8n** en la instancia de Ardeno, con su secreto.
 4. **BBDD de contactos/leads** definida, con sus propiedades.
 5. **Persona receptora** del aviso y por qué canal.
 
-Configurar solo el webhook y encender el interruptor dejaría el sitio
-recogiendo datos personales sin base legal visible. **No lo hagas.**
+Quedan los tres últimos, y son los que impiden encender el interruptor:
+sin webhook ni base de datos al otro lado, un envío correcto acabaría en un
+`upstream_error` y el dato se perdería.
 
 ## Deduplicación
 

@@ -2067,6 +2067,57 @@
     min-height: 96px;
     resize: vertical;
   }
+  /* ---------- Consentimiento ----------
+     Casilla y texto legal, alineados por su primera línea. El texto es letra
+     pequeña —es una salvedad, no argumento de venta— pero no tan pequeña como
+     una nota al pie: hay que poder leerla, porque de ella depende que el envío
+     sea lícito.
+
+     La casilla se pinta a 18px y con el color de marca en el estado marcado
+     (`accent-color`), en vez de redibujarla con un `<span>`: un control nativo
+     lo anuncian bien todos los lectores de pantalla y funciona con el teclado
+     sin escribir una línea de JavaScript. */
+  .ar-consent {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 6px 10px;
+    margin-top: 4px;
+  }
+  .ar-consent__box {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    /* Centra la casilla sobre la primera línea del texto, que es de 14px con
+       interlineado 1.5: (21 - 18) / 2. */
+    transform: translateY(1.5px);
+    accent-color: var(--w-navy);
+    flex: none;
+    cursor: pointer;
+  }
+  .ar-consent__text {
+    margin: 0;
+    font-size: var(--w-s-14);
+    line-height: 1.5;
+    letter-spacing: var(--w-ls-body);
+    color: var(--w-ink-2);
+    cursor: pointer;
+    text-wrap: pretty;
+  }
+  .ar-consent__text a {
+    color: var(--w-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* El error arranca bajo el texto, no bajo la casilla. */
+  .ar-consent__err {
+    grid-column: 2;
+  }
+  .ar-consent__box[aria-invalid="true"] {
+    outline: 2px solid var(--w-error);
+    outline-offset: 2px;
+  }
+
   .ar-err {
     font-family: var(--w-font-ui);
     font-size: var(--w-s-14);

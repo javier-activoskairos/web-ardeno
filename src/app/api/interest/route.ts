@@ -1,5 +1,6 @@
 import { getPublicProject } from "@/lib/projects";
 import { SITE_URL } from "@/lib/site";
+import { CONSENT_TEXT, CONSENT_VERSION } from "@/lib/consent";
 
 /**
  * Captación de interés — POST /api/interest
@@ -275,6 +276,24 @@ export async function POST(request: Request): Promise<Response> {
   const locale = text(input.locale ?? "", MAX.locale);
   const clientSubmittedAt = text(input.submittedAt ?? "", 40);
 
+  /*
+   * Consentimiento: se comprueba aquí y no solo en el navegador.
+   *
+   * La casilla del formulario es lo que ve quien lo rellena, pero una petición
+   * a este endpoint puede llegar sin pasar por ella. Sin consentimiento
+   * aceptado no hay base sobre la que tratar el dato, así que el lead no se
+   * reenvía: se rechaza como petición inválida.
+   *
+   * La versión tiene que ser exactamente la vigente. Si el texto se actualiza
+   * mientras alguien tiene la página abierta, su envío se rechaza en lugar de
+   * registrarse contra un texto que no llegó a leer; al recargar acepta el
+   * nuevo. Es preferible perder un envío a guardar un consentimiento falso.
+   */
+  if (input.consentAccepted !== true) return done("invalid_request");
+  if (text(input.consentVersion, 40) !== CONSENT_VERSION) {
+    return done("invalid_request");
+  }
+
   if (
     !name ||
     !email ||
@@ -330,6 +349,15 @@ export async function POST(request: Request): Promise<Response> {
       phone: lead.phone,
     },
     reason: lead.reason,
+    /* El texto y la hora salen del servidor, no del navegador: es lo que hay
+       que poder demostrar más adelante —qué se aceptó y cuándo—, así que no
+       puede depender de lo que declare un cliente. */
+    consent: {
+      accepted: true,
+      version: CONSENT_VERSION,
+      text: CONSENT_TEXT,
+      acceptedAt: new Date().toISOString(),
+    },
     attribution: {
       pageUrl: lead.pageUrl,
       queryString: lead.queryString,

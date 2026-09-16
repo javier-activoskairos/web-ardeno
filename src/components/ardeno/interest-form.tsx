@@ -8,12 +8,18 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import Link from "next/link";
 import {
   ArdenoButton,
   ArdenoField,
   ArdenoInput,
   ArdenoTextarea,
 } from "./primitives";
+import {
+  CONSENT_SEGMENTS,
+  CONSENT_VERSION,
+  PRIVACY_POLICY_PATH,
+} from "@/lib/consent";
 
 /**
  * Formulario de captación — "Contact us".
@@ -47,7 +53,14 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const EMPTY_VALUES = { name: "", email: "", phone: "", reason: "" };
 
 type FieldName = keyof typeof EMPTY_VALUES;
-type Errors = Partial<Record<FieldName, string>>;
+
+/*
+ * El consentimiento no es un campo de texto: es una casilla, y su error se
+ * pinta debajo del propio texto legal y no dentro de un `ArdenoField`. Por eso
+ * entra en el mapa de errores pero no en `EMPTY_VALUES`.
+ */
+type ErrorName = FieldName | "consent";
+type Errors = Partial<Record<ErrorName, string>>;
 
 const UTM_KEYS = [
   "utm_source",
@@ -91,6 +104,9 @@ export function InterestForm({
   className?: string;
 }) {
   const [values, setValues] = useState(EMPTY_VALUES);
+  // Desmarcada de salida, siempre. Un consentimiento premarcado no es
+  // consentimiento: tiene que haber un gesto deliberado de quien lo da.
+  const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [state, setState] = useState<InterestSubmitState>("idle");
 
@@ -102,13 +118,13 @@ export function InterestForm({
   const successRef = useRef<HTMLParagraphElement | null>(null);
   // Referencias a los controles obligatorios: permiten llevar el foco al
   // primer campo inválido sin depender de que React ya haya pintado el DOM.
-  const inputRefs = useRef<Partial<Record<FieldName, HTMLInputElement | null>>>(
+  const inputRefs = useRef<Partial<Record<ErrorName, HTMLInputElement | null>>>(
     {},
   );
 
   const ids = useId();
   const fieldId = useCallback(
-    (name: FieldName | "company") => `${ids}-${name}`,
+    (name: ErrorName | "company") => `${ids}-${name}`,
     [ids],
   );
 
@@ -162,10 +178,16 @@ export function InterestForm({
     }
     if (!values.phone.trim())
       nextErrors.phone = "Please enter your phone number.";
+    if (!consent) {
+      nextErrors.consent =
+        "Please accept the privacy terms before sending your enquiry.";
+    }
 
     setErrors(nextErrors);
 
-    const firstInvalid = (["name", "email", "phone"] as const).find(
+    // La casilla va la última a propósito: si falta el nombre y además el
+    // consentimiento, el foco tiene que ir al principio del formulario.
+    const firstInvalid = (["name", "email", "phone", "consent"] as const).find(
       (field) => nextErrors[field],
     );
 
@@ -196,6 +218,11 @@ export function InterestForm({
           locale: document.documentElement.lang,
           submittedAt: new Date().toISOString(),
           utm: utmRef.current,
+          /* Solo el hecho y la versión. El texto y la hora los pone el
+             servidor desde `src/lib/consent.ts`: si el navegador pudiera
+             mandar el texto, podría declarar que se aceptó otra cosa. */
+          consentAccepted: true,
+          consentVersion: CONSENT_VERSION,
         }),
       });
 
@@ -211,6 +238,7 @@ export function InterestForm({
       // El éxito solo se pinta tras un 200 de verdad.
       setState("success");
       setValues(EMPTY_VALUES);
+      setConsent(false);
       setErrors({});
     } catch {
       setState("error");
@@ -338,6 +366,58 @@ export function InterestForm({
           onChange={setField("reason")}
         />
       </ArdenoField>
+
+      {/* Consentimiento.
+
+          Casilla de verdad —no un «al enviar aceptas» escrito al pie—, porque
+          la política declara que se atienden derechos del RGPD de la UE y del
+          Reino Unido, y ahí el consentimiento tiene que ser un acto afirmativo
+          y separable del resto del formulario.
+
+          El texto es un solo `<label>`: así toda la frase es zona de clic y
+          quien navega con lector de pantalla oye la casilla junto a aquello
+          que está aceptando, no una casilla sin nombre. El enlace a la
+          política abre en otra pestaña a propósito: desde el modal, navegar
+          en la misma pestaña vaciaría el formulario a medio rellenar. */}
+      <div className="ar-consent">
+        <input
+          id={fieldId("consent")}
+          name="consent"
+          type="checkbox"
+          className="ar-consent__box"
+          checked={consent}
+          onChange={(event) => {
+            setConsent(event.target.checked);
+            setErrors((current) => ({ ...current, consent: undefined }));
+          }}
+          ref={(el) => {
+            inputRefs.current.consent = el;
+          }}
+          aria-invalid={errors.consent ? "true" : undefined}
+          aria-describedby={
+            errors.consent ? `${fieldId("consent")}-error` : undefined
+          }
+        />
+        <label htmlFor={fieldId("consent")} className="ar-consent__text">
+          {CONSENT_SEGMENTS.before}
+          <Link
+            href={PRIVACY_POLICY_PATH}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {CONSENT_SEGMENTS.link}
+          </Link>
+          {CONSENT_SEGMENTS.after}
+        </label>
+        {errors.consent ? (
+          <span
+            className="ar-err ar-consent__err"
+            id={`${fieldId("consent")}-error`}
+          >
+            {errors.consent}
+          </span>
+        ) : null}
+      </div>
 
       {/* Las dos superficies del formulario son claras, así que el CTA medido
           del sitio real se puede usar tal cual en ambas. */}
