@@ -1638,6 +1638,78 @@
     margin: 0;
   }
 
+  /* ---------- Documento legal ----------
+     Política de privacidad y lo que venga después —términos, aviso legal—.
+     Treinta párrafos seguidos sin una sola imagen: lo único que importa aquí
+     es que se pueda leer, así que la página no decora, solo mide.
+
+     Va en la columna editorial (760px) y no en el contenedor de sitio: a
+     1360px la línea pasaría de 150 caracteres. Los párrafos sueltan su propia
+     medida porque ya la impone la columna; con las dos activas el texto
+     quedaba en unos 62 caracteres dentro de una caja de 760 y se leía como un
+     bloque descentrado. */
+  .ar-doc__head {
+    padding-bottom: clamp(28px, 4vw, 40px);
+    margin-bottom: clamp(28px, 4vw, 40px);
+    border-bottom: 1px solid var(--w-line);
+  }
+  .ar-doc__title {
+    margin-top: 20px;
+  }
+  /* La fecha de última actualización, en el tono más apagado de la escala: es
+     un dato de control del documento, no parte de lo que hay que leer. */
+  .ar-doc__meta {
+    margin: 16px 0 0;
+    font-family: var(--w-font-ui);
+    font-size: var(--w-s-14);
+    letter-spacing: var(--w-ls-label);
+    text-transform: uppercase;
+    color: var(--w-ink-3);
+  }
+  .ar-doc__intro {
+    max-width: none;
+  }
+  .ar-doc__section {
+    margin-top: clamp(36px, 5vw, 50px);
+  }
+  /* Un peldaño por encima del cuerpo y bastante por debajo del titular. Con
+     `.ar-display` (45px) cada apartado se leería como el arranque de una
+     página nueva y el documento se rompía en catorce trozos. */
+  .ar-doc__heading {
+    margin: 0 0 20px;
+    font-size: var(--w-s-22);
+    font-weight: var(--w-fw-regular);
+    line-height: 1.2;
+    letter-spacing: var(--w-ls-display);
+    color: var(--w-ink);
+  }
+  .ar-doc__p {
+    max-width: none;
+  }
+  .ar-doc__p + .ar-doc__p {
+    margin-top: 20px;
+  }
+  /* Doble clase por lo mismo que en los capítulos: `.ar-list` declara
+     `margin: 0` y vive más abajo en esta hoja. */
+  .ar-list.ar-doc__list {
+    margin-top: 28px;
+    border-top: 1px solid var(--w-line);
+    border-bottom: 1px solid var(--w-line);
+  }
+  /* El renglón parte en dos antes que desbordar: un correo largo a 320px no
+     cabe junto a su etiqueta, y la página no scrollea en horizontal. */
+  .ar-doc__list li {
+    flex-wrap: wrap;
+  }
+  .ar-doc__list .ar-list__val {
+    overflow-wrap: anywhere;
+  }
+  .ar-doc__list a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
   /* ---------- Pie de imagen ---------- */
   .ar-cap {
     margin: 10px 0 0;

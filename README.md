@@ -99,13 +99,14 @@ llegará en su propio bloque.
 
 ## Rutas
 
-| Ruta                            | Estado                                            |
-| ------------------------------- | ------------------------------------------------- |
-| `/`                             | Redirección temporal (307) a la ficha publicada   |
-| `/portfolio/sherrybrook`        | Publicada                                         |
-| `/en` y `/en/*`                 | Redirección (307) a su forma sin prefijo          |
-| `/en/portfolio/720-sherrybrook` | Redirección (307) a `/portfolio/sherrybrook`      |
-| `/es` y todo `/es/*`            | 404 — sin traducción aprobada                     |
+| Ruta                            | Estado                                                           |
+| ------------------------------- | ---------------------------------------------------------------- |
+| `/`                             | Redirección temporal (307) a la ficha publicada                  |
+| `/portfolio/sherrybrook`        | Publicada                                                        |
+| `/privacy-policy`               | Publicada (ver [docs/privacy-policy.md](docs/privacy-policy.md)) |
+| `/en` y `/en/*`                 | Redirección (307) a su forma sin prefijo                         |
+| `/en/portfolio/720-sherrybrook` | Redirección (307) a `/portfolio/sherrybrook`                     |
+| `/es` y todo `/es/*`            | 404 — sin traducción aprobada                                    |
 
 Todavía no existe home. `src/app/[locale]/page.tsx` es donde vivirá; mientras
 tanto, [`src/proxy.ts`](src/proxy.ts) manda `/` directamente a la ficha, de un

@@ -19,8 +19,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Sin prefijo de idioma, igual que el canonical: el inglés se publica en la
   // raíz. El día que se publique el español, sus URL entran aquí prefijadas.
-  return slugs.map((slug) => ({
-    url: siteUrl(`/portfolio/${slug}`),
-    lastModified,
-  }));
+  return [
+    ...slugs.map((slug) => ({
+      url: siteUrl(`/portfolio/${slug}`),
+      lastModified,
+    })),
+    // La política de privacidad es una página publicada más, y además la que
+    // un buscador espera encontrar en un sitio que recoge datos personales.
+    { url: siteUrl("/privacy-policy"), lastModified },
+  ];
 }

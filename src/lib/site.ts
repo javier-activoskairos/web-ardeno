@@ -22,6 +22,20 @@
 /* ------------------------------------------------------------- Contacto */
 
 export const CONTACT_EMAIL = "contact@ardenogroup.com";
+
+/**
+ * La web corporativa de Ardeno Group.
+ *
+ * No es `SITE_URL`: esto son las fichas de proyecto, que viven en su propio
+ * dominio. La corporativa es un sitio distinto, y la política de privacidad la
+ * nombra como tal. Por eso es una constante y no se deriva del entorno: el
+ * documento legal dice esa dirección, no la del despliegue que lo sirve.
+ *
+ * `LABEL` es como se escribe en el texto —sin esquema, tal cual consta en el
+ * documento aprobado— y la otra es la forma enlazable.
+ */
+export const COMPANY_WEBSITE_LABEL = "www.ardenogroup.com";
+export const COMPANY_WEBSITE = "https://www.ardenogroup.com";
 export const CONTACT_PHONE = "+1 (984) 999-8856";
 /** Forma marcable del teléfono, para el `href` de `tel:`. */
 export const CONTACT_PHONE_HREF = "+19849998856";
