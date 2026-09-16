@@ -122,7 +122,12 @@ redirigen en `proxy.ts`, así que ningún enlace ya compartido se rompe.
 - Configuración: [`src/i18n/routing.ts`](src/i18n/routing.ts).
 - Textos: [`messages/en.json`](messages/en.json) y
   [`messages/es.json`](messages/es.json).
-- `localePrefix: "always"` → ambos idiomas llevan prefijo (`/en/...`, `/es/...`).
+- `localePrefix: "as-needed"` → el inglés se sirve sin prefijo y el español lo
+  conserva (`/es/...`).
+- `localeDetection: false` → **no se mira el idioma del navegador**. Con la
+  detección activada, quien tuviera el navegador en español era redirigido a
+  `/es/...` y recibía un 404 en la única ficha publicada. Vuelve a activarse
+  cuando exista el español.
 - `alternateLinks: false` → **no se anuncia la alternativa española** mientras
   `/es/portfolio/[slug]` devuelva 404. `es` sigue declarado en `locales`: la
   arquitectura no cambia y publicar el español será volver a activarlo cuando

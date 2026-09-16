@@ -17,6 +17,25 @@ export const routing = defineRouting({
   defaultLocale: "en",
   localePrefix: "as-needed",
   /*
+   * Sin detección automática de idioma.
+   *
+   * Por defecto next-intl mira la cabecera `Accept-Language` del navegador y,
+   * si pide español, redirige a `/es/...` —que hoy devuelve 404, porque no hay
+   * traducción aprobada—. El resultado es que cualquier visitante con el
+   * navegador en español recibía una página no encontrada en la única ficha
+   * publicada, y una parte del público comprador de Ardeno navega en español.
+   *
+   * Con la detección apagada, todo el mundo recibe el inglés, que es lo único
+   * que existe. Quien quiera español puede seguir escribiendo `/es/...` a mano;
+   * seguirá siendo 404 hasta que haya contenido, pero por haberlo pedido, no
+   * por el idioma de su navegador.
+   *
+   * Esto se vuelve a poner en `true` —o se quita, que es el valor por defecto—
+   * el día que exista el español publicado. Va junto a `alternateLinks`: las
+   * dos protegen lo mismo y las dos se retiran a la vez.
+   */
+  localeDetection: false,
+  /*
    * Sin cabecera `Link` de alternativas.
    *
    * Por defecto next-intl anuncia una alternativa por idioma declarado, así que
